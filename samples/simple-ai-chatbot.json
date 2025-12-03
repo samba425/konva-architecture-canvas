@@ -1,0 +1,121 @@
+{
+  "version": "1.0",
+  "created": "2025-12-03T16:00:00.000Z",
+  "canvas": {
+    "width": 1200,
+    "height": 800,
+    "scale": 1,
+    "position": { "x": 0, "y": 0 }
+  },
+  "shapes": [
+    {
+      "id": "title-1",
+      "type": "Text",
+      "x": 400,
+      "y": 100,
+      "rotation": 0,
+      "text": "Simple AI Chatbot Architecture",
+      "fontSize": 28,
+      "fontFamily": "Arial",
+      "fill": "#1a1a1a",
+      "width": 400,
+      "align": "center"
+    },
+    {
+      "id": "chatbot-zone",
+      "type": "Rect",
+      "x": 150,
+      "y": 220,
+      "rotation": 0,
+      "width": 900,
+      "height": 300,
+      "fill": "rgba(99, 102, 241, 0.08)",
+      "stroke": "#6366f1",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "zone-label",
+      "type": "Text",
+      "x": 170,
+      "y": 235,
+      "rotation": 0,
+      "text": "AI Processing Pipeline",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#6366f1",
+      "fontStyle": "bold",
+      "width": 250
+    },
+    {
+      "id": "comp-user",
+      "type": "Group",
+      "x": 220,
+      "y": 320,
+      "rotation": 0,
+      "componentName": "User Interface",
+      "componentIcon": "💬",
+      "faIcon": "fas fa-comments",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "comp-gpt4",
+      "type": "Group",
+      "x": 520,
+      "y": 320,
+      "rotation": 0,
+      "componentName": "GPT-4 Model",
+      "componentIcon": "🤖",
+      "faIcon": "fas fa-robot",
+      "color": "#10b981"
+    },
+    {
+      "id": "comp-vector",
+      "type": "Group",
+      "x": 820,
+      "y": 320,
+      "rotation": 0,
+      "componentName": "Pinecone DB",
+      "componentIcon": "🌲",
+      "faIcon": "fas fa-database",
+      "color": "#0ea5e9"
+    },
+    {
+      "id": "arrow-1",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [380, 370, 520, 370],
+      "stroke": "#3b82f6",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-2",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [680, 370, 820, 370],
+      "stroke": "#10b981",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-return",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [820, 420, 380, 420],
+      "stroke": "#0ea5e9",
+      "strokeWidth": 2.5,
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [5, 5]
+    }
+  ]
+}

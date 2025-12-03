@@ -1,0 +1,189 @@
+{
+  "version": "1.0",
+  "created": "2025-12-03T16:00:00.000Z",
+  "canvas": {
+    "width": 1600,
+    "height": 1000,
+    "scale": 1,
+    "position": { "x": 0, "y": 0 }
+  },
+  "shapes": [
+    {
+      "id": "title-1",
+      "type": "Text",
+      "x": 450,
+      "y": 30,
+      "rotation": 0,
+      "text": "AWS Serverless Architecture",
+      "fontSize": 28,
+      "fontFamily": "Arial",
+      "fill": "#1a1a1a",
+      "width": 500,
+      "align": "center"
+    },
+    {
+      "id": "comp-lb",
+      "type": "Group",
+      "x": 200,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "Load Balancer",
+      "componentIcon": "⚖️",
+      "faIcon": "fas fa-balance-scale",
+      "color": "#0078D4"
+    },
+    {
+      "id": "comp-gateway",
+      "type": "Group",
+      "x": 500,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "API Gateway",
+      "componentIcon": "🚪",
+      "faIcon": "fas fa-door-open",
+      "color": "#FF9900"
+    },
+    {
+      "id": "comp-lambda-1",
+      "type": "Group",
+      "x": 850,
+      "y": 120,
+      "rotation": 0,
+      "componentName": "Lambda Function 1",
+      "componentIcon": "⚡",
+      "faIcon": "fas fa-bolt",
+      "color": "#FF9900"
+    },
+    {
+      "id": "comp-lambda-2",
+      "type": "Group",
+      "x": 850,
+      "y": 280,
+      "rotation": 0,
+      "componentName": "Lambda Function 2",
+      "componentIcon": "⚡",
+      "faIcon": "fas fa-bolt",
+      "color": "#FF9900"
+    },
+    {
+      "id": "comp-dynamodb",
+      "type": "Group",
+      "x": 1150,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "DynamoDB",
+      "componentIcon": "📦",
+      "faIcon": "fas fa-database",
+      "color": "#4053D6"
+    },
+    {
+      "id": "comp-s3",
+      "type": "Group",
+      "x": 500,
+      "y": 420,
+      "rotation": 0,
+      "componentName": "S3 Storage",
+      "componentIcon": "🪣",
+      "faIcon": "fas fa-cloud",
+      "color": "#569A31"
+    },
+    {
+      "id": "comp-cloudwatch",
+      "type": "Group",
+      "x": 1150,
+      "y": 420,
+      "rotation": 0,
+      "componentName": "CloudWatch",
+      "componentIcon": "�",
+      "faIcon": "fas fa-chart-line",
+      "color": "#FF4F8B"
+    },
+    {
+      "id": "arrow-1",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [360, 250, 500, 250],
+      "stroke": "#0078D4",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-2",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [660, 220, 850, 170],
+      "stroke": "#FF9900",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-3",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [660, 260, 850, 310],
+      "stroke": "#FF9900",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-4",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [1010, 170, 1150, 220],
+      "stroke": "#4053D6",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-5",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [1010, 330, 1150, 280],
+      "stroke": "#4053D6",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-6",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [930, 360, 930, 420],
+      "stroke": "#569A31",
+      "strokeWidth": 2.5,
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [5, 5]
+    },
+    {
+      "id": "arrow-7",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [1000, 200, 1150, 420],
+      "stroke": "#FF4F8B",
+      "strokeWidth": 2,
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [5, 5]
+    }
+  ]
+}
+

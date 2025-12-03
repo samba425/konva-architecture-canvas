@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  solutions-builder-ai:
+    container_name: solutions-builder-ai
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      # Mount source code for hot reload in development
+      - ./src:/app/src
+      - ./public:/app/public
+      # Prevent overwriting node_modules
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    networks:
+      - solutions-network
+
+networks:
+  solutions-network:
+    driver: bridge

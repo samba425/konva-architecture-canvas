@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "Cisco HyperFlex HX-Series",
+      "icon": "💾",
+      "color": "#049FD9",
+      "x": 100,
+      "y": 300
+    },
+    {
+      "id": "node-2",
+      "name": "Cisco UCS C240 M6",
+      "icon": "🖥️",
+      "color": "#049FD9",
+      "x": 450,
+      "y": 200
+    },
+    {
+      "id": "node-3",
+      "name": "Cisco Nexus 9000",
+      "icon": "🔌",
+      "color": "#049FD9",
+      "x": 800,
+      "y": 300
+    },
+    {
+      "id": "node-4",
+      "name": "Cisco Intersight",
+      "icon": "☁️",
+      "color": "#049FD9",
+      "x": 450,
+      "y": 50
+    },
+    {
+      "id": "node-5",
+      "name": "NVIDIA A100 GPU (x4)",
+      "icon": "🎮",
+      "color": "#76B900",
+      "x": 450,
+      "y": 450
+    }
+  ],
+  "connections": [
+    {
+      "from": "node-2",
+      "to": "node-1",
+      "label": "iSCSI/NVMe"
+    },
+    {
+      "from": "node-2",
+      "to": "node-3",
+      "label": "10GbE"
+    },
+    {
+      "from": "node-4",
+      "to": "node-2",
+      "label": "REST API"
+    },
+    {
+      "from": "node-2",
+      "to": "node-5",
+      "label": "PCIe"
+    }
+  ]
+}

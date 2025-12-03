@@ -1,0 +1,408 @@
+<div class="konva-container" [class.light-theme]="!isDarkTheme()">
+  <div class="main-content">
+    <!-- Left Sidebar -->
+    <div class="sidebar" [class.closed]="!sidebarOpen()">
+      <!-- Toggle button on right border - Lighter design -->
+      <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen() ? 'Hide Sidebar' : 'Show Sidebar'">
+        <span class="toggle-icon">{{ sidebarOpen() ? '‹' : '›' }}</span>
+      </button>
+      
+      <!-- Search Input at Top -->
+      <div class="sidebar-search">
+        <input 
+          type="text" 
+          class="search-input"
+          placeholder="🔍 Search components..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+
+      <!-- Categories Container (Full Height Scrollable) -->
+      <div class="categories-container">
+        <div 
+          *ngFor="let category of getFilteredCategories()"
+          class="category"
+        >
+          <div 
+            class="category-header"
+            (click)="toggleCategory(category)"
+          >
+            <span class="category-icon">
+              <i [class]="category.icon"></i>
+            </span>
+            <span class="category-name">{{ category.name }}</span>
+            <span class="category-toggle-icon">{{ category.collapsed ? '›' : '‹' }}</span>
+          </div>
+
+          <div class="category-items" *ngIf="!category.collapsed">
+            <div 
+              *ngFor="let component of category.components"
+              class="service-item"
+              draggable="true"
+              (dragstart)="onDragStart($event, component)"
+              [style.border-left-color]="component.color"
+            >
+              <div class="service-icon" [style.color]="component.color">
+                <!-- Show Font Awesome icon if available, otherwise show emoji -->
+                <i *ngIf="component.faIcon" [class]="component.faIcon"></i>
+                <span *ngIf="!component.faIcon">{{ component.icon }}</span>
+              </div>
+              <div class="service-content">
+                <div class="service-header">
+                  <div class="service-name">{{ component.name }}</div>
+                  <div *ngIf="component.provider" class="service-provider">{{ component.provider }}</div>
+                </div>
+                <div class="service-description">{{ component.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="getFilteredCategories().length === 0" class="empty-state">
+          <p>No components found</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="canvas-wrapper">
+      <div 
+        #canvasContainer
+        (drop)="onCanvasDrop($event)"
+        (dragover)="$event.preventDefault()"
+        style="width: 100%; height: 100%;"
+      >
+      </div>
+      
+      <!-- Compact TLDraw-Style Right Panel (Draggable Card) -->
+      <div class="compact-style-panel draggable-panel" #stylePanel>
+        <div class="panel-drag-handle">⋮⋮</div>
+      <!-- Colors - 4x3 Grid -->
+      <div class="colors-grid">
+        <button
+          *ngFor="let color of compactColors"
+          class="color-circle"
+          [class.active]="currentColor() === color"
+          [style.background-color]="color"
+          (click)="setColor(color)"
+          [title]="color"
+        ></button>
+      </div>
+      
+      <!-- Color Opacity Slider (Low to High Intensity) -->
+      <div class="slider-section opacity-slider">
+        <div class="slider-track-gradient" [style.background]="'linear-gradient(to right, transparent, ' + currentColor() + ')'"></div>
+        <input 
+          type="range" 
+          min="0" 
+          max="100" 
+          [value]="colorOpacity()"
+          (input)="setColorOpacity(+$any($event.target).value)"
+          class="compact-slider opacity-range"
+          title="Color intensity: {{ colorOpacity() }}%"
+        />
+      </div>
+      
+      <!-- Stroke Width Slider -->
+      <div class="slider-section">
+        <input 
+          type="range" 
+          min="1" 
+          max="20" 
+          [value]="strokeWidth()"
+          (input)="setStrokeWidth(+$any($event.target).value)"
+          class="compact-slider"
+        />
+      </div>
+      
+      <!-- Fill Patterns - 4 Squares -->
+      <div class="fill-patterns">
+        <button 
+          class="pattern-btn"
+          [class.active]="fillStyle() === 'solid'"
+          (click)="setFillStyle('solid')"
+          title="Solid fill"
+        >
+          <div class="pattern-square solid"></div>
+        </button>
+        <button 
+          class="pattern-btn"
+          [class.active]="fillStyle() === 'hatch'"
+          (click)="setFillStyle('hatch')"
+          title="Overlapping"
+        >
+          <div class="pattern-square overlapping"></div>
+        </button>
+        <button 
+          class="pattern-btn"
+          [class.active]="fillStyle() === 'cross-hatch'"
+          (click)="setFillStyle('cross-hatch')"
+          title="Double square"
+        >
+          <div class="pattern-square double"></div>
+        </button>
+        <button 
+          class="pattern-btn"
+          [class.active]="fillStyle() === 'dotted'"
+          (click)="setFillStyle('dotted')"
+          title="Pattern"
+        >
+          <div class="pattern-square pattern"></div>
+        </button>
+      </div>
+      
+      <!-- Stroke Patterns - 4 Circles -->
+      <div class="stroke-patterns">
+        <button 
+          class="pattern-btn"
+          [class.active]="strokePattern === 'solid'"
+          (click)="setStrokePattern('solid')"
+          title="Solid stroke"
+        >
+          <div class="pattern-circle solid"></div>
+        </button>
+        <button 
+          class="pattern-btn"
+          [class.active]="strokePattern === 'dashed'"
+          (click)="setStrokePattern('dashed')"
+          title="Dashed"
+        >
+          <div class="pattern-circle dashed"></div>
+        </button>
+        <button 
+          class="pattern-btn"
+          [class.active]="strokePattern === 'dotted'"
+          (click)="setStrokePattern('dotted')"
+          title="Dotted"
+        >
+          <div class="pattern-circle dotted"></div>
+        </button>
+        <button 
+          class="pattern-btn"
+          [class.active]="strokePattern === 'none'"
+          (click)="setStrokePattern('none')"
+          title="No stroke"
+        >
+          <div class="pattern-circle none"></div>
+        </button>
+      </div>
+      
+      <!-- Size Presets -->
+      <div class="size-presets">
+        <button 
+          class="size-circle"
+          [class.active]="sizePreset() === 'small'"
+          (click)="setSizePreset('small')"
+          title="Small"
+        >S</button>
+        <button 
+          class="size-circle"
+          [class.active]="sizePreset() === 'medium'"
+          (click)="setSizePreset('medium')"
+          title="Medium"
+        >M</button>
+        <button 
+          class="size-circle"
+          [class.active]="sizePreset() === 'large'"
+          (click)="setSizePreset('large')"
+          title="Large"
+        >L</button>
+        <button 
+          class="size-circle"
+          [class.active]="sizePreset() === 'xlarge'"
+          (click)="setSizePreset('xlarge')"
+          title="Extra Large"
+        >XL</button>
+      </div>
+      
+      <!-- Font Size - 4 Aa Buttons -->
+      <div class="font-size-options">
+        <button 
+          class="font-btn"
+          [class.active]="fontSize() === 12"
+          (click)="setFontSize(12)"
+          title="Small Text"
+        >
+          <span style="font-size: 10px; font-weight: 500;">Aa</span>
+        </button>
+        <button 
+          class="font-btn"
+          [class.active]="fontSize() === 16"
+          (click)="setFontSize(16)"
+          title="Medium Text"
+        >
+          <span style="font-size: 13px; font-weight: 500;">Aa</span>
+        </button>
+        <button 
+          class="font-btn"
+          [class.active]="fontSize() === 24"
+          (click)="setFontSize(24)"
+          title="Large Text"
+        >
+          <span style="font-size: 16px; font-weight: 500;">Aa</span>
+        </button>
+        <button 
+          class="font-btn"
+          [class.active]="fontSize() === 32"
+          (click)="setFontSize(32)"
+          title="Extra Large Text"
+        >
+          <span style="font-size: 19px; font-weight: 600;">Aa</span>
+        </button>
+      </div>
+      
+      <!-- Text Alignment - 4 Buttons -->
+      <div class="text-align-options">
+        <button 
+          class="align-btn"
+          [class.active]="textAlign() === 'left'"
+          (click)="setTextAlign('left')"
+          title="Align Left"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <line x1="2" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="2" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="2" y1="12" x2="8" y2="12" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <button 
+          class="align-btn"
+          [class.active]="textAlign() === 'center'"
+          (click)="setTextAlign('center')"
+          title="Align Center"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <line x1="2" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="3" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="5" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <button 
+          class="align-btn"
+          [class.active]="textAlign() === 'right'"
+          (click)="setTextAlign('right')"
+          title="Align Right"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <line x1="2" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="8" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <button 
+          class="align-btn"
+          [class.active]="textAlign() === 'justify'"
+          (click)="setTextAlign('justify')"
+          title="Justify"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <line x1="2" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="2" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="2" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Horizontal Toolbar at Top (Draggable) -->
+    <div class="right-top-toolbar draggable-panel" #toolbar>
+      <div class="panel-drag-handle">⋮⋮</div>
+      <!-- Drawing Tools -->
+      <button class="h-tool-btn" [class.active]="currentTool() === 'select'" (click)="setTool('select')" title="Select (V)">↖️</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'hand'" (click)="setTool('hand')" title="Hand (H)">✋</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'pen'" (click)="setTool('pen')" title="Pen (P)">✏️</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'rectangle'" (click)="setTool('rectangle')" title="Rectangle (R)">▭</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'circle'" (click)="setTool('circle')" title="Circle (C)">○</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'arrow'" (click)="setTool('arrow')" title="Arrow (A)">→</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'line'" (click)="setTool('line')" title="Line (L)">─</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'text'" (click)="setTool('text')" title="Text (T)">T</button>
+      <button class="h-tool-btn" #shapePickerBtn [class.active]="currentTool() === 'shape'" (click)="toggleShapePicker($event)" title="Shapes">◇</button>
+      <button class="h-tool-btn" (click)="triggerImageUpload()" title="Upload Image">🖼️</button>
+      
+      <div class="h-divider"></div>
+      
+      <!-- Actions -->
+      <button class="h-tool-btn" (click)="generateAILayout()" title="AI Auto-generate">✨</button>
+      <button class="h-tool-btn" (click)="createGroup()" title="Group selected (⌘G)">📦</button>
+      <button class="h-tool-btn" (click)="clearCanvas()" title="Clear canvas">🗑️</button>
+      
+      <div class="h-divider"></div>
+      
+      <!-- Zoom Controls -->
+      <button class="h-tool-btn zoom-btn" (click)="zoomIn()" title="Zoom in">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+          <line x1="11" y1="8" x2="11" y2="14"/>
+          <line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" (click)="resetZoom()" title="Reset zoom">100%</button>
+      <button class="h-tool-btn zoom-btn" (click)="zoomOut()" title="Zoom out">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+          <line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn zoom-btn" (click)="zoomToFit()" title="Fit to screen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+      </button>
+      
+      <div class="h-divider"></div>
+      
+      <!-- Grid Toggle -->
+      <button class="h-tool-btn" (click)="toggleGrid()" [title]="showGrid() ? 'Hide Grid' : 'Show Grid'">
+        {{ showGrid() ? '▦' : '▢' }}
+      </button>
+      
+      <!-- Theme Toggle -->
+      <button class="h-tool-btn" (click)="toggleTheme()" [title]="isDarkTheme() ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+        {{ isDarkTheme() ? '☀️' : '🌙' }}
+      </button>
+      
+      <div class="h-divider"></div>
+      
+      <!-- Export/Import -->
+      <button class="h-tool-btn" (click)="exportToPNG()" title="Export PNG">🖼️</button>
+      <button class="h-tool-btn" (click)="exportToSVG()" title="Export SVG">📐</button>
+      <button class="h-tool-btn" (click)="exportToJSON()" title="Save JSON">💾</button>
+      <button class="h-tool-btn" (click)="importFromJSON()" title="Load JSON">📂</button>
+    </div>
+    
+    <!-- Hidden file input for image upload -->
+    <input 
+      type="file" 
+      #imageUpload 
+      accept="image/*" 
+      (change)="onImageUpload($event)" 
+      style="display: none;"
+    />
+    
+    <!-- Shape Picker Popup (Inline, not modal) -->
+    <div class="shape-picker-backdrop" *ngIf="showShapePicker()" (click)="toggleShapePicker()"></div>
+    <div class="shape-picker-popup" *ngIf="showShapePicker()" 
+         [style.top]="shapePickerPosition.top" 
+         [style.right]="shapePickerPosition.right">
+      <div class="shape-picker-grid-compact">
+        <button
+          *ngFor="let shape of shapeTemplates"
+          class="shape-btn-compact"
+          [class.active]="selectedShape() === shape.id"
+          (click)="selectShapeTemplate(shape.id)"
+          [title]="shape.name"
+        >
+          <span class="shape-icon-compact">{{ shape.icon }}</span>
+        </button>
+      </div>
+    </div>
+    
+  </div>
+</div>
