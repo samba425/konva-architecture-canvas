@@ -1,0 +1,46 @@
+{
+  "name": "konva-architecture-canvas",
+  "version": "1.0.0",
+  "description": "A powerful Angular component for creating interactive architecture diagrams with Konva.js. Features 47+ pre-built components, nested grouping, color customization, and export/import functionality.",
+  "keywords": [
+    "angular",
+    "konva",
+    "canvas",
+    "architecture",
+    "diagram",
+    "visualization",
+    "drag-drop",
+    "component-library",
+    "infrastructure",
+    "ai-architecture",
+    "diagram-builder",
+    "visual-editor"
+  ],
+  "author": {
+    "name": "Sambasiva Rao",
+    "email": "asiva325@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samba425/konva-architecture-canvas.git"
+  },
+  "homepage": "https://github.com/samba425/konva-architecture-canvas#readme",
+  "bugs": {
+    "url": "https://github.com/samba425/konva-architecture-canvas/issues"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "konva": "^10.0.12"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=10.0.0"
+  },
+  "sideEffects": false
+}

@@ -6,6 +6,11 @@
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
+    "paths": {
+      "konva-canvas-builder": [
+        "./dist/konva-canvas-builder"
+      ]
+    },
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
@@ -28,6 +33,12 @@
     },
     {
       "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/konva-canvas-builder/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/konva-canvas-builder/tsconfig.spec.json"
     }
   ]
 }
