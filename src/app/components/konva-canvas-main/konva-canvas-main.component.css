@@ -1065,16 +1065,16 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 190px;
+  width: 220px;
   background: rgba(30, 30, 30, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 18px 18px 22px 18px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   z-index: 1001; /* Higher than sidebar to stay on top */
@@ -1089,6 +1089,50 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
+/* Color Mode Toggle (Stroke/Fill) */
+.color-mode-toggle {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.mode-btn {
+  flex: 1;
+  height: 36px;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid rgba(74, 74, 74, 0.6);
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.mode-btn:hover {
+  border-color: #6a6a6a;
+  background: rgba(74, 74, 74, 0.8);
+  color: #ffffff;
+}
+
+.mode-btn.active {
+  background: #3b82f6;
+  border-color: #ffffff;
+  color: #ffffff;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 2px 12px rgba(59, 130, 246, 0.4);
+}
+
+.mode-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Colors Grid - 4x3 */
 .colors-grid {
   display: grid;
@@ -1098,24 +1142,42 @@
 }
 
 .color-circle {
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .color-circle:hover {
-  transform: scale(1.15);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
 .color-circle.active {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-  transform: scale(1.2);
+  border-color: #ffffff;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 4px 16px rgba(59, 130, 246, 0.4);
+  transform: scale(1.15);
+}
+
+.color-circle.active::before {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 /* Slider Section */
@@ -1194,11 +1256,11 @@
 }
 
 .pattern-btn {
-  width: 18px;
-  height: 18px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
+  width: 32px;
+  height: 32px;
+  background: rgba(42, 42, 42, 0.5);
+  border: 2px solid rgba(74, 74, 74, 0.5);
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
@@ -1208,13 +1270,18 @@
 }
 
 .pattern-btn:hover {
-  border-color: #4a4a4a;
-  transform: scale(1.1);
+  border-color: #6a6a6a;
+  background: rgba(74, 74, 74, 0.5);
+  transform: scale(1.05);
 }
 
 .pattern-btn.active {
   border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.15);
+  box-shadow: 
+    0 0 0 2px rgba(59, 130, 246, 0.3),
+    0 2px 8px rgba(59, 130, 246, 0.2);
+  transform: scale(1.1);
 }
 
 .pattern-square {
@@ -1302,13 +1369,13 @@
 }
 
 .size-circle {
-  width: 20px;
-  height: 20px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #2a2a2a;
-  border: 1px solid #4a4a4a;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid rgba(74, 74, 74, 0.6);
   color: #ffffff;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1320,13 +1387,18 @@
 
 .size-circle:hover {
   border-color: #6a6a6a;
-  transform: scale(1.1);
+  background: rgba(74, 74, 74, 0.8);
+  transform: scale(1.05);
 }
 
 .size-circle.active {
   background: #3b82f6;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: #ffffff;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 2px 12px rgba(59, 130, 246, 0.4);
+  transform: scale(1.1);
 }
 
 /* Font Size Options */
@@ -1339,11 +1411,11 @@
 }
 
 .font-btn {
-  width: 36px;
-  height: 30px;
-  border-radius: 6px;
-  background: #2a2a2a;
-  border: 1px solid #4a4a4a;
+  width: 42px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid rgba(74, 74, 74, 0.6);
   color: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1355,13 +1427,19 @@
 
 .font-btn:hover {
   border-color: #6a6a6a;
+  background: rgba(74, 74, 74, 0.8);
   transform: scale(1.05);
 }
 
 .font-btn.active {
   background: #3b82f6;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: #ffffff;
+  color: #ffffff;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 2px 12px rgba(59, 130, 246, 0.4);
+  transform: scale(1.08);
 }
 
 /* Text Alignment Options */
@@ -1374,11 +1452,11 @@
 }
 
 .align-btn {
-  width: 36px;
-  height: 30px;
-  border-radius: 6px;
-  background: #2a2a2a;
-  border: 1px solid #4a4a4a;
+  width: 42px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid rgba(74, 74, 74, 0.6);
   color: #94a3b8;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1390,15 +1468,20 @@
 
 .align-btn:hover {
   border-color: #6a6a6a;
-  background: #333333;
+  background: rgba(74, 74, 74, 0.8);
   color: #ffffff;
+  transform: scale(1.05);
 }
 
 .align-btn.active {
   background: #3b82f6;
-  border-color: #3b82f6;
+  border-color: #ffffff;
   color: #ffffff;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 2px 12px rgba(59, 130, 246, 0.4);
+  transform: scale(1.08);
 }
 
 .align-btn svg {
@@ -1503,27 +1586,58 @@
   color: #1a1a1a;
 }
 
+/* Light theme - Color mode toggle */
+.konva-container.light-theme .mode-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+}
+
+.konva-container.light-theme .mode-btn:hover {
+  border-color: #3b82f6;
+  background: rgba(255, 255, 255, 1);
+}
+
+.konva-container.light-theme .mode-btn.active {
+  background: #3b82f6;
+  border-color: #ffffff;
+  color: #ffffff;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 2px 12px rgba(59, 130, 246, 0.3);
+}
+
 .konva-container.light-theme .color-circle {
-  border: 2px solid #d0d0d0;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .konva-container.light-theme .color-circle.active {
-  border: 2px solid #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  border-color: #ffffff;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+.konva-container.light-theme .color-circle.active::before {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .konva-container.light-theme .stroke-btn,
 .konva-container.light-theme .fill-btn,
 .konva-container.light-theme .size-circle {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid #d0d0d0;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.15);
   color: #1a1a1a;
 }
 
 .konva-container.light-theme .stroke-btn:hover,
 .konva-container.light-theme .fill-btn:hover,
 .konva-container.light-theme .size-circle:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 1);
   border-color: #3b82f6;
 }
 
@@ -1533,22 +1647,26 @@
 .konva-container.light-theme .font-btn.active,
 .konva-container.light-theme .align-btn.active {
   background: #3b82f6;
-  border-color: #3b82f6;
+  border-color: #ffffff;
   color: white;
+  box-shadow: 
+    0 0 0 2px #3b82f6,
+    0 0 0 4px rgba(59, 130, 246, 0.3),
+    0 2px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Light theme - Font and Align buttons */
 .konva-container.light-theme .font-btn,
 .konva-container.light-theme .align-btn {
-  background: white;
-  border: 1px solid #d0d0d0;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.15);
   color: #1a1a1a;
 }
 
 .konva-container.light-theme .font-btn:hover,
 .konva-container.light-theme .align-btn:hover {
   border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(255, 255, 255, 1);
 }
 
 .konva-container.light-theme .panel-drag-handle {
@@ -1567,16 +1685,21 @@
 
 /* Light theme - Pattern buttons */
 .konva-container.light-theme .pattern-btn {
-  border: 1px solid #d0d0d0;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.15);
 }
 
 .konva-container.light-theme .pattern-btn:hover {
   border-color: #3b82f6;
+  background: rgba(255, 255, 255, 1);
 }
 
 .konva-container.light-theme .pattern-btn.active {
   border-color: #3b82f6;
   background: rgba(59, 130, 246, 0.15);
+  box-shadow: 
+    0 0 0 2px rgba(59, 130, 246, 0.3),
+    0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 /* Light theme - Pattern squares */

@@ -1,5 +1,5 @@
 {
-  "name": "solutions-builder-ai",
+  "name": "architecture-builder",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:solutions-builder-ai": "node dist/solutions-builder-ai/server/server.mjs"
+    "serve:ssr:architecture-builder": "node dist/architecture-builder/server/server.mjs"
   },
   "prettier": {
     "printWidth": 100,

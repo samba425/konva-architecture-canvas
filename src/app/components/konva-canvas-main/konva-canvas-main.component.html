@@ -78,14 +78,39 @@
       <!-- Compact TLDraw-Style Right Panel (Draggable Card) -->
       <div class="compact-style-panel draggable-panel" #stylePanel>
         <div class="panel-drag-handle">⋮⋮</div>
+      
+      <!-- Color Mode Toggle (Stroke/Fill) -->
+      <div class="color-mode-toggle">
+        <button 
+          class="mode-btn"
+          [class.active]="colorMode() === 'stroke'"
+          (click)="setColorMode('stroke')"
+          title="Border/Stroke Color"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+        </button>
+        <button 
+          class="mode-btn"
+          [class.active]="colorMode() === 'fill'"
+          (click)="setColorMode('fill')"
+          title="Fill Color"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+        </button>
+      </div>
+      
       <!-- Colors - 4x3 Grid -->
       <div class="colors-grid">
         <button
           *ngFor="let color of compactColors"
           class="color-circle"
-          [class.active]="currentColor() === color"
+          [class.active]="getCurrentModeColor() === color"
           [style.background-color]="color"
-          (click)="setColor(color)"
+          (click)="setCurrentModeColor(color)"
           [title]="color"
         ></button>
       </div>

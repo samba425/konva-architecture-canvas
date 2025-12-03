@@ -65,6 +65,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   private lastPointerPosition: { x: number; y: number } | null = null;
   private readonly gridSize = 50;
   
+  // Selection rectangle for multi-select
+  private selectionRectangle: Konva.Rect | null = null;
+  private isSelecting = false;
+  private selectionStartPos: { x: number; y: number } | null = null;
+  
   // Icon cache for Font Awesome icons (similar to cytoscape implementation)
   private iconCache: Map<string, string> = new Map();
   private readonly ICON_CACHE_KEY = 'konva-iconify-cache';
@@ -88,7 +93,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // Style properties
   currentColor = signal('#3b82f6');
-  colorOpacity = signal(100); // Color intensity/opacity from 0-100
+  strokeColor = signal('#3b82f6'); // Border/stroke color
+  fillColor = signal('#3b82f6'); // Fill color
+  colorMode = signal<'stroke' | 'fill'>('stroke'); // Current color mode being edited
+  colorOpacity = signal(100); // Current mode color intensity/opacity from 0-100
+  strokeOpacity = signal(100); // Stroke opacity
+  fillOpacity = signal(50); // Fill opacity (default 50% for transparency)
   strokeWidth = signal(2);
   fillStyle = signal<FillStyle>('solid');
   sizePreset = signal<SizePreset>('medium');
@@ -426,15 +436,21 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.drawingLayer = new Konva.Layer();
     this.stage.add(this.drawingLayer);
     
-    // Create transformer for shape manipulation
+    // Create transformer for shape manipulation with enhanced visibility
     this.transformer = new Konva.Transformer({
-      borderStroke: '#667eea',
-      borderStrokeWidth: 2,
-      anchorFill: '#667eea',
-      anchorStroke: '#2a2a2a',
-      anchorSize: 12,
+      borderStroke: '#3b82f6',
+      borderStrokeWidth: 3,
+      anchorFill: '#3b82f6',
+      anchorStroke: '#ffffff',
+      anchorStrokeWidth: 2,
+      anchorSize: 14,
+      anchorCornerRadius: 3,
       rotateEnabled: true,
-      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      padding: 5,
+      // Add visual emphasis
+      keepRatio: false,
+      centeredScaling: false
     });
     this.layer.add(this.transformer);
     
@@ -538,11 +554,63 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.drawInfiniteGrid();
   }
   
+  /**
+   * Get pointer position in stage coordinates (accounting for zoom and pan)
+   */
+  private getRelativePointerPosition(): { x: number; y: number } | null {
+    const pos = this.stage.getPointerPosition();
+    if (!pos) return null;
+    
+    const transform = this.stage.getAbsoluteTransform().copy();
+    transform.invert();
+    
+    return transform.point(pos);
+  }
+  
+  /**
+   * Add selection highlight to a shape (blue glow effect)
+   */
+  private addSelectionHighlight(node: any): void {
+    // Check if node has shadow methods (Shapes do, Groups might not)
+    if (typeof node.shadowEnabled === 'function') {
+      // Store original shadow state if not already stored
+      if (node.attrs.originalShadow === undefined) {
+        node.attrs.originalShadow = node.shadowEnabled();
+      }
+      
+      // Add selection highlight - blue glow effect
+      node.shadowEnabled(true);
+      node.shadowColor('#3b82f6');
+      node.shadowBlur(20);
+      node.shadowOpacity(0.6);
+      node.shadowOffset({ x: 0, y: 0 });
+    } else {
+      // For Groups and other nodes without shadow support, just mark as selected
+      node.attrs.isHighlighted = true;
+    }
+  }
+  
+  /**
+   * Remove selection highlight from a shape
+   */
+  private removeSelectionHighlight(node: any): void {
+    if (typeof node.shadowEnabled === 'function') {
+      if (node.attrs.originalShadow !== undefined) {
+        node.shadowEnabled(node.attrs.originalShadow);
+      } else {
+        node.shadowEnabled(false);
+      }
+    } else {
+      // For Groups and other nodes, just mark as not highlighted
+      node.attrs.isHighlighted = false;
+    }
+  }
+  
   private setupEventHandlers(): void {
     // Mouse down
     this.stage.on('mousedown touchstart', (e) => {
       const tool = this.currentTool();
-      const pos = this.stage.getPointerPosition();
+      const pos = this.getRelativePointerPosition();
       if (!pos) return;
       
       // Handle hand tool for panning
@@ -558,7 +626,26 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       }
       
       if (tool === 'select') {
-        this.transformer.nodes([]);
+        // Start drag selection
+        this.isSelecting = true;
+        this.selectionStartPos = pos;
+        
+        // Create selection rectangle
+        if (!this.selectionRectangle) {
+          this.selectionRectangle = new Konva.Rect({
+            fill: 'rgba(0, 122, 255, 0.1)',
+            stroke: '#007aff',
+            strokeWidth: 1,
+            dash: [4, 4],
+            visible: false
+          });
+          this.layer.add(this.selectionRectangle);
+        }
+        
+        this.selectionRectangle.width(0);
+        this.selectionRectangle.height(0);
+        this.selectionRectangle.visible(false);
+        
       } else if (tool === 'rectangle') {
         this.startDrawingRect(pos);
       } else if (tool === 'circle') {
@@ -578,15 +665,18 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     // Mouse move
     this.stage.on('mousemove touchmove', () => {
-      const pos = this.stage.getPointerPosition();
+      const pos = this.getRelativePointerPosition();
       if (!pos) return;
       
       const tool = this.currentTool();
       
-      // Handle panning
+      // Handle panning - use screen position for panning
       if (this.isPanning && this.lastPointerPosition) {
-        const dx = pos.x - this.lastPointerPosition.x;
-        const dy = pos.y - this.lastPointerPosition.y;
+        const screenPos = this.stage.getPointerPosition();
+        if (!screenPos) return;
+        
+        const dx = screenPos.x - this.lastPointerPosition.x;
+        const dy = screenPos.y - this.lastPointerPosition.y;
         
         const currentPos = this.stage.position();
         this.stage.position({
@@ -594,8 +684,27 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: currentPos.y + dy
         });
         
-        this.lastPointerPosition = pos;
+        this.lastPointerPosition = screenPos;
         this.drawInfiniteGrid(); // Update grid during panning, not just at end
+        return;
+      }
+      
+      // Handle drag selection
+      if (this.isSelecting && this.selectionStartPos && this.selectionRectangle) {
+        const x1 = this.selectionStartPos.x;
+        const y1 = this.selectionStartPos.y;
+        const x2 = pos.x;
+        const y2 = pos.y;
+        
+        this.selectionRectangle.setAttrs({
+          x: Math.min(x1, x2),
+          y: Math.min(y1, y2),
+          width: Math.abs(x2 - x1),
+          height: Math.abs(y2 - y1),
+          visible: true
+        });
+        
+        this.layer.batchDraw();
         return;
       }
       
@@ -613,12 +722,67 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     });
     
     // Mouse up
-    this.stage.on('mouseup touchend', () => {
+    this.stage.on('mouseup touchend', (e) => {
       // Stop panning
       if (this.isPanning) {
         this.isPanning = false;
         this.lastPointerPosition = null;
         this.stage.container().style.cursor = 'grab';
+        return;
+      }
+      
+      // Handle drag selection completion
+      if (this.isSelecting && this.selectionRectangle && this.selectionStartPos) {
+        this.isSelecting = false;
+        
+        const selRect = this.selectionRectangle.getClientRect();
+        
+        // Find shapes within selection rectangle
+        const selectedShapes: Konva.Node[] = [];
+        this.layer.children.forEach((node: Konva.Node) => {
+          if (node === this.transformer || node === this.selectionRectangle) return;
+          if (!node.draggable || !node.draggable()) return;
+          
+          const nodeRect = node.getClientRect();
+          
+          // Check if node intersects with selection rectangle
+          if (this.doRectsIntersect(selRect, nodeRect)) {
+            selectedShapes.push(node);
+          }
+        });
+        
+        // Update selection
+        if (selectedShapes.length > 0) {
+          const isShiftKey = e.evt && e.evt.shiftKey;
+          
+          if (isShiftKey) {
+            // Add to existing selection
+            const currentNodes = this.transformer.nodes().slice();
+            selectedShapes.forEach((shape: any) => {
+              if (!currentNodes.includes(shape)) {
+                currentNodes.push(shape);
+                this.addSelectionHighlight(shape);
+              }
+            });
+            this.transformer.nodes(currentNodes);
+          } else {
+            // Replace selection
+            const previousNodes = this.transformer.nodes();
+            previousNodes.forEach((node: any) => {
+              this.removeSelectionHighlight(node);
+            });
+            
+            selectedShapes.forEach((shape: any) => {
+              this.addSelectionHighlight(shape);
+            });
+            this.transformer.nodes(selectedShapes);
+          }
+        }
+        
+        // Hide and reset selection rectangle
+        this.selectionRectangle.visible(false);
+        this.selectionStartPos = null;
+        this.layer.batchDraw();
         return;
       }
       
@@ -644,18 +808,70 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       }
     });
     
-    // Click on shape to select
+    // Click on shape to select with visual feedback
     this.stage.on('click tap', (e) => {
       if (this.currentTool() !== 'select') return;
       
       if (e.target === this.stage) {
-        this.transformer.nodes([]);
+        // Deselect - remove highlight from all shapes (unless shift is held)
+        if (!e.evt.shiftKey) {
+          const previousNodes = this.transformer.nodes();
+          previousNodes.forEach((node: any) => {
+            this.removeSelectionHighlight(node);
+          });
+          this.transformer.nodes([]);
+        }
         return;
       }
       
-      const target = e.target as any;
-      if (target && target !== this.transformer && target.draggable) {
-        this.transformer.nodes([target]);
+      let target = e.target as any;
+      
+      // If clicked on a child element (text, image, shape inside a group), 
+      // select the parent group instead
+      if (target && target.parent) {
+        const parent = target.parent;
+        // Check if parent is a draggable group and not the main layer
+        if (parent instanceof Konva.Group && 
+            parent !== this.layer && 
+            parent !== this.drawingLayer &&
+            parent.draggable()) {
+          target = parent;
+        }
+      }
+      
+      if (target && target !== this.transformer && target.draggable()) {
+        const isShiftKey = e.evt.shiftKey;
+        
+        if (isShiftKey) {
+          // Multi-select: Add to existing selection
+          const currentNodes = this.transformer.nodes().slice();
+          const index = currentNodes.indexOf(target);
+          
+          if (index === -1) {
+            // Add to selection
+            currentNodes.push(target);
+            this.addSelectionHighlight(target);
+          } else {
+            // Remove from selection
+            currentNodes.splice(index, 1);
+            this.removeSelectionHighlight(target);
+          }
+          
+          this.transformer.nodes(currentNodes);
+        } else {
+          // Single select: Replace selection
+          const previousNodes = this.transformer.nodes();
+          previousNodes.forEach((node: any) => {
+            if (node !== target) {
+              this.removeSelectionHighlight(node);
+            }
+          });
+          
+          this.addSelectionHighlight(target);
+          this.transformer.nodes([target]);
+        }
+        
+        this.layer.batchDraw();
       }
     });
   }
@@ -663,14 +879,18 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   // Drawing methods
   private startDrawingRect(pos: { x: number; y: number }): void {
     this.isPaint = true;
-    const color = this.currentColor();
+    const strokeColor = this.strokeColor();
+    const fillColor = this.fillColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    const fillOpacity = this.fillOpacity() / 100;
+    
     this.currentShape = new Konva.Rect({
       x: pos.x,
       y: pos.y,
       width: 0,
       height: 0,
-      fill: this.fillStyle() !== 'none' ? this.hexToRgba(color, 0.3) : 'transparent',
-      stroke: color,
+      fill: this.fillStyle() !== 'none' ? this.hexToRgba(fillColor, fillOpacity) : 'transparent',
+      stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
       draggable: true
     });
@@ -687,13 +907,17 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   private startDrawingCircle(pos: { x: number; y: number }): void {
     this.isPaint = true;
-    const color = this.currentColor();
+    const strokeColor = this.strokeColor();
+    const fillColor = this.fillColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    const fillOpacity = this.fillOpacity() / 100;
+    
     this.currentShape = new Konva.Circle({
       x: pos.x,
       y: pos.y,
       radius: 0,
-      fill: this.fillStyle() !== 'none' ? this.hexToRgba(color, 0.3) : 'transparent',
-      stroke: color,
+      fill: this.fillStyle() !== 'none' ? this.hexToRgba(fillColor, fillOpacity) : 'transparent',
+      stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
       draggable: true
     });
@@ -709,12 +933,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   private startDrawingLine(pos: { x: number; y: number }, isArrow: boolean): void {
     this.isPaint = true;
-    const color = this.currentColor();
+    const strokeColor = this.strokeColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    
     this.currentShape = new Konva.Arrow({
       points: [pos.x, pos.y, pos.x, pos.y],
-      stroke: color,
+      stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
-      fill: color,
+      fill: this.hexToRgba(strokeColor, strokeOpacity),
       pointerLength: isArrow ? 10 : 0,
       pointerWidth: isArrow ? 10 : 0,
       draggable: true
@@ -729,9 +955,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   private startDrawingPen(pos: { x: number; y: number }): void {
     this.isPaint = true;
-    const color = this.currentColor();
+    const strokeColor = this.strokeColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    
     this.lastLine = new Konva.Line({
-      stroke: color,
+      stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
       globalCompositeOperation: 'source-over',
       lineCap: 'round',
@@ -853,8 +1081,50 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       name: 'component-group'
     });
     
+    // Add direct click handler to the group
+    group.on('click tap', (e) => {
+      if (this.currentTool() !== 'select') return;
+      
+      e.cancelBubble = true; // Prevent event from bubbling to stage
+      
+      const isShiftKey = e.evt && e.evt.shiftKey;
+      
+      if (isShiftKey) {
+        // Multi-select
+        const currentNodes = this.transformer.nodes().slice();
+        const index = currentNodes.indexOf(group);
+        
+        if (index === -1) {
+          currentNodes.push(group);
+          this.addSelectionHighlight(group);
+        } else {
+          currentNodes.splice(index, 1);
+          this.removeSelectionHighlight(group);
+        }
+        
+        this.transformer.nodes(currentNodes);
+      } else {
+        // Single select
+        const previousNodes = this.transformer.nodes();
+        previousNodes.forEach((node: any) => {
+          if (node !== group) {
+            this.removeSelectionHighlight(node);
+          }
+        });
+        
+        this.addSelectionHighlight(group);
+        this.transformer.nodes([group]);
+      }
+      
+      this.layer.batchDraw();
+    });
+    
     const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
     const iconColor = component.color || '#3b82f6';
+    
+    // Store component info for later color updates
+    group.setAttr('faIcon', component.faIcon);
+    group.setAttr('componentName', component.name);
     
     // Use Font Awesome icon via Iconify API
     if (component.faIcon) {
@@ -982,6 +1252,18 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       this.duplicateSelected();
     }
     
+    // Group: Cmd+G or Ctrl+G
+    if ((event.metaKey || event.ctrlKey) && event.key === 'g' && !event.shiftKey) {
+      event.preventDefault();
+      this.groupSelected();
+    }
+    
+    // Ungroup: Cmd+Shift+G or Ctrl+Shift+G
+    if ((event.metaKey || event.ctrlKey) && event.key === 'g' && event.shiftKey) {
+      event.preventDefault();
+      this.ungroupSelected();
+    }
+    
     // Select All: Cmd+A or Ctrl+A
     if ((event.metaKey || event.ctrlKey) && event.key === 'a') {
       event.preventDefault();
@@ -1034,6 +1316,274 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       const clone = node.clone({ x: node.x() + 20, y: node.y() + 20 });
       this.layer.add(clone);
     });
+    this.saveHistory();
+  }
+
+  groupSelected(): void {
+    const selectedNodes = this.transformer.nodes();
+    
+    console.log('Group attempt - Selected nodes:', selectedNodes.length, selectedNodes);
+    
+    // Need at least 2 items to group
+    if (selectedNodes.length < 2) {
+      console.log('Select at least 2 items to group. Currently selected:', selectedNodes.length);
+      alert(`Select at least 2 items to group (currently selected: ${selectedNodes.length}). Use Shift+Click or drag to select multiple items.`);
+      return;
+    }
+
+    // Create a new group
+    const newGroup = new Konva.Group({
+      draggable: true,
+      name: 'user-group'
+    });
+
+    // Add click handler to the user group for selection
+    newGroup.on('click', (e) => {
+      if (this.currentTool() !== 'select') return;
+      
+      const isShiftKey = e.evt && e.evt.shiftKey;
+      
+      if (isShiftKey) {
+        // Multi-select
+        const currentNodes = this.transformer.nodes().slice();
+        const index = currentNodes.indexOf(newGroup);
+        
+        if (index === -1) {
+          currentNodes.push(newGroup);
+          this.addSelectionHighlight(newGroup);
+        } else {
+          currentNodes.splice(index, 1);
+          this.removeSelectionHighlight(newGroup);
+        }
+        
+        this.transformer.nodes(currentNodes);
+      } else {
+        // Single select
+        const previousNodes = this.transformer.nodes();
+        previousNodes.forEach((node: any) => {
+          if (node !== newGroup) {
+            this.removeSelectionHighlight(node);
+          }
+        });
+        
+        this.addSelectionHighlight(newGroup);
+        this.transformer.nodes([newGroup]);
+      }
+      
+      this.layer.batchDraw();
+    });
+
+    // Calculate the bounding box of all selected nodes
+    let minX = Infinity, minY = Infinity;
+    selectedNodes.forEach((node: any) => {
+      const pos = node.getAbsolutePosition();
+      minX = Math.min(minX, pos.x);
+      minY = Math.min(minY, pos.y);
+    });
+
+    // Set group position to top-left of bounding box
+    newGroup.x(minX);
+    newGroup.y(minY);
+
+    // Move selected nodes into the group and adjust their positions
+    const oldParentGroups: Set<any> = new Set();
+    
+    selectedNodes.forEach((node: any) => {
+      const absPos = node.getAbsolutePosition();
+      
+      // Track the old parent group if it exists
+      const oldParent = node.getParent();
+      if (oldParent instanceof Konva.Group && oldParent.hasName('user-group')) {
+        oldParentGroups.add(oldParent);
+      }
+      
+      // Remove from current parent
+      node.remove();
+      
+      // Adjust position relative to new group
+      node.x(absPos.x - minX);
+      node.y(absPos.y - minY);
+      node.draggable(false); // Disable individual dragging but keep listening for color changes
+      
+      // Keep listening enabled but add click handler to select for color changes only
+      if (node instanceof Konva.Group || node instanceof Konva.Shape) {
+        node.on('click tap', (e: any) => {
+          if (this.currentTool() !== 'select') return;
+          e.cancelBubble = true; // Prevent group from being selected
+          
+          // Select this individual item for color changes
+          const isShiftKey = e.evt && e.evt.shiftKey;
+          
+          if (isShiftKey) {
+            const currentNodes = this.transformer.nodes().slice();
+            const index = currentNodes.indexOf(node);
+            if (index === -1) {
+              currentNodes.push(node);
+              this.addSelectionHighlight(node);
+            } else {
+              currentNodes.splice(index, 1);
+              this.removeSelectionHighlight(node);
+            }
+            this.transformer.nodes(currentNodes);
+          } else {
+            const previousNodes = this.transformer.nodes();
+            previousNodes.forEach((n: any) => {
+              if (n !== node) {
+                this.removeSelectionHighlight(n);
+              }
+            });
+            this.addSelectionHighlight(node);
+            this.transformer.nodes([node]);
+          }
+          
+          this.layer.batchDraw();
+        });
+      }
+      
+      // Add to group
+      newGroup.add(node);
+    });
+    
+    // Clean up old parent groups: remove empty groups or update their borders
+    oldParentGroups.forEach((oldGroup: any) => {
+      const remainingChildren = oldGroup.getChildren().filter((child: any) => 
+        !child.hasName('group-border')
+      );
+      
+      if (remainingChildren.length === 0) {
+        // Group is now empty, remove it
+        oldGroup.destroy();
+      } else {
+        // Update the border to fit remaining children
+        const border = oldGroup.findOne('.group-border');
+        if (border) {
+          const groupBounds = oldGroup.getClientRect({ relativeTo: oldGroup });
+          const padding = 5;
+          border.x(groupBounds.x - padding);
+          border.y(groupBounds.y - padding);
+          border.width(groupBounds.width + (padding * 2));
+          border.height(groupBounds.height + (padding * 2));
+        }
+      }
+    });
+
+    // Add a permanent visual border to show this is a grouped item
+    // Position it slightly outside the content with padding
+    // Use different colors for nested groups
+    const padding = 5;
+    const groupBounds = newGroup.getClientRect({ relativeTo: newGroup });
+    
+    // Determine nesting level by checking if any selected nodes are already groups
+    let nestingLevel = 0;
+    selectedNodes.forEach((node: any) => {
+      if (node instanceof Konva.Group && node.hasName('user-group')) {
+        // Find the existing border to determine its nesting level
+        const existingBorder = node.findOne('.group-border');
+        if (existingBorder) {
+          const currentLevel = existingBorder.getAttr('nestingLevel') || 0;
+          nestingLevel = Math.max(nestingLevel, currentLevel + 1);
+        } else {
+          nestingLevel = Math.max(nestingLevel, 1);
+        }
+      }
+    });
+    
+    // Choose border color based on nesting level
+    const borderColors = ['#9333ea', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+    const borderColor = borderColors[nestingLevel % borderColors.length];
+    
+    const groupBorder = new Konva.Rect({
+      x: groupBounds.x - padding,
+      y: groupBounds.y - padding,
+      width: groupBounds.width + (padding * 2),
+      height: groupBounds.height + (padding * 2),
+      stroke: borderColor,
+      strokeWidth: 2,
+      dash: [8, 4], // Dashed line pattern
+      listening: false, // Don't interfere with clicks
+      name: 'group-border',
+      hitStrokeWidth: 0, // Ensure it doesn't capture any hit events
+      nestingLevel: nestingLevel // Store nesting level for future reference
+    });
+    
+    // Add border as first child so it appears behind content
+    newGroup.add(groupBorder);
+    groupBorder.moveToBottom();
+
+    // Add group to layer
+    this.layer.add(newGroup);
+
+    // Select the new group
+    this.transformer.nodes([newGroup]);
+    this.addSelectionHighlight(newGroup);
+    
+    // Force transformer to move to top and update
+    this.transformer.moveToTop();
+    this.transformer.forceUpdate();
+    
+    this.layer.batchDraw();
+    this.saveHistory();
+    
+    console.log('Successfully grouped', selectedNodes.length, 'items');
+  }
+
+  ungroupSelected(): void {
+    const selectedNodes = this.transformer.nodes();
+    
+    if (selectedNodes.length === 0) {
+      console.log('Select a group to ungroup');
+      return;
+    }
+
+    const nodesToSelect: Konva.Node[] = [];
+
+    selectedNodes.forEach((node: any) => {
+      // Check if this is a group (and not a shape-with-label group)
+      if (node instanceof Konva.Group && node.hasName('user-group')) {
+        const groupPos = node.getAbsolutePosition();
+        const children = node.getChildren().slice(); // Clone array to avoid modification issues
+
+        // Move children out of the group
+        children.forEach((child: any) => {
+          // Skip the group border - we don't want to ungroup it
+          if (child.hasName('group-border')) {
+            return;
+          }
+          
+          const childAbsPos = child.getAbsolutePosition();
+          
+          // Remove from group
+          child.remove();
+          
+          // Set absolute position
+          child.x(childAbsPos.x);
+          child.y(childAbsPos.y);
+          child.draggable(true); // Re-enable dragging
+          child.listening(true); // Re-enable event listening
+          
+          // Add to layer
+          this.layer.add(child);
+          nodesToSelect.push(child);
+        });
+
+        // Remove the empty group
+        this.removeSelectionHighlight(node);
+        node.destroy();
+      } else {
+        // If not a user group, keep it selected
+        nodesToSelect.push(node);
+      }
+    });
+
+    // Select the ungrouped items
+    if (nodesToSelect.length > 0) {
+      this.transformer.nodes(nodesToSelect);
+      nodesToSelect.forEach((node: any) => this.addSelectionHighlight(node));
+    } else {
+      this.transformer.nodes([]);
+    }
+
+    this.layer.batchDraw();
     this.saveHistory();
   }
   
@@ -1105,8 +1655,138 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.drawInfiniteGrid();
   }
   
+  // Color mode methods
+  setColorMode(mode: 'stroke' | 'fill'): void {
+    this.colorMode.set(mode);
+    // Update opacity slider to show the current mode's opacity
+    if (mode === 'stroke') {
+      this.colorOpacity.set(this.strokeOpacity());
+    } else {
+      this.colorOpacity.set(this.fillOpacity());
+    }
+  }
+  
+  getCurrentModeColor(): string {
+    return this.colorMode() === 'stroke' ? this.strokeColor() : this.fillColor();
+  }
+  
+  setCurrentModeColor(color: string): void {
+    if (this.colorMode() === 'stroke') {
+      this.strokeColor.set(color);
+      this.applyStrokeColorToSelected(color);
+    } else {
+      this.fillColor.set(color);
+      this.applyFillColorToSelected(color);
+    }
+  }
+  
+  private applyStrokeColorToSelected(color: string): void {
+    const selectedNodes = this.transformer.nodes();
+    selectedNodes.forEach((node: any) => {
+      this.applyStrokeColorToNode(node, color);
+    });
+    this.layer.batchDraw();
+  }
+  
+  private applyStrokeColorToNode(node: any, color: string): void {
+    if (node instanceof Konva.Shape) {
+      const opacity = this.strokeOpacity() / 100;
+      node.stroke(this.hexToRgba(color, opacity));
+    } else if (node instanceof Konva.Group) {
+      if (node.hasName('component-group')) {
+        // For component groups, change the text color (border equivalent)
+        const children = node.getChildren();
+        children.forEach((child: any) => {
+          if (child instanceof Konva.Text) {
+            child.fill(color);
+          }
+        });
+      } else if (node.hasName('user-group')) {
+        // For user-created groups, ONLY change the group border, not children
+        const children = node.getChildren();
+        children.forEach((child: any) => {
+          if (child.hasName('group-border')) {
+            // Change only the group border color
+            child.stroke(color);
+          }
+        });
+      }
+    }
+  }
+  
+  private applyFillColorToSelected(color: string): void {
+    const selectedNodes = this.transformer.nodes();
+    selectedNodes.forEach((node: any) => {
+      this.applyFillColorToNode(node, color);
+    });
+    this.layer.batchDraw();
+  }
+  
+  private applyFillColorToNode(node: any, color: string): void {
+    if (node instanceof Konva.Shape) {
+      const opacity = this.fillOpacity() / 100;
+      if (this.fillStyle() !== 'none') {
+        node.fill(this.hexToRgba(color, opacity));
+      }
+    } else if (node instanceof Konva.Group) {
+      if (node.hasName('component-group')) {
+        // For component groups, regenerate icon with new color
+        this.updateComponentGroupColor(node, color);
+      } else if (node.hasName('user-group')) {
+        // For user-created groups, recursively apply to children (skip border)
+        const children = node.getChildren();
+        children.forEach((child: any) => {
+          if (!child.hasName('group-border')) {
+            this.applyFillColorToNode(child, color);
+          }
+        });
+      }
+    }
+  }
+
+  private async updateComponentGroupColor(group: Konva.Group, color: string): Promise<void> {
+    // Find the image/icon in the group
+    const children = group.getChildren();
+    let iconNode: any = null;
+    let componentData: any = null;
+    
+    // Try to find the icon (Image or Text)
+    children.forEach((child: any) => {
+      if (child instanceof Konva.Image || (child instanceof Konva.Text && child.fontSize() > 20)) {
+        iconNode = child;
+      }
+    });
+    
+    if (!iconNode) return;
+    
+    // If it's an emoji icon (Text), just change its color
+    if (iconNode instanceof Konva.Text) {
+      iconNode.fill(color);
+      this.layer.batchDraw();
+      return;
+    }
+    
+    // If it's an SVG icon (Image), we need to regenerate it with new color
+    // Store the component info in group attrs when creating it
+    if (group.attrs.faIcon) {
+      try {
+        const iconDataURL = await this.generateIconDataURL(group.attrs.faIcon, color);
+        const imageObj = new Image();
+        imageObj.onload = () => {
+          iconNode.image(imageObj);
+          this.layer.batchDraw();
+        };
+        imageObj.src = iconDataURL;
+      } catch (error) {
+        console.error('Error updating icon color:', error);
+      }
+    }
+  }
+  
   setColor(color: string): void {
     this.currentColor.set(color);
+    this.strokeColor.set(color);
+    this.fillColor.set(color);
     // Apply to selected shapes
     const selectedNodes = this.transformer.nodes();
     selectedNodes.forEach(node => {
@@ -1124,20 +1804,20 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   setColorOpacity(opacity: number): void {
     this.colorOpacity.set(opacity);
-    // Apply to selected shapes with current color
-    const color = this.currentColor();
-    const selectedNodes = this.transformer.nodes();
-    selectedNodes.forEach(node => {
-      if (node instanceof Konva.Shape) {
-        const normalizedOpacity = opacity / 100;
-        node.stroke(this.hexToRgba(color, normalizedOpacity));
-        // If filled, update fill too
-        if (this.fillStyle() !== 'none') {
-          node.fill(this.hexToRgba(color, normalizedOpacity * 0.3));
-        }
-      }
-    });
-    this.layer.batchDraw();
+    
+    // Save to the correct mode's opacity
+    if (this.colorMode() === 'stroke') {
+      this.strokeOpacity.set(opacity);
+    } else {
+      this.fillOpacity.set(opacity);
+    }
+    
+    // Apply opacity based on current mode
+    if (this.colorMode() === 'stroke') {
+      this.applyStrokeColorToSelected(this.strokeColor());
+    } else {
+      this.applyFillColorToSelected(this.fillColor());
+    }
   }
   
   setStrokeWidth(width: number): void {
@@ -1232,9 +1912,13 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   private createShapeFromTemplate(pos: { x: number; y: number }, templateId: string): Konva.Shape | Konva.Group {
     const size = this.getSizeFromPreset();
-    const color = this.currentColor();
+    const strokeColor = this.strokeColor();
+    const fillColor = this.fillColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    const fillOpacity = this.fillOpacity() / 100;
     const strokeWidth = this.strokeWidth();
-    const fill = this.fillStyle() !== 'none' ? this.hexToRgba(color, 0.3) : 'transparent';
+    const fill = this.fillStyle() !== 'none' ? this.hexToRgba(fillColor, fillOpacity) : 'transparent';
+    const stroke = this.hexToRgba(strokeColor, strokeOpacity);
     
     switch (templateId) {
       case 'rectangle':
@@ -1243,7 +1927,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: pos.y,
           width: size.width,
           height: size.height,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1252,7 +1936,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           x: pos.x + size.width / 2,
           y: pos.y + size.height / 2,
           radius: Math.min(size.width, size.height) / 2,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1262,7 +1946,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: pos.y + size.height / 2,
           sides: 3,
           radius: Math.min(size.width, size.height) / 2,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1273,7 +1957,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           sides: 4,
           radius: Math.min(size.width, size.height) / 2,
           rotation: 45,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1283,7 +1967,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: pos.y + size.height / 2,
           sides: 5,
           radius: Math.min(size.width, size.height) / 2,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1293,7 +1977,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: pos.y + size.height / 2,
           sides: 6,
           radius: Math.min(size.width, size.height) / 2,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1304,7 +1988,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           numPoints: 5,
           innerRadius: Math.min(size.width, size.height) / 4,
           outerRadius: Math.min(size.width, size.height) / 2,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1314,7 +1998,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: pos.y + size.height / 2,
           radiusX: size.width / 2,
           radiusY: size.height / 2,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1325,7 +2009,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           y: pos.y + size.height / 3,
           points: this.getHeartPoints(size.width * 0.8),
           closed: true,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1346,7 +2030,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         circles.forEach(c => {
           cloudGroup.add(new Konva.Circle({
             x: c.x, y: c.y, radius: c.r,
-            fill, stroke: color, strokeWidth
+            fill, stroke, strokeWidth
           }));
         });
         
@@ -1356,7 +2040,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       case 'arrow-left':
       case 'arrow-up':
       case 'arrow-down':
-        return this.createArrowShape(pos, size, templateId, color, strokeWidth, fill);
+        return this.createArrowShape(pos, size, templateId, stroke, strokeWidth, fill);
         
       case 'x-mark':
         return new Konva.Line({
@@ -1366,7 +2050,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             0, 0, size.width, size.height,
             size.width, 0, 0, size.height
           ],
-          stroke: color,
+          stroke,
           strokeWidth: strokeWidth * 2,
           lineCap: 'round',
           draggable: true
@@ -1381,7 +2065,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             size.width * 0.3, size.height * 0.4,
             size.width * 0.7, -size.height * 0.3
           ],
-          stroke: color,
+          stroke,
           strokeWidth: strokeWidth * 2,
           lineCap: 'round',
           lineJoin: 'round',
@@ -1399,7 +2083,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             0, size.height
           ],
           closed: true,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
         
@@ -1407,7 +2091,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         return new Konva.Rect({
           x: pos.x, y: pos.y,
           width: size.width, height: size.height,
-          fill, stroke: color, strokeWidth,
+          fill, stroke, strokeWidth,
           draggable: true
         });
     }
@@ -1504,6 +2188,15 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       case 'xlarge': return { width: 300, height: 220 };
       default: return { width: 140, height: 100 };
     }
+  }
+
+  private doRectsIntersect(r1: any, r2: any): boolean {
+    return !(
+      r2.x > r1.x + r1.width ||
+      r2.x + r2.width < r1.x ||
+      r2.y > r1.y + r1.height ||
+      r2.y + r2.height < r1.y
+    );
   }
   
   getFilteredComponents(): ComponentItem[] {
@@ -1650,13 +2343,36 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           }
         }
       } else if (className === 'Group') {
-        // Compact group export - icon and name only
-        // Group structure: [0] = icon Text, [1] = name Text
-        const iconText = shape.children[0];
-        const nameText = shape.children[1];
-        
-        baseData.componentIcon = iconText ? iconText.text() : '📦';
-        baseData.componentName = nameText ? nameText.text() : 'Component';
+        // Handle different types of groups
+        if (shape.hasName('component-group')) {
+          // Component group - has icon and name text
+          const iconText = shape.children[0];
+          const nameText = shape.children[1];
+          
+          baseData.componentIcon = (iconText && typeof iconText.text === 'function') ? iconText.text() : '📦';
+          baseData.componentName = (nameText && typeof nameText.text === 'function') ? nameText.text() : 'Component';
+          baseData.groupType = 'component-group';
+        } else if (shape.hasName('user-group')) {
+          // User-created group - export all children recursively
+          baseData.groupType = 'user-group';
+          
+          // Get the border to extract its color
+          const border = shape.findOne('.group-border');
+          if (border && typeof border.stroke === 'function') {
+            baseData.borderColor = border.stroke();
+          }
+          
+          baseData.children = shape.getChildren().filter((child: any) => 
+            !child.hasName('group-border') // Skip the border
+          ).map((child: any) => {
+            // Recursively export child structure with all properties
+            return this.exportNodeRecursive(child);
+          });
+        } else {
+          // Shape-with-label group or other groups
+          baseData.groupType = 'generic-group';
+          baseData.childCount = shape.getChildren().length;
+        }
       }
       
       return baseData;
@@ -1684,6 +2400,66 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+  
+  private exportNodeRecursive(node: any): any {
+    const className = node.getClassName();
+    const nodeData: any = {
+      id: node.id(),
+      type: className,
+      x: node.x(),
+      y: node.y(),
+      rotation: node.rotation() || 0
+    };
+    
+    if (className === 'Group') {
+      if (node.hasName('component-group')) {
+        // Component group
+        const iconText = node.children[0];
+        const nameText = node.children[1];
+        
+        nodeData.componentIcon = (iconText && typeof iconText.text === 'function') ? iconText.text() : '📦';
+        nodeData.componentName = (nameText && typeof nameText.text === 'function') ? nameText.text() : 'Component';
+        nodeData.groupType = 'component-group';
+      } else if (node.hasName('user-group')) {
+        // Nested user group
+        nodeData.groupType = 'user-group';
+        
+        // Get border color
+        const border = node.findOne('.group-border');
+        if (border && typeof border.stroke === 'function') {
+          nodeData.borderColor = border.stroke();
+        }
+        
+        // Recursively export children
+        nodeData.children = node.getChildren().filter((child: any) => 
+          !child.hasName('group-border')
+        ).map((child: any) => this.exportNodeRecursive(child));
+      } else {
+        // Generic group
+        nodeData.groupType = 'generic-group';
+      }
+    } else if (className === 'Rect') {
+      nodeData.width = node.width();
+      nodeData.height = node.height();
+      nodeData.fill = node.fill();
+      nodeData.stroke = node.stroke();
+      nodeData.strokeWidth = node.strokeWidth();
+      nodeData.cornerRadius = node.cornerRadius() || 0;
+    } else if (className === 'Circle') {
+      nodeData.radius = node.radius();
+      nodeData.fill = node.fill();
+      nodeData.stroke = node.stroke();
+      nodeData.strokeWidth = node.strokeWidth();
+    } else if (className === 'Text') {
+      nodeData.text = node.text();
+      nodeData.fontSize = node.fontSize();
+      nodeData.fontFamily = node.fontFamily();
+      nodeData.fill = node.fill();
+      nodeData.width = node.width();
+    }
+    
+    return nodeData;
   }
   
   importFromJSON(): void {
@@ -1823,44 +2599,58 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                 break;
                 
               case 'Group':
-                // Recreate component groups from compact format - icon and name only
-                shape = new Konva.Group({
-                  id: shapeData.id,
-                  x: shapeData.x,
-                  y: shapeData.y,
-                  rotation: shapeData.rotation || 0,
-                  draggable: true,
-                  name: 'component-group'
-                });
-                
-                const componentName = shapeData.componentName || 'Component';
-                const componentIcon = shapeData.componentIcon || '📦';
-                const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
-                
-                // Recreate simplified structure - icon above, name below
-                const icon = new Konva.Text({
-                  x: 0,
-                  y: 0,
-                  text: componentIcon,
-                  fontSize: 48,
-                  align: 'center',
-                  fill: textColor,
-                  width: 80,
-                  fontFamily: 'Arial, sans-serif' // Better emoji rendering
-                });
-                
-                const name = new Konva.Text({
-                  x: 0,
-                  y: 55,
-                  text: componentName,
-                  fontSize: 14,
-                  fontStyle: 'bold',
-                  align: 'center',
-                  fill: textColor,
-                  width: 80
-                });
-                
-                shape.add(icon, name);
+                if (shapeData.groupType === 'component-group') {
+                  // Recreate component groups from compact format - icon and name only
+                  shape = new Konva.Group({
+                    id: shapeData.id,
+                    x: shapeData.x,
+                    y: shapeData.y,
+                    rotation: shapeData.rotation || 0,
+                    draggable: true,
+                    name: 'component-group'
+                  });
+                  
+                  const componentName = shapeData.componentName || 'Component';
+                  const componentIcon = shapeData.componentIcon || '📦';
+                  const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
+                  
+                  // Recreate simplified structure - icon above, name below
+                  const icon = new Konva.Text({
+                    x: 0,
+                    y: 0,
+                    text: componentIcon,
+                    fontSize: 48,
+                    align: 'center',
+                    fill: textColor,
+                    width: 80,
+                    fontFamily: 'Arial, sans-serif'
+                  });
+                  
+                  const name = new Konva.Text({
+                    x: 0,
+                    y: 55,
+                    text: componentName,
+                    fontSize: 14,
+                    fontStyle: 'bold',
+                    align: 'center',
+                    fill: textColor,
+                    width: 80
+                  });
+                  
+                  shape.add(icon, name);
+                } else if (shapeData.groupType === 'user-group') {
+                  // Recreate user-created groups with nested children
+                  shape = this.recreateUserGroup(shapeData);
+                } else {
+                  // Generic group fallback
+                  shape = new Konva.Group({
+                    id: shapeData.id,
+                    x: shapeData.x,
+                    y: shapeData.y,
+                    rotation: shapeData.rotation || 0,
+                    draggable: true
+                  });
+                }
                 break;
                 
               default:
@@ -1877,13 +2667,18 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           // Redraw grid after import
           this.drawInfiniteGrid();
           
-          // Re-add transformer
+          // Re-add transformer with enhanced visibility
           this.transformer = new Konva.Transformer({
-            borderStroke: '#667eea',
-            borderStrokeWidth: 2,
-            anchorFill: '#667eea',
-            anchorStroke: '#2a2a2a',
-            anchorSize: 12,
+            borderStroke: '#3b82f6',
+            borderStrokeWidth: 3,
+            anchorFill: '#3b82f6',
+            anchorStroke: '#ffffff',
+            anchorStrokeWidth: 2,
+            anchorSize: 14,
+            anchorCornerRadius: 3,
+            rotateEnabled: true,
+            enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+            padding: 5
           });
           this.layer.add(this.transformer);
           
@@ -1908,15 +2703,173 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     input.click();
   }
   
+  private recreateUserGroup(groupData: any): Konva.Group {
+    // Create the group
+    const group = new Konva.Group({
+      id: groupData.id,
+      x: groupData.x,
+      y: groupData.y,
+      rotation: groupData.rotation || 0,
+      draggable: true,
+      name: 'user-group'
+    });
+    
+    // Add click handler for selection
+    group.on('click', (e) => {
+      if (this.currentTool() !== 'select') return;
+      
+      const isShiftKey = e.evt && e.evt.shiftKey;
+      
+      if (isShiftKey) {
+        const currentNodes = this.transformer.nodes().slice();
+        const index = currentNodes.indexOf(group);
+        
+        if (index === -1) {
+          currentNodes.push(group);
+          this.addSelectionHighlight(group);
+        } else {
+          currentNodes.splice(index, 1);
+          this.removeSelectionHighlight(group);
+        }
+        
+        this.transformer.nodes(currentNodes);
+      } else {
+        const previousNodes = this.transformer.nodes();
+        previousNodes.forEach((node: any) => {
+          if (node !== group) {
+            this.removeSelectionHighlight(node);
+          }
+        });
+        
+        this.addSelectionHighlight(group);
+        this.transformer.nodes([group]);
+      }
+      
+      this.layer.batchDraw();
+    });
+    
+    // Recreate children recursively
+    if (groupData.children && Array.isArray(groupData.children)) {
+      groupData.children.forEach((childData: any) => {
+        let child: any;
+        
+        if (childData.type === 'Group') {
+          if (childData.groupType === 'user-group') {
+            // Nested user group
+            child = this.recreateUserGroup(childData);
+          } else if (childData.groupType === 'component-group') {
+            // Component group
+            child = new Konva.Group({
+              id: childData.id,
+              x: childData.x,
+              y: childData.y,
+              draggable: false,
+              name: 'component-group'
+            });
+            
+            const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
+            const icon = new Konva.Text({
+              x: 0,
+              y: 0,
+              text: childData.componentIcon || '📦',
+              fontSize: 48,
+              align: 'center',
+              fill: textColor,
+              width: 80,
+              fontFamily: 'Arial, sans-serif'
+            });
+            
+            const name = new Konva.Text({
+              x: 0,
+              y: 55,
+              text: childData.componentName || 'Component',
+              fontSize: 14,
+              fontStyle: 'bold',
+              align: 'center',
+              fill: textColor,
+              width: 80
+            });
+            
+            child.add(icon, name);
+            
+            // Add click handler for color changes
+            child.on('click tap', (e: any) => {
+              if (this.currentTool() !== 'select') return;
+              e.cancelBubble = true;
+              
+              const isShiftKey = e.evt && e.evt.shiftKey;
+              
+              if (isShiftKey) {
+                const currentNodes = this.transformer.nodes().slice();
+                const index = currentNodes.indexOf(child);
+                if (index === -1) {
+                  currentNodes.push(child);
+                  this.addSelectionHighlight(child);
+                } else {
+                  currentNodes.splice(index, 1);
+                  this.removeSelectionHighlight(child);
+                }
+                this.transformer.nodes(currentNodes);
+              } else {
+                const previousNodes = this.transformer.nodes();
+                previousNodes.forEach((n: any) => {
+                  if (n !== child) {
+                    this.removeSelectionHighlight(n);
+                  }
+                });
+                this.addSelectionHighlight(child);
+                this.transformer.nodes([child]);
+              }
+              
+              this.layer.batchDraw();
+            });
+          }
+        }
+        
+        if (child) {
+          group.add(child);
+        }
+      });
+    }
+    
+    // Add the group border
+    const padding = 5;
+    const groupBounds = group.getClientRect({ relativeTo: group });
+    const borderColor = groupData.borderColor || '#9333ea';
+    
+    const groupBorder = new Konva.Rect({
+      x: groupBounds.x - padding,
+      y: groupBounds.y - padding,
+      width: groupBounds.width + (padding * 2),
+      height: groupBounds.height + (padding * 2),
+      stroke: borderColor,
+      strokeWidth: 2,
+      dash: [8, 4],
+      listening: false,
+      name: 'group-border',
+      hitStrokeWidth: 0
+    });
+    
+    group.add(groupBorder);
+    groupBorder.moveToBottom();
+    
+    return group;
+  }
+  
   clearCanvas(): void {
     if (confirm('Are you sure you want to clear the canvas?')) {
       this.layer.destroyChildren();
       this.transformer = new Konva.Transformer({
-        borderStroke: '#667eea',
-        borderStrokeWidth: 2,
-        anchorFill: '#667eea',
-        anchorStroke: '#2a2a2a',
-        anchorSize: 12,
+        borderStroke: '#3b82f6',
+        borderStrokeWidth: 3,
+        anchorFill: '#3b82f6',
+        anchorStroke: '#ffffff',
+        anchorStrokeWidth: 2,
+        anchorSize: 14,
+        anchorCornerRadius: 3,
+        rotateEnabled: true,
+        enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+        padding: 5
       });
       this.layer.add(this.transformer);
       this.saveHistory();

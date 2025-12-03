@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  solutions-builder-ai:
-    container_name: solutions-builder-ai
+  architecture-builder:
+    container_name: architecture-builder
     build:
       context: .
       dockerfile: Dockerfile

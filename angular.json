@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "solutions-builder-ai": {
+    "architecture-builder": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -66,10 +66,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "solutions-builder-ai:build:production"
+              "buildTarget": "architecture-builder:build:production"
             },
             "development": {
-              "buildTarget": "solutions-builder-ai:build:development"
+              "buildTarget": "architecture-builder:build:development"
             }
           },
           "defaultConfiguration": "development"

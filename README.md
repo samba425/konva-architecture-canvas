@@ -136,7 +136,7 @@ git --version
 1. **Clone the repository**
    ```bash
    git clone https://github.com/samba425/solutions-builder.git
-   cd solutions-builder-ai
+   cd architecture-builder
    ```
 
 2. **Install dependencies**
@@ -161,7 +161,7 @@ The application will automatically reload when you make changes to the source fi
 1. **Clone the repository**
    ```bash
    git clone https://github.com/samba425/solutions-builder.git
-   cd solutions-builder-ai
+   cd architecture-builder
    ```
 
 2. **Start the application**
@@ -181,12 +181,12 @@ The application will automatically reload when you make changes to the source fi
 
 1. **Build the Docker image**
    ```bash
-   docker build -t solutions-builder-ai .
+   docker build -t architecture-builder .
    ```
 
 2. **Run the container**
    ```bash
-   docker run -p 4200:4200 solutions-builder-ai
+   docker run -p 4200:4200 architecture-builder
    ```
 
 3. **Access the application**
@@ -229,7 +229,7 @@ ng e2e
 ## 📂 Project Structure
 
 ```
-solutions-builder-ai/
+architecture-builder/
 ├── src/
 │   ├── app/
 │   │   ├── components/
