@@ -1,432 +1,865 @@
-# Solutions Builder AI
+# Architecture Builder 🎨# Architecture Builder
 
-A modern web application for designing cloud architecture solutions using AI. This wizard-based interface helps users define their technical requirements and generates comprehensive cloud solution architectures.
 
-![Angular](https://img.shields.io/badge/Angular-21.0.0-red)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.0-purple)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.6.0-blue)
-![Node](https://img.shields.io/badge/Node-18.x%20%7C%2020.x%20%7C%2022.x-green)
 
-## 🚀 Features
+> **Professional Canvas-Based Architecture Diagram Builder** - Create stunning cloud infrastructure, AI/ML systems, and technical architecture diagrams with an intuitive drag-and-drop interface powered by Konva.js.> A powerful, interactive canvas-based architecture diagram builder for creating cloud infrastructure, AI/ML systems, and technical architecture diagrams using Konva.js.
 
-- **3-Step Wizard Interface**
-  - Step 1: Problem Input (Industry, Business Scenario, Context Files, Data Sources)
-  - Step 2: Review Your Input (Comprehensive review with edit capabilities)
-  - Step 3: Architecture Generation (AI-powered solution generation)
 
-- **Cytoscape Architecture Canvas** ✨ **PRIMARY CANVAS** (`/cytoscape`)
-  
-  **Professional Graph-Based Diagram Builder powered by Cytoscape.js**
-  
-  - **🎯 Component Library**: 50+ cloud services
-    - **Infrastructure**: AWS EC2, GCP Compute Engine, Azure VM, Kubernetes, Docker
-    - **AI & ML**: SageMaker, Vertex AI, Azure ML, TensorFlow, PyTorch
+
+[![Angular](https://img.shields.io/badge/Angular-21.0-DD0031?style=for-the-badge&logo=angular)](https://angular.io/)[![Angular](https://img.shields.io/badge/Angular-21.0-red.svg)](https://angular.io/)
+
+[![Konva](https://img.shields.io/badge/Konva-10.0-0D83CD?style=for-the-badge&logo=konva)](https://konvajs.org/)[![Konva](https://img.shields.io/badge/Konva-10.0-blue.svg)](https://konvajs.org/)
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+
+
+---![Architecture Builder
+
+
+
+## ✨ Key Features## 🚀 Features
+
+
+
+### 🎯 Professional Canvas- **3-Step Wizard Interface**
+
+- **Infinite Canvas** with smooth pan, zoom (mouse wheel), and grid system  - Step 1: Problem Input (Industry, Business Scenario, Context Files, Data Sources)
+
+- **High Performance** rendering with Konva.js canvas engine  - Step 2: Review Your Input (Comprehensive review with edit capabilities)
+
+- **Dark/Light Themes** for comfortable viewing in any environment  - Step 3: Architecture Generation (AI-powered solution generation)
+
+
+
+### 🎨 Rich Component Library (47+ Pre-built Components)- **Cytoscape Architecture Canvas** ✨ **PRIMARY CANVAS** (`/cytoscape`)
+
+- **Foundation Models**: Mistral, Llama, Gemma, GPT, Claude, Gemini, DeepSeek, Phi, Qwen, Grok, Nova, Coheres  
+
+- **Data Storage**: Weaviate, Milvus, Pinecone, Chroma, pgVector, Neon  **Professional Graph-Based Diagram Builder powered by Cytoscape.js**
+
+- **Agent Frameworks**: LangChain, Semantic Kernel, AutoGen, Camel AI, LlamaIndex, LangGraph, CrewAI, AWS Bedrock, Replit, OpenAI Operator  
+
+- **Observability**: Langfuse, Comet Opik, Helicone, Arize Phoenix, Datadog, Amplitude, Sentry  - **🎯 Component Library**: 50+ cloud services
+
+- **Tool Execution**: Composio, NPI, Exa, LinkUp, Browserbase      - **Infrastructure**: AWS EC2, GCP Compute Engine, Azure VM, Kubernetes, Docker
+
+- **Memory Management**: Zep, Cognee, Mem0, VertexAI, NapthaAI, MaestroAI    - **AI & ML**: SageMaker, Vertex AI, Azure ML, TensorFlow, PyTorch
+
     - **Storage**: S3, Cloud Storage, Azure Blob, MongoDB, PostgreSQL, Redis
-    - **Networking**: API Gateway, Load Balancer, CloudFront, VPN, Route 53
-    - **Serverless**: Lambda, Cloud Functions, Azure Functions, Vercel
-    - **Data Processing**: Spark, Kafka, Airflow, Databricks, Kinesis
-    - **Databases**: RDS, Cloud SQL, DynamoDB, Cosmos DB, Firestore
-    - **Cisco Products**: Catalyst, Webex, Meraki, SecureX, DNA Center
-  
+
+### 🔧 Advanced Grouping System    - **Networking**: API Gateway, Load Balancer, CloudFront, VPN, Route 53
+
+- **Hierarchical Groups** with visual colored borders (purple, red, orange, green, blue)    - **Serverless**: Lambda, Cloud Functions, Azure Functions, Vercel
+
+- **Nested Grouping** - Group of groups with automatic color coding by level    - **Data Processing**: Spark, Kafka, Airflow, Databricks, Kinesis
+
+- **Drag to Move** entire groups as single units    - **Databases**: RDS, Cloud SQL, DynamoDB, Cosmos DB, Firestore
+
+- **Extract Items** from groups to create new groups    - **Cisco Products**: Catalyst, Webex, Meraki, SecureX, DNA Center
+
+- **Smart Border Colors** automatically assigned based on nesting depth  
+
   - **🔗 Advanced Connections**:
-    - Draw mode with edgehandles extension
-    - Click and drag from node to node to create connections
-    - Automatic edge routing with bezier curves
-    - Connection labels and customization
-    - Color-coded connection types
-    - Smart parent assignment for grouped nodes
-  
-  - **📦 Grouping System**:
-    - Create compound nodes (groups with child nodes)
+
+### 🎨 Powerful Drawing Tools    - Draw mode with edgehandles extension
+
+- **Shapes**: Rectangle, Circle, Line, Arrow, Pen/Freehand    - Click and drag from node to node to create connections
+
+- **Text Editor**: Rich text with editable labels (double-click to edit)    - Automatic edge routing with bezier curves
+
+- **Smart Styling**:    - Connection labels and customization
+
+  - **Stroke Mode**: Border/outline color control    - Color-coded connection types
+
+  - **Fill Mode**: Interior/icon color control    - Smart parent assignment for grouped nodes
+
+  - **Independent Opacity**: Separate sliders for stroke (100%) and fill (50%)  
+
+  - **12-Color Palette** + Custom color picker  - **📦 Grouping System**:
+
+  - **Stroke Width** adjustment    - Create compound nodes (groups with child nodes)
+
     - Drag nodes into groups
-    - Move groups with all children together
-    - Customize group name and color
-    - Visual distinction with dashed borders
-    - Perfect for tier-based architectures
+
+### ⚡ Smart Selection    - Move groups with all children together
+
+- **Multi-Selection**: Shift+Click or drag-rectangle to select multiple items    - Customize group name and color
+
+- **Select Inside Groups**: Click individual items in groups for color changes    - Visual distinction with dashed borders
+
+- **Visual Feedback**: Blue glowing borders with white resize handles    - Perfect for tier-based architectures
+
   
-  - **🎨 Visual Features**:
-    - Font Awesome icons for all components
-    - Brand colors (AWS Orange, Azure Blue, GCP Blue, etc.)
-    - Hover tooltips showing component details
+
+### 💾 Import/Export  - **🎨 Visual Features**:
+
+- **JSON Format**: Complete architecture preservation    - Font Awesome icons for all components
+
+- **Nested Groups**: Full support for complex hierarchies    - Brand colors (AWS Orange, Azure Blue, GCP Blue, etc.)
+
+- **Sample Architectures**: 3 ready-to-use examples included    - Hover tooltips showing component details
+
     - Selection highlighting
-    - Smooth animations
-    - Dark theme optimized design
-  
-  - **⚡ Layout Algorithms**:
-    - **COSE Layout**: Compound Spring Embedder for compact diagrams
-    - **Breadthfirst**: Hierarchical tree layout
-    - **Grid**: Uniform grid positioning
-    - **Circle**: Circular arrangement
+
+### ⌨️ Keyboard Shortcuts    - Smooth animations
+
+- `Cmd/Ctrl + Z` - Undo    - Dark theme optimized design
+
+- `Cmd/Ctrl + Shift + Z` - Redo  
+
+- `Cmd/Ctrl + D` - Duplicate  - **⚡ Layout Algorithms**:
+
+- `Cmd/Ctrl + G` - Group selected items    - **COSE Layout**: Compound Spring Embedder for compact diagrams
+
+- `Cmd/Ctrl + Shift + G` - Ungroup    - **Breadthfirst**: Hierarchical tree layout
+
+- `Cmd/Ctrl + A` - Select all    - **Grid**: Uniform grid positioning
+
+- `Delete/Backspace` - Delete selected    - **Circle**: Circular arrangement
+
     - Smart auto-arrange after import
-    - Manual drag-and-drop positioning
+
+---    - Manual drag-and-drop positioning
+
   
-  - **💾 Export & Import**:
+
+## 🚀 Quick Start  - **💾 Export & Import**:
+
     - **JSON Export**: Simple format for easy editing
-    - **JSON Import**: Load saved architectures
-    - **PNG Export**: Download as image (2x resolution)
-    - Three sample architectures included:
-      - `simple-3-tier.json` - Basic web app
-      - `medium-serverless.json` - AWS serverless
-      - `complex-multi-cloud.json` - Enterprise multi-cloud
+
+### Prerequisites    - **JSON Import**: Load saved architectures
+
+```bash    - **PNG Export**: Download as image (2x resolution)
+
+Node.js >= 18.x    - Three sample architectures included:
+
+npm >= 10.x      - `simple-3-tier.json` - Basic web app
+
+Git      - `medium-serverless.json` - AWS serverless
+
+```      - `complex-multi-cloud.json` - Enterprise multi-cloud
+
   
-  - **🔧 Advanced Tools**:
+
+### Installation  - **🔧 Advanced Tools**:
+
     - Enhanced zoom (0.1x to 5x range)
-    - Pan and autopan on drag
-    - Delete nodes and connections
-    - Clear canvas
-    - Fit to screen
+
+```bash    - Pan and autopan on drag
+
+# Clone repository    - Delete nodes and connections
+
+git clone https://github.com/cisco/architecture-builder.git    - Clear canvas
+
+cd architecture-builder    - Fit to screen
+
     - Smart Arrange button for auto-layout
-  
-  - **📚 Documentation**:
+
+# Install dependencies  
+
+npm install  - **📚 Documentation**:
+
     - Complete developer guide: `CYTOSCAPE_DEVELOPER_GUIDE.md`
-    - Sample architectures in `/samples` folder
-    - API reference and best practices
-    - Troubleshooting section
 
-- **Modern UI/UX**
+# Start development server    - Sample architectures in `/samples` folder
+
+npm start    - API reference and best practices
+
+```    - Troubleshooting section
+
+
+
+Application opens at: **http://localhost:4200**- **Modern UI/UX**
+
   - Dark theme with gradient backgrounds
-  - Responsive design
+
+---  - Responsive design
+
   - Smooth animations and transitions
-  - Step indicators with completion status
 
-- **Data Source Management**
+## 📖 Usage Guide  - Step indicators with completion status
+
+
+
+### Basic Workflow- **Data Source Management**
+
   - Add/Edit/Remove data sources
-  - Multiple data source types (Database, File Storage, API, Stream, etc.)
-  - Format, volume, and frequency specifications
 
-- **Context Management**
+#### 1️⃣ Add Components  - Multiple data source types (Database, File Storage, API, Stream, etc.)
+
+- Browse **left sidebar** component library  - Format, volume, and frequency specifications
+
+- **Search** for specific components
+
+- **Drag & drop** onto canvas- **Context Management**
+
   - Upload and manage context files (Documents, PDFs, Audio, Video)
-  - Visual file type indicators
-  - File size display
 
-## 📋 Prerequisites
+#### 2️⃣ Draw Shapes  - Visual file type indicators
 
-Before you begin, ensure you have the following installed:
+- Select tool from **top toolbar**  - File size display
 
-- **Node.js**: v18.x, v20.x, or v22.x (LTS recommended)
-- **npm**: v9.x or higher (comes with Node.js)
+- **Click & drag** on canvas
+
+- Release to complete## 📋 Prerequisites
+
+
+
+#### 3️⃣ Create GroupsBefore you begin, ensure you have the following installed:
+
+- **Select** multiple items (Shift+Click or drag-select)
+
+- Press **Cmd+G** / **Ctrl+G**- **Node.js**: v18.x, v20.x, or v22.x (LTS recommended)
+
+- Items grouped with colored border- **npm**: v9.x or higher (comes with Node.js)
+
 - **Git**: For version control
 
-You can verify your installations:
+#### 4️⃣ Style Items
 
-```bash
-node --version
-npm --version
-git --version
+- **Select** item(s)You can verify your installations:
+
+- Use **right panel**:
+
+  - Toggle **Stroke/Fill** mode```bash
+
+  - Choose **color**node --version
+
+  - Adjust **opacity**npm --version
+
+  - Set **stroke width**git --version
+
 ```
 
-## 🛠️ Technology Stack
+#### 5️⃣ Edit Labels
 
-| Technology | Version | Purpose |
+- **Double-click** any shape## 🛠️ Technology Stack
+
+- Type new text
+
+- **Click outside** or press Enter| Technology | Version | Purpose |
+
 |------------|---------|---------|
-| Angular | 21.0.0 | Frontend framework |
-| TypeScript | 5.6.2 | Programming language |
-| Bootstrap | 5.3.3 | CSS framework |
+
+#### 6️⃣ Save Work| Angular | 21.0.0 | Frontend framework |
+
+- Click **"Save Architecture"**| TypeScript | 5.6.2 | Programming language |
+
+- JSON file downloads automatically| Bootstrap | 5.3.3 | CSS framework |
+
 | Font Awesome | 6.x | Icon library |
-| **Cytoscape.js** | **3.33.1** | **Graph visualization library** |
+
+---| **Cytoscape.js** | **3.33.1** | **Graph visualization library** |
+
 | cytoscape-edgehandles | 4.0.1 | Connection drawing extension |
-| cytoscape-autopan-on-drag | 2.2.1 | Auto-pan extension |
+
+## 🎨 Advanced Features| cytoscape-autopan-on-drag | 2.2.1 | Auto-pan extension |
+
 | Angular SSR | 21.0.4 | Server-side rendering |
-| RxJS | 7.8.1 | Reactive programming |
 
-## 📦 Installation
+### Nested Grouping| RxJS | 7.8.1 | Reactive programming |
 
-### Method 1: Standard Installation
+Create complex hierarchies:
+
+1. Create first-level groups (purple borders)## 📦 Installation
+
+2. Select multiple groups
+
+3. Press **Cmd+G** again### Method 1: Standard Installation
+
+4. Parent group created with different color (red, orange, etc.)
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/samba425/solutions-builder.git
-   cd architecture-builder
-   ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Extract & Regroup   ```bash
 
-3. **Start the development server**
-   ```bash
-   npm start
-   ```
+Mix items from different groups:   git clone https://github.com/samba425/solutions-builder.git
 
-4. **Open your browser**
+1. Click items from **Group A**   cd architecture-builder
+
+2. Shift+Click items from **Group B**     ```
+
+3. Press **Cmd+G**
+
+4. New group created, old groups auto-update2. **Install dependencies**
+
+   ```bash
+
+### Group Border Colors   npm install
+
+- **Level 0**: 🟣 Purple   ```
+
+- **Level 1**: 🔴 Red
+
+- **Level 2**: 🟠 Orange3. **Start the development server**
+
+- **Level 3**: 🟢 Green   ```bash
+
+- **Level 4**: 🔵 Blue   npm start
+
+- **Level 5+**: 🟣 Violet   ```
+
+
+
+### Stroke vs Fill Colors4. **Open your browser**
+
    Navigate to `http://localhost:4200/`
 
-The application will automatically reload when you make changes to the source files.
+**Stroke Color** (Border Mode):
 
-### Method 2: Docker Installation
+- Changes **group border** colorThe application will automatically reload when you make changes to the source files.
 
-#### Using Docker Compose (Recommended)
+- Modifies **text** color
 
-1. **Clone the repository**
-   ```bash
+- Adjusts **shape outlines**### Method 2: Docker Installation
+
+
+
+**Fill Color** (Interior Mode):#### Using Docker Compose (Recommended)
+
+- Changes **component icons**
+
+- Modifies **shape fills**1. **Clone the repository**
+
+- Regenerates SVG icons with new colors   ```bash
+
    git clone https://github.com/samba425/solutions-builder.git
-   cd architecture-builder
+
+---   cd architecture-builder
+
    ```
+
+## 💾 Sample Architectures
 
 2. **Start the application**
-   ```bash
+
+### Included Samples   ```bash
+
    docker-compose up
+
+**1. AI Foundation Models Test** (`ai-foundation-models-test.json`)   ```
+
+- 6 components (3 open-source, 3 closed-source)
+
+- Demonstrates basic grouping3. **Access the application**
+
+- Perfect for learning   Open your browser and navigate to `http://localhost:4200/`
+
+
+
+**2. AI Components Showcase** (`ai-showcase-complete.json`)4. **Stop the application**
+
+- 47 components across 6 categories   ```bash
+
+- Complex nested grouping   docker-compose down
+
+- Full-featured example   ```
+
+
+
+**3. Simple 3-Tier** (`simple-3-tier.json`)#### Using Docker CLI
+
+- Basic web application architecture
+
+- Frontend, Backend, Database layers1. **Build the Docker image**
+
+   ```bash
+
+### Loading Samples   docker build -t architecture-builder .
+
+1. Click **"Import Architecture"**   ```
+
+2. Select file from `/samples` folder
+
+3. Architecture loads instantly2. **Run the container**
+
+   ```bash
+
+---   docker run -p 4200:4200 architecture-builder
+
    ```
+
+## 🛠️ Development
 
 3. **Access the application**
-   Open your browser and navigate to `http://localhost:4200/`
 
-4. **Stop the application**
-   ```bash
-   docker-compose down
-   ```
+### Project Structure   Open your browser and navigate to `http://localhost:4200/`
 
-#### Using Docker CLI
 
-1. **Build the Docker image**
-   ```bash
-   docker build -t architecture-builder .
-   ```
 
-2. **Run the container**
-   ```bash
-   docker run -p 4200:4200 architecture-builder
-   ```
+```## 🏗️ Build
 
-3. **Access the application**
-   Open your browser and navigate to `http://localhost:4200/`
+architecture-builder/
 
-## 🏗️ Build
+├── src/### Development Build
 
-### Development Build
-```bash
-npm run build
-```
+│   ├── app/```bash
 
-The build artifacts will be stored in the `dist/` directory.
+│   │   ├── components/npm run build
 
-### Production Build
-```bash
-ng build --configuration production
-```
+│   │   │   ├── konva-canvas-main/      # 🎯 Main canvas component```
 
-This creates an optimized production build with:
-- Minification
-- Tree shaking
-- Ahead-of-Time (AOT) compilation
-- Server-side rendering support
+│   │   │   │   ├── konva-canvas-main.component.ts
 
-## 🧪 Running Tests
+│   │   │   │   ├── konva-canvas-main.component.htmlThe build artifacts will be stored in the `dist/` directory.
 
-### Unit Tests
-```bash
+│   │   │   │   └── konva-canvas-main.component.css
+
+│   │   │   └── header/### Production Build
+
+│   │   ├── data/```bash
+
+│   │   │   ├── components-config.ts     # Component libraryng build --configuration production
+
+│   │   │   └── components-data.ts```
+
+│   │   ├── models/
+
+│   │   │   └── interfaces.tsThis creates an optimized production build with:
+
+│   │   └── services/- Minification
+
+│   ├── styles.css- Tree shaking
+
+│   └── main.ts- Ahead-of-Time (AOT) compilation
+
+├── samples/                             # Sample architectures- Server-side rendering support
+
+├── docs/                                # Documentation
+
+├── package.json## 🧪 Running Tests
+
+├── angular.json
+
+└── tsconfig.json### Unit Tests
+
+``````bash
+
 ng test
-```
 
-This executes unit tests via [Karma](https://karma-runner.github.io).
+### Key Technologies```
 
-### End-to-End Tests
-```bash
-ng e2e
-```
+
+
+| Technology | Version | Purpose |This executes unit tests via [Karma](https://karma-runner.github.io).
+
+|------------|---------|---------|
+
+| Angular | 21.0.0 | Framework |### End-to-End Tests
+
+| Konva.js | 10.0.12 | Canvas rendering |```bash
+
+| TypeScript | 5.9.2 | Type safety |ng e2e
+
+| RxJS | 7.8.0 | Reactive programming |```
+
+| Angular Signals | 21.0 | State management |
 
 ## 📂 Project Structure
 
+### Scripts
+
 ```
-architecture-builder/
-├── src/
-│   ├── app/
-│   │   ├── components/
-│   │   │   ├── home/              # Main wizard container
-│   │   │   ├── problem-input/     # Step 1: Problem input form
-│   │   │   ├── review/            # Step 2: Review screen
+
+```basharchitecture-builder/
+
+npm start              # Development server (port 4200)├── src/
+
+npm run build          # Production build│   ├── app/
+
+npm run watch          # Build with watch mode│   │   ├── components/
+
+npm test               # Run tests│   │   │   ├── home/              # Main wizard container
+
+npm run serve:ssr      # Serve with SSR│   │   │   ├── problem-input/     # Step 1: Problem input form
+
+```│   │   │   ├── review/            # Step 2: Review screen
+
 │   │   │   └── architecture/      # Step 3: Architecture generation
-│   │   ├── app.component.ts       # Root component
+
+### Adding Components│   │   ├── app.component.ts       # Root component
+
 │   │   ├── app.config.ts          # App configuration
-│   │   └── app.routes.ts          # Routing configuration
+
+**1. Define in `components-config.ts`:**│   │   └── app.routes.ts          # Routing configuration
+
 │   ├── styles.css                 # Global styles
-│   ├── index.html                 # HTML entry point
-│   └── main.ts                    # Application bootstrap
-├── public/                        # Static assets
-├── angular.json                   # Angular CLI configuration
-├── package.json                   # Dependencies and scripts
-├── tsconfig.json                  # TypeScript configuration
-├── Dockerfile                     # Docker configuration
-├── docker-compose.yml             # Docker Compose configuration
-└── README.md                      # This file
-```
 
-## 🎨 Component Overview
+```typescript│   ├── index.html                 # HTML entry point
 
-### Home Component
+export const MY_COMPONENT: ComponentDefinition = {│   └── main.ts                    # Application bootstrap
+
+  id: 'my-component',├── public/                        # Static assets
+
+  name: 'My Component',├── angular.json                   # Angular CLI configuration
+
+  icon: '🚀',├── package.json                   # Dependencies and scripts
+
+  faIcon: 'fa-rocket',├── tsconfig.json                  # TypeScript configuration
+
+  color: '#ff6b6b',├── Dockerfile                     # Docker configuration
+
+  description: 'Component description',├── docker-compose.yml             # Docker Compose configuration
+
+  provider: 'Provider Name',└── README.md                      # This file
+
+  category: 'my-category'```
+
+};
+
+```## 🎨 Component Overview
+
+
+
+**2. Add to array:**### Home Component
+
 - Main wizard container
-- Manages step navigation
-- Shared form data state
-- Step indicators with progress tracking
 
-### Problem Input Component
-- Industry category selection
+```typescript- Manages step navigation
+
+export const COMPONENTS: ComponentItem[] = [- Shared form data state
+
+  // ...existing- Step indicators with progress tracking
+
+  MY_COMPONENT
+
+];### Problem Input Component
+
+```- Industry category selection
+
 - Business scenario textarea
-- Context file management (Document, PDF, Audio, Video)
+
+Component appears automatically in sidebar!- Context file management (Document, PDF, Audio, Video)
+
 - Data source management with modal
-- Form validation
 
-### Review Component
+---- Form validation
+
+
+
+## 🏗️ Architecture### Review Component
+
 - Comprehensive input review
-- Section-wise edit capabilities
+
+### Component Architecture- Section-wise edit capabilities
+
 - Industry, Business, Context, and Data Sources display
-- Navigation to previous step or architecture generation
 
-### Architecture Component
-- Final review before generation
-- Edit functionality for each section
-- Smart navigation (different sections → different steps)
-- Architecture generation trigger
+```- Navigation to previous step or architecture generation
 
-## 🐳 Docker Configuration
+AppComponent
 
-### Dockerfile Features
-- Multi-stage build for optimal image size
-- Node.js 20 Alpine base image
-- Production-optimized build
-- Port 4200 exposed
-- Health check included
+└── KonvaCanvasMainComponent### Architecture Component
 
-### Docker Compose Features
+    ├── Left Sidebar (Component Library)- Final review before generation
+
+    │   ├── Search- Edit functionality for each section
+
+    │   ├── Categories- Smart navigation (different sections → different steps)
+
+    │   └── Draggable Components- Architecture generation trigger
+
+    ├── Canvas Area (Konva Stage)
+
+    │   ├── Background Layer## 🐳 Docker Configuration
+
+    │   ├── Grid Layer
+
+    │   └── Main Layer (shapes, groups)### Dockerfile Features
+
+    ├── Top Toolbar (Drawing Tools)- Multi-stage build for optimal image size
+
+    └── Right Panel (Style Controls)- Node.js 20 Alpine base image
+
+        ├── Color Mode Toggle- Production-optimized build
+
+        ├── Color Picker- Port 4200 exposed
+
+        ├── Opacity Sliders- Health check included
+
+        └── Stroke Width
+
+```### Docker Compose Features
+
 - Single command deployment
-- Volume mounting for development
+
+### Data Flow- Volume mounting for development
+
 - Automatic restart policy
-- Port mapping configuration
 
-## 🔧 Available Scripts
+```- Port mapping configuration
 
-| Command | Description |
+User Action → Angular Component → Konva.js API → Canvas Rendering
+
+     ↓              ↓                    ↓              ↓## 🔧 Available Scripts
+
+  Signals     State Update        Layer Update    Visual Update
+
+```| Command | Description |
+
 |---------|-------------|
-| `npm start` | Start development server on port 4200 |
+
+### Key Design Patterns| `npm start` | Start development server on port 4200 |
+
 | `npm run build` | Build the project for development |
-| `ng build --configuration production` | Build the project for production |
-| `ng test` | Run unit tests |
-| `ng serve` | Serve the application |
+
+- **Signals**: Reactive state (Angular 21)| `ng build --configuration production` | Build the project for production |
+
+- **Command Pattern**: Undo/Redo system| `ng test` | Run unit tests |
+
+- **Factory Pattern**: Component creation| `ng serve` | Serve the application |
+
+- **Observer**: Event handling
 
 ## 🎯 Usage Guide
 
-### Step 1: Problem Input
-1. Select your industry category from the dropdown
-2. Describe your business scenario in the textarea
-3. (Optional) Add context by clicking context buttons (Document, PDF, Audio, Video)
-4. Add data sources by clicking "Add Data Source"
-5. Fill in data source details (Name*, Type*, Format, Volume, Frequency, Description)
-6. Click "Continue to Preview"
+---
 
-### Step 2: Review Your Input
+### Step 1: Problem Input
+
+## 📦 Build & Deploy1. Select your industry category from the dropdown
+
+2. Describe your business scenario in the textarea
+
+### Production Build3. (Optional) Add context by clicking context buttons (Document, PDF, Audio, Video)
+
+4. Add data sources by clicking "Add Data Source"
+
+```bash5. Fill in data source details (Name*, Type*, Format, Volume, Frequency, Description)
+
+npm run build6. Click "Continue to Preview"
+
+# Output: dist/architecture-builder/browser/
+
+```### Step 2: Review Your Input
+
 1. Review all entered information
-2. Click "Edit" on any section to make changes
+
+### Docker Deployment2. Click "Edit" on any section to make changes
+
    - Industry/Business/Context edits → Go back to Step 1
-   - Data Sources edit → Opens modal for inline editing
-3. Click "Continue to Preview" to proceed
+
+```bash   - Data Sources edit → Opens modal for inline editing
+
+# Build image3. Click "Continue to Preview" to proceed
+
+docker build -t architecture-builder .
 
 ### Step 3: Architecture
-1. Final review of all inputs
-2. Edit any section if needed
-3. Click "Open Canvas" to design visually with Cytoscape canvas
+
+# Run container1. Final review of all inputs
+
+docker run -p 8080:80 architecture-builder2. Edit any section if needed
+
+```3. Click "Open Canvas" to design visually with Cytoscape canvas
+
 4. Click "Generate Architecture" to create your solution
+
+### Docker Compose
 
 ### Cytoscape Canvas (Visual Designer)
 
-**Recommended Route**: Step 3 → "Open Canvas" → Interactive Cytoscape Builder
+```bash
+
+docker-compose up**Recommended Route**: Step 3 → "Open Canvas" → Interactive Cytoscape Builder
+
+```
 
 #### Getting Started
-1. Navigate to `/cytoscape` or click "Open Canvas" from Step 3
-2. Browse the **component library** in the left sidebar
-3. Drag components onto the canvas
-4. Create connections between nodes
-5. Organize with groups
-6. Export your design
 
-#### Component Library (50+ Services)
+---1. Navigate to `/cytoscape` or click "Open Canvas" from Step 3
+
+2. Browse the **component library** in the left sidebar
+
+## 🐛 Troubleshooting3. Drag components onto the canvas
+
+4. Create connections between nodes
+
+### Canvas Not Rendering5. Organize with groups
+
+- Check browser console for errors6. Export your design
+
+- Verify Konva.js loaded successfully
+
+- Clear browser cache#### Component Library (50+ Services)
+
 **Categories**:
-- 🏗️ **Infrastructure** - EC2, Compute Engine, VMs, Kubernetes, Docker
-- 🤖 **AI & ML** - SageMaker, Vertex AI, TensorFlow, PyTorch
-- 💾 **Storage** - S3, Cloud Storage, MongoDB, PostgreSQL, Redis
-- 🌐 **Networking** - API Gateway, Load Balancer, CDN, VPN
+
+### Performance Issues- 🏗️ **Infrastructure** - EC2, Compute Engine, VMs, Kubernetes, Docker
+
+- Reduce number of items on canvas- 🤖 **AI & ML** - SageMaker, Vertex AI, TensorFlow, PyTorch
+
+- Use grouping to organize- 💾 **Storage** - S3, Cloud Storage, MongoDB, PostgreSQL, Redis
+
+- Close other browser tabs- 🌐 **Networking** - API Gateway, Load Balancer, CDN, VPN
+
 - ⚡ **Serverless** - Lambda, Cloud Functions, Azure Functions
-- 📊 **Data Processing** - Spark, Kafka, Airflow, Databricks
-- 🗄️ **Databases** - RDS, Cloud SQL, DynamoDB, Cosmos DB
-- 🔧 **Cisco** - Catalyst, Webex, Meraki, SecureX
+
+### Export/Import Fails- 📊 **Data Processing** - Spark, Kafka, Airflow, Databricks
+
+- Check file permissions- 🗄️ **Databases** - RDS, Cloud SQL, DynamoDB, Cosmos DB
+
+- Verify JSON format- 🔧 **Cisco** - Catalyst, Webex, Meraki, SecureX
+
+- Look for console errors
 
 #### Creating Connections
-1. Click **"Toggle Draw Mode"** button (🔗 icon) in toolbar
-2. Click on source node - a handle appears
-3. Drag handle to target node
-4. Release to create connection
-5. Double-click connection to customize label/style
 
-#### Working with Groups
+---1. Click **"Toggle Draw Mode"** button (🔗 icon) in toolbar
+
+2. Click on source node - a handle appears
+
+## 📚 Documentation3. Drag handle to target node
+
+4. Release to create connection
+
+- **[Developer Guide](DEVELOPER_GUIDE.md)** - Complete development docs5. Double-click connection to customize label/style
+
+- **[Code Cleanup Analysis](CODE_CLEANUP_ANALYSIS.md)** - Package cleanup report
+
+- **[Konva Special Features](KONVA_SPECIAL_FEATURES.md)** - Advanced Konva usage#### Working with Groups
+
 1. Click **"Create Group"** button (📦 icon)
-2. A new group appears on canvas
+
+---2. A new group appears on canvas
+
 3. Drag nodes into the group
-4. Double-click group to customize name/color
+
+## 🤝 Contributing4. Double-click group to customize name/color
+
 5. Move group to move all children together
 
-**Use Cases for Groups**:
-- Tier-based architecture (Frontend, Backend, Data)
-- Cloud provider separation (AWS, GCP, Azure)
-- Environment isolation (Dev, Staging, Prod)
+1. Fork repository
+
+2. Create feature branch (`git checkout -b feature/amazing-feature`)**Use Cases for Groups**:
+
+3. Commit changes (`git commit -m 'Add amazing feature'`)- Tier-based architecture (Frontend, Backend, Data)
+
+4. Push to branch (`git push origin feature/amazing-feature`)- Cloud provider separation (AWS, GCP, Azure)
+
+5. Open Pull Request- Environment isolation (Dev, Staging, Prod)
+
 - Service domains (Auth, Analytics, Storage)
 
+### Code Standards
+
 #### Layout & Positioning
-**Manual Positioning**:
-- Drag nodes to desired positions
-- Groups can be moved with children
+
+- **TypeScript**: Strict mode enabled**Manual Positioning**:
+
+- **Linting**: Angular style guide- Drag nodes to desired positions
+
+- **Comments**: Document complex logic- Groups can be moved with children
+
+- **Testing**: Unit tests for features
 
 **Auto-Arrange**:
-1. Click **"✨ Smart Arrange"** button
+
+---1. Click **"✨ Smart Arrange"** button
+
 2. Algorithm: COSE (Compound Spring Embedder)
-3. Creates compact layouts with short connections
+
+## 📄 License3. Creates compact layouts with short connections
+
 4. Respects group hierarchies
 
+MIT License - see [LICENSE](LICENSE)
+
 **Zoom & Navigation**:
-- Mouse wheel to zoom (0.1x to 5x)
+
+---- Mouse wheel to zoom (0.1x to 5x)
+
 - Click and drag background to pan
-- Auto-pan activates near edges when dragging
+
+## 🙏 Acknowledgments- Auto-pan activates near edges when dragging
+
 - **Fit to Screen**: Click fit button
 
-#### Node Details
-Hover over any node to see:
-- Component name
+- **Konva.js** - Canvas library
+
+- **Angular Team** - Framework#### Node Details
+
+- **Iconify** - Icon APIHover over any node to see:
+
+- **Font Awesome** - Icons- Component name
+
 - Category (Infrastructure, AI/ML, etc.)
-- Provider (AWS, GCP, Azure, Cisco)
+
+---- Provider (AWS, GCP, Azure, Cisco)
+
 - Description
+
+## 📞 Support
 
 Tooltip appears in top-right corner with scrollable content.
 
-#### Saving & Loading
-**Save Work**:
-- Changes auto-save to browser localStorage
-- Persists across sessions
-- No server required
+- **Issues**: [GitHub Issues](https://github.com/cisco/architecture-builder/issues)
 
-**Load Sample**:
-1. Click **"Import JSON"**
-2. Select from 3 sample architectures:
-   - `simple-3-tier.json` - React + Node.js + PostgreSQL
-   - `medium-serverless.json` - AWS serverless stack
-   - `complex-multi-cloud.json` - Enterprise multi-cloud
-3. Or upload your own JSON file
+- **Email**: asambasi@cisco.com#### Saving & Loading
+
+**Save Work**:
+
+---- Changes auto-save to browser localStorage
+
+- Persists across sessions
+
+## 🗺️ Roadmap- No server required
+
+
+
+- [ ] Collaborative editing (WebSockets)**Load Sample**:
+
+- [ ] Export to PNG/SVG1. Click **"Import JSON"**
+
+- [ ] More component libraries (Kubernetes, Databases)2. Select from 3 sample architectures:
+
+- [ ] Auto-layout algorithms   - `simple-3-tier.json` - React + Node.js + PostgreSQL
+
+- [ ] Snap-to-grid enhancements   - `medium-serverless.json` - AWS serverless stack
+
+- [ ] Version control integration   - `complex-multi-cloud.json` - Enterprise multi-cloud
+
+- [ ] Cloud storage sync3. Or upload your own JSON file
+
+- [ ] Template marketplace
 
 #### Exporting Designs
 
+---
+
 **JSON Export**:
-1. Click **"Export JSON"** button
+
+## 📊 Stats1. Click **"Export JSON"** button
+
 2. Downloads architecture in simple format:
-```json
-{
-  "nodes": [
-    {
-      "id": "node-1",
-      "name": "AWS EC2",
+
+- **Components**: 47+```json
+
+- **Categories**: 6{
+
+- **Tools**: 7 drawing tools  "nodes": [
+
+- **Colors**: 12 + custom picker    {
+
+- **Keyboard Shortcuts**: 7      "id": "node-1",
+
+- **Sample Files**: 3      "name": "AWS EC2",
+
       "icon": "fab fa-aws",
-      "color": "#FF9900",
+
+---      "color": "#FF9900",
+
       "x": 400,
-      "y": 100,
+
+**Built with ❤️ by Cisco**      "y": 100,
+
       "componentProperties": {
-        "category": "Infrastructure",
+
+*Empowering architects to design better systems*        "category": "Infrastructure",
+
         "provider": "AWS"
       }
     }
