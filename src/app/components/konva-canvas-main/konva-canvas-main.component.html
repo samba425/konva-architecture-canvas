@@ -17,6 +17,12 @@
           (ngModelChange)="searchQuery.set($event)"
         />
       </div>
+      
+      <!-- Add Custom Component Button -->
+      <button class="add-custom-btn" (click)="openCustomComponentModal()" title="Add Custom Component">
+        <span class="btn-icon">⭐</span>
+        <span class="btn-text">Add Custom Component</span>
+      </button>
 
       <!-- Categories Container (Full Height Scrollable) -->
       <div class="categories-container">
@@ -44,9 +50,12 @@
               [style.border-left-color]="component.color"
             >
               <div class="service-icon" [style.color]="component.color">
-                <!-- Show Font Awesome icon if available, otherwise show emoji -->
-                <i *ngIf="component.faIcon" [class]="component.faIcon"></i>
-                <span *ngIf="!component.faIcon">{{ component.icon }}</span>
+                <!-- Show custom uploaded image if available -->
+                <img *ngIf="hasCustomImage(component)" [src]="getCustomImageUrl(component)" alt="Custom icon" class="custom-icon-img" />
+                <!-- Show Font Awesome icon if available and no custom image -->
+                <i *ngIf="!hasCustomImage(component) && component.faIcon" [class]="component.faIcon"></i>
+                <!-- Show emoji as fallback -->
+                <span *ngIf="!hasCustomImage(component) && !component.faIcon">{{ component.icon }}</span>
               </div>
               <div class="service-content">
                 <div class="service-header">
@@ -429,5 +438,96 @@
       </div>
     </div>
     
+  </div>
+</div>
+
+<!-- Custom Component Creator Modal -->
+<div *ngIf="showCustomComponentModal()" class="modal-overlay" (click)="closeCustomComponentModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create Custom Component</h2>
+      <button class="modal-close-btn" (click)="closeCustomComponentModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Component Name -->
+      <div class="form-group">
+        <label for="component-name">Component Name *</label>
+        <input 
+          type="text" 
+          id="component-name"
+          class="form-control"
+          placeholder="e.g., My Custom Service"
+          [ngModel]="customComponentName()"
+          (ngModelChange)="customComponentName.set($event)"
+        />
+      </div>
+      
+      <!-- Component Description -->
+      <div class="form-group">
+        <label for="component-description">Description</label>
+        <textarea 
+          id="component-description"
+          class="form-control"
+          placeholder="Brief description of the component"
+          rows="3"
+          [ngModel]="customComponentDescription()"
+          (ngModelChange)="customComponentDescription.set($event)"
+        ></textarea>
+      </div>
+      
+      <!-- Color and Icon Row -->
+      <div class="form-row">
+        <!-- Color Picker -->
+        <div class="form-group" style="flex: 1;">
+          <label for="component-color">Color</label>
+          <input 
+            type="color" 
+            id="component-color"
+            class="form-control color-picker"
+            [ngModel]="customComponentColor()"
+            (ngModelChange)="customComponentColor.set($event)"
+          />
+        </div>
+        
+        <!-- Icon/Emoji -->
+        <div class="form-group" style="flex: 1;">
+          <label for="component-icon">Icon/Emoji</label>
+          <input 
+            type="text" 
+            id="component-icon"
+            class="form-control"
+            placeholder="📦"
+            maxlength="4"
+            [ngModel]="customComponentIcon()"
+            (ngModelChange)="customComponentIcon.set($event)"
+          />
+        </div>
+      </div>
+      
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label for="component-image">Upload Icon/Image (Optional)</label>
+        <input 
+          type="file" 
+          id="component-image"
+          class="form-control file-input"
+          accept="image/*"
+          (change)="onCustomComponentImageUpload($event)"
+        />
+        <small class="form-hint">SVG, PNG, or JPG. Will replace emoji/icon if uploaded.</small>
+      </div>
+      
+      <!-- Image Preview -->
+      <div *ngIf="customComponentImageUrl()" class="image-preview">
+        <label>Preview:</label>
+        <img [src]="customComponentImageUrl()" alt="Component preview" />
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCustomComponentModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitCustomComponent()">Add Component</button>
+    </div>
   </div>
 </div>

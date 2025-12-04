@@ -147,7 +147,16 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // Component categories with icons - loaded from config
   categories: ComponentCategory[] = [];
-  
+
+  // Custom component creator
+  showCustomComponentModal = signal(false);
+  customComponentName = signal('');
+  customComponentDescription = signal('');
+  customComponentColor = signal('#3b82f6');
+  customComponentIcon = signal('');
+  customComponentImageFile: File | null = null;
+  customComponentImageUrl = signal('');
+
   // Use inject() function for Angular 21+ compatibility
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
@@ -155,6 +164,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.loadComponentsFromConfig();
+    this.loadCustomComponents(); // Load saved custom components
     this.loadIconCacheFromStorage();
   }
   
@@ -515,6 +525,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // Handle window resize
     window.addEventListener('resize', () => this.handleResize());
     
+    // Save initial state to history
+    this.saveHistory();
+    
     console.log('✅ Konva stage initialized');
   }
   
@@ -634,11 +647,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       // Handle hand tool for panning
       if (tool === 'hand') {
         this.isPanning = true;
-        this.lastPointerPosition = pos;
+        // Store screen position (not transformed) for panning
+        const screenPos = this.stage.getPointerPosition();
+        this.lastPointerPosition = screenPos || pos;
         this.stage.container().style.cursor = 'grabbing';
         return;
       }
       
+      // Don't start drawing if clicking on a shape or transformer
       if (e.target !== this.stage) {
         return;
       }
@@ -804,6 +820,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         return;
       }
       
+      // Don't create shapes if we're not painting (prevents creating shapes when releasing after resize/drag)
       if (!this.isPaint) return;
       
       this.isPaint = false;
@@ -1215,8 +1232,54 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     group.setAttr('componentName', component.name);
     group.setAttr('iconColor', iconColor); // Store icon color for export/import
     
+    // Check if this is a custom component with uploaded image
+    const customImageUrl = (component as any).imageUrl;
+    if (customImageUrl) {
+      // Handle custom uploaded image
+      try {
+        const imageObj = new Image();
+        imageObj.onload = () => {
+          const icon = new Konva.Image({
+            x: 16,
+            y: 0,
+            image: imageObj,
+            width: 48,
+            height: 48
+          });
+          
+          // Add icon to group first
+          group.add(icon);
+          
+          // Then add name text below icon
+          const name = new Konva.Text({
+            x: 0,
+            y: 55,
+            text: component.name,
+            fontSize: 14,
+            fontStyle: 'bold',
+            align: 'center',
+            fill: textColor,
+            width: 80
+          });
+          
+          group.add(name);
+          this.layer.batchDraw();
+        };
+        
+        imageObj.onerror = () => {
+          console.error('Failed to load custom image');
+          // Fallback to emoji
+          this.addComponentWithEmojiIcon(group, component, textColor);
+        };
+        
+        imageObj.src = customImageUrl;
+      } catch (error) {
+        console.error('Error loading custom image:', error);
+        this.addComponentWithEmojiIcon(group, component, textColor);
+      }
+    }
     // Use Font Awesome icon via Iconify API
-    if (component.faIcon) {
+    else if (component.faIcon) {
       try {
         const iconDataURL = await this.generateIconDataURL(component.faIcon, iconColor);
         
@@ -1336,10 +1399,90 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // History management
   private saveHistory(): void {
-    const json = this.layer.toJSON();
+    // Export all shapes with custom logic to preserve icons and attributes
+    const shapes = this.layer.children.filter((child: any) => 
+      child.getClassName() !== 'Transformer' && !child.hasName('selection-box')
+    ).map((shape: any) => this.exportShapeForHistory(shape)).filter(s => s !== null);
+    
+    const json = JSON.stringify({ shapes });
     this.history = this.history.slice(0, this.historyStep + 1);
     this.history.push(json);
     this.historyStep++;
+  }
+  
+  // Simplified export for history (similar to exportToJSON but lighter)
+  private exportShapeForHistory(shape: any): any {
+    const className = shape.getClassName();
+    if (!className || className === 'Shape') return null;
+    
+    const data: any = {
+      id: shape.id(),
+      type: className,
+      x: shape.x(),
+      y: shape.y(),
+      rotation: shape.rotation() || 0,
+      scaleX: shape.scaleX() || 1,
+      scaleY: shape.scaleY() || 1,
+    };
+    
+    if (className === 'Group' && shape.hasName('component-group')) {
+      data.groupType = 'component-group';
+      data.faIcon = shape.getAttr('faIcon');
+      data.iconColor = shape.getAttr('iconColor');
+      data.componentIcon = shape.getAttr('componentIcon');
+      
+      // PRIORITY 1: Get from componentName attribute (most reliable)
+      let componentName = shape.getAttr('componentName');
+      
+      // PRIORITY 2: Get from text child as fallback
+      if (!componentName) {
+        const children = shape.getChildren();
+        const nameText = children.find((child: any) => 
+          child.getClassName() === 'Text' && child.y() > 50
+        );
+        
+        if (nameText) {
+          componentName = nameText.text();
+          data.textColor = nameText.fill();
+        } else {
+          // PRIORITY 3: Try children[1]
+          const secondChild = children[1];
+          if (secondChild && secondChild.getClassName() === 'Text') {
+            componentName = secondChild.text();
+            data.textColor = secondChild.fill();
+          }
+        }
+      } else {
+        // If we got name from attribute, still get textColor from child
+        const children = shape.getChildren();
+        const nameText = children.find((child: any) => 
+          child.getClassName() === 'Text' && child.y() > 50
+        );
+        if (nameText) {
+          data.textColor = nameText.fill();
+        }
+      }
+      
+      data.componentName = componentName || 'Component';
+    } else if (className === 'Text') {
+      data.text = shape.text();
+      data.fontSize = shape.fontSize();
+      data.fontFamily = shape.fontFamily();
+      data.fill = shape.fill();
+      data.width = shape.width();
+    } else if (className === 'Rect') {
+      data.width = shape.width();
+      data.height = shape.height();
+      data.fill = shape.fill();
+      data.stroke = shape.stroke();
+      data.strokeWidth = shape.strokeWidth();
+      data.cornerRadius = shape.cornerRadius() || 0;
+    } else {
+      // For other shapes, use Konva's toJSON as fallback
+      return shape.toObject();
+    }
+    
+    return data;
   }
   
   // Keyboard shortcuts
@@ -1420,18 +1563,159 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     if (this.historyStep === 0) return;
     this.historyStep--;
     const json = this.history[this.historyStep];
-    this.layer.destroyChildren();
-    this.layer = Konva.Node.create(json, this.stage.container());
-    this.stage.add(this.layer);
+    
+    // Clear current layer (but keep transformer)
+    this.layer.children.forEach((child: any) => {
+      if (child !== this.transformer) {
+        child.destroy();
+      }
+    });
+    
+    // Restore shapes from history
+    try {
+      const data = JSON.parse(json);
+      if (data.shapes) {
+        data.shapes.forEach((shapeData: any) => {
+          this.restoreShapeFromHistory(shapeData);
+        });
+      }
+    } catch (error) {
+      console.error('Error restoring from history:', error);
+    }
+    
+    this.layer.batchDraw();
   }
   
   redo(): void {
     if (this.historyStep === this.history.length - 1) return;
     this.historyStep++;
     const json = this.history[this.historyStep];
-    this.layer.destroyChildren();
-    this.layer = Konva.Node.create(json, this.stage.container());
-    this.stage.add(this.layer);
+    
+    // Clear current layer (but keep transformer)
+    this.layer.children.forEach((child: any) => {
+      if (child !== this.transformer) {
+        child.destroy();
+      }
+    });
+    
+    // Restore shapes from history
+    try {
+      const data = JSON.parse(json);
+      if (data.shapes) {
+        data.shapes.forEach((shapeData: any) => {
+          this.restoreShapeFromHistory(shapeData);
+        });
+      }
+    } catch (error) {
+      console.error('Error restoring from history:', error);
+    }
+    
+    this.layer.batchDraw();
+  }
+  
+  // Restore a shape from history data
+  private restoreShapeFromHistory(shapeData: any): void {
+    if (!shapeData || !shapeData.type) return;
+    
+    let shape: any;
+    
+    if (shapeData.type === 'Group' && shapeData.groupType === 'component-group') {
+      // Restore component group with icon
+      shape = new Konva.Group({
+        id: shapeData.id,
+        x: shapeData.x,
+        y: shapeData.y,
+        draggable: true,
+        name: 'component-group'
+      });
+      
+      // Store icon attributes AND componentName
+      shape.setAttr('faIcon', shapeData.faIcon);
+      shape.setAttr('iconColor', shapeData.iconColor);
+      shape.setAttr('componentName', shapeData.componentName || 'Component');
+      if (shapeData.componentIcon) {
+        shape.setAttr('componentIcon', shapeData.componentIcon);
+      }
+      
+      // Apply scale
+      if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+      if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+      
+      // Load icon async
+      if (shapeData.faIcon) {
+        this.generateIconDataURL(shapeData.faIcon, shapeData.iconColor || '#3b82f6').then(iconDataURL => {
+          const imageObj = new Image();
+          imageObj.onload = () => {
+            shape.destroyChildren();
+            
+            const icon = new Konva.Image({
+              x: 16,
+              y: 0,
+              image: imageObj,
+              width: 48,
+              height: 48
+            });
+            
+            const name = new Konva.Text({
+              x: 0,
+              y: 55,
+              text: shapeData.componentName || 'Component',
+              fontSize: 14,
+              fontStyle: 'bold',
+              align: 'center',
+              fill: shapeData.textColor || '#1a1a1a',
+              width: 80
+            });
+            
+            shape.add(icon, name);
+            // Re-apply scale after children are added
+            if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+            if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+            this.layer.batchDraw();
+          };
+          imageObj.src = iconDataURL;
+        });
+      }
+      
+      this.layer.add(shape);
+    } else if (shapeData.type === 'Text') {
+      shape = new Konva.Text({
+        id: shapeData.id,
+        x: shapeData.x,
+        y: shapeData.y,
+        text: shapeData.text,
+        fontSize: shapeData.fontSize,
+        fill: shapeData.fill,
+        width: shapeData.width,
+        draggable: true
+      });
+      if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+      if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+      shape.on('dblclick dbltap', () => this.editText(shape));
+      this.layer.add(shape);
+    } else if (shapeData.type === 'Rect') {
+      shape = new Konva.Rect({
+        id: shapeData.id,
+        x: shapeData.x,
+        y: shapeData.y,
+        width: shapeData.width,
+        height: shapeData.height,
+        fill: shapeData.fill,
+        stroke: shapeData.stroke,
+        draggable: true
+      });
+      if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+      if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+      this.layer.add(shape);
+    } else {
+      // Fallback: use Konva's fromObject
+      try {
+        shape = Konva.Node.create(shapeData);
+        this.layer.add(shape);
+      } catch (error) {
+        console.error('Could not restore shape:', shapeData, error);
+      }
+    }
   }
   
   deleteSelected(): void {
@@ -1817,10 +2101,16 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       this.applyStrokeColorToNode(node, color);
     });
     this.layer.batchDraw();
+    this.saveHistory();
   }
   
   private applyStrokeColorToNode(node: any, color: string): void {
     if (node instanceof Konva.Shape) {
+      // For Text shapes, don't apply stroke - text color should only use Fill mode
+      if (node instanceof Konva.Text) {
+        // Text shapes should only use Fill mode for color, ignore Stroke mode
+        return;
+      }
       const opacity = this.strokeOpacity() / 100;
       node.stroke(this.hexToRgba(color, opacity));
     } else if (node instanceof Konva.Group) {
@@ -1851,13 +2141,34 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       this.applyFillColorToNode(node, color);
     });
     this.layer.batchDraw();
+    this.saveHistory();
   }
   
   private applyFillColorToNode(node: any, color: string): void {
     if (node instanceof Konva.Shape) {
-      const opacity = this.fillOpacity() / 100;
-      if (this.fillStyle() !== 'none') {
-        node.fill(this.hexToRgba(color, opacity));
+      // For Text shapes, apply solid color without opacity (text should be solid)
+      if (node instanceof Konva.Text) {
+        // Ensure we use the pure hex color, not any rgba conversion
+        // If color is already rgba, extract just the hex part
+        let solidColor = color;
+        if (color.startsWith('rgba')) {
+          // Extract RGB values from rgba(r, g, b, a) format
+          const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          if (match) {
+            const r = parseInt(match[1]).toString(16).padStart(2, '0');
+            const g = parseInt(match[2]).toString(16).padStart(2, '0');
+            const b = parseInt(match[3]).toString(16).padStart(2, '0');
+            solidColor = `#${r}${g}${b}`;
+          }
+        }
+        node.fill(solidColor);
+        console.log('Applied text color:', solidColor, 'original:', color);
+      } else {
+        // For other shapes, apply with opacity
+        const opacity = this.fillOpacity() / 100;
+        if (this.fillStyle() !== 'none') {
+          node.fill(this.hexToRgba(color, opacity));
+        }
       }
     } else if (node instanceof Konva.Group) {
       if (node.hasName('component-group')) {
@@ -2364,6 +2675,16 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     category.collapsed = !category.collapsed;
   }
   
+  // Helper method to check if component has custom image
+  hasCustomImage(component: ComponentItem): boolean {
+    return !!(component as any).imageUrl;
+  }
+  
+  // Helper method to get custom image URL
+  getCustomImageUrl(component: ComponentItem): string {
+    return (component as any).imageUrl || '';
+  }
+  
   // Export/Import methods
   zoomIn(): void {
     const oldScale = this.stage.scaleX();
@@ -2629,17 +2950,26 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       nodeData.stroke = node.stroke();
       nodeData.strokeWidth = node.strokeWidth();
       nodeData.cornerRadius = node.cornerRadius() || 0;
+      // Include scale for rectangles (important when resized with transformer)
+      nodeData.scaleX = node.scaleX();
+      nodeData.scaleY = node.scaleY();
     } else if (className === 'Circle') {
       nodeData.radius = node.radius();
       nodeData.fill = node.fill();
       nodeData.stroke = node.stroke();
       nodeData.strokeWidth = node.strokeWidth();
+      // Include scale for circles
+      nodeData.scaleX = node.scaleX();
+      nodeData.scaleY = node.scaleY();
     } else if (className === 'Text') {
       nodeData.text = node.text();
       nodeData.fontSize = node.fontSize();
       nodeData.fontFamily = node.fontFamily();
       nodeData.fill = node.fill();
       nodeData.width = node.width();
+      // Include scale for text
+      nodeData.scaleX = node.scaleX();
+      nodeData.scaleY = node.scaleY();
     }
     
     return nodeData;
@@ -2732,6 +3062,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                   rotation: shapeData.rotation || 0,
                   draggable: true
                 });
+                
+                // Apply scale if present
+                if (shapeData.scaleX !== undefined) {
+                  shape.scaleX(shapeData.scaleX);
+                }
+                if (shapeData.scaleY !== undefined) {
+                  shape.scaleY(shapeData.scaleY);
+                }
                 break;
                 
               case 'Circle':
@@ -2746,6 +3084,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                   rotation: shapeData.rotation || 0,
                   draggable: true
                 });
+                
+                // Apply scale if present
+                if (shapeData.scaleX !== undefined) {
+                  shape.scaleX(shapeData.scaleX);
+                }
+                if (shapeData.scaleY !== undefined) {
+                  shape.scaleY(shapeData.scaleY);
+                }
                 break;
                 
               case 'Line':
@@ -2952,13 +3298,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                   const textColor = shapeData.textColor || (this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a');
                   const iconColor = shapeData.iconColor || '#3b82f6'; // Use saved color or default
                   
-                  // Apply scale if present
-                  if (shapeData.scaleX !== undefined) {
-                    shape.scaleX(shapeData.scaleX);
-                  }
-                  if (shapeData.scaleY !== undefined) {
-                    shape.scaleY(shapeData.scaleY);
-                  }
+                  // Store scale values to apply after icon loads
+                  const savedScaleX = shapeData.scaleX !== undefined ? shapeData.scaleX : 1;
+                  const savedScaleY = shapeData.scaleY !== undefined ? shapeData.scaleY : 1;
                   
                   // If faIcon exists, fetch from Iconify API
                   if (shapeData.faIcon) {
@@ -2988,6 +3330,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                         });
                         
                         shape.add(icon, name);
+                        
+                        // Apply scale AFTER icon is loaded and children are added
+                        shape.scaleX(savedScaleX);
+                        shape.scaleY(savedScaleY);
+                        
                         this.layer.batchDraw();
                       };
                       
@@ -2995,6 +3342,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                         console.error('Failed to load icon:', shapeData.faIcon);
                         // Fallback to emoji
                         this.addImportedComponentWithEmoji(shape, componentName, componentIcon, textColor);
+                        // Apply scale even for emoji fallback
+                        shape.scaleX(savedScaleX);
+                        shape.scaleY(savedScaleY);
                       };
                       
                       imageObj.src = iconDataURL;
@@ -3002,10 +3352,16 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                       console.error('Error generating icon:', error);
                       // Fallback to emoji
                       this.addImportedComponentWithEmoji(shape, componentName, componentIcon, textColor);
+                      // Apply scale for emoji fallback
+                      shape.scaleX(savedScaleX);
+                      shape.scaleY(savedScaleY);
                     });
                   } else {
                     // No faIcon, use emoji fallback
                     this.addImportedComponentWithEmoji(shape, componentName, componentIcon, textColor);
+                    // Apply scale immediately for emoji
+                    shape.scaleX(savedScaleX);
+                    shape.scaleY(savedScaleY);
                   }
                 } else if (shapeData.groupType === 'user-group') {
                   // Recreate user-created groups with nested children
@@ -3304,6 +3660,77 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
               this.layer.batchDraw();
             });
           }
+        } else if (childData.type === 'Rect') {
+          // Handle Rect shapes within user groups
+          child = new Konva.Rect({
+            id: childData.id,
+            x: childData.x,
+            y: childData.y,
+            width: childData.width,
+            height: childData.height,
+            fill: childData.fill,
+            stroke: childData.stroke,
+            strokeWidth: childData.strokeWidth,
+            cornerRadius: childData.cornerRadius || 0,
+            rotation: childData.rotation || 0,
+            draggable: false
+          });
+          
+          // Apply scale if present
+          if (childData.scaleX !== undefined) {
+            child.scaleX(childData.scaleX);
+          }
+          if (childData.scaleY !== undefined) {
+            child.scaleY(childData.scaleY);
+          }
+        } else if (childData.type === 'Text') {
+          // Handle Text shapes within user groups
+          child = new Konva.Text({
+            id: childData.id,
+            x: childData.x,
+            y: childData.y,
+            text: childData.text,
+            fontSize: childData.fontSize,
+            fontFamily: childData.fontFamily,
+            fill: childData.fill,
+            width: childData.width,
+            rotation: childData.rotation || 0,
+            draggable: false
+          });
+          
+          // Apply scale if present
+          if (childData.scaleX !== undefined) {
+            child.scaleX(childData.scaleX);
+          }
+          if (childData.scaleY !== undefined) {
+            child.scaleY(childData.scaleY);
+          }
+          
+          // Add double-click handler to edit text
+          child.on('dblclick dbltap', () => {
+            this.editText(child as Konva.Text);
+          });
+        } else if (childData.type === 'Circle') {
+          // Handle Circle shapes within user groups
+          child = new Konva.Circle({
+            id: childData.id,
+            x: childData.x,
+            y: childData.y,
+            radius: childData.radius,
+            fill: childData.fill,
+            stroke: childData.stroke,
+            strokeWidth: childData.strokeWidth,
+            rotation: childData.rotation || 0,
+            draggable: false
+          });
+          
+          // Apply scale if present
+          if (childData.scaleX !== undefined) {
+            child.scaleX(childData.scaleX);
+          }
+          if (childData.scaleY !== undefined) {
+            child.scaleY(childData.scaleY);
+          }
         }
         
         if (child) {
@@ -3495,6 +3922,129 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.drawInfiniteGrid();
     // Ensure style panel stays visible on resize
     this.adjustStylePanelPosition();
+  }
+  
+  // Custom Component Creator Methods
+  openCustomComponentModal(): void {
+    this.showCustomComponentModal.set(true);
+    // Reset form
+    this.customComponentName.set('');
+    this.customComponentDescription.set('');
+    this.customComponentColor.set('#3b82f6');
+    this.customComponentIcon.set('📦');
+    this.customComponentImageUrl.set('');
+    this.customComponentImageFile = null;
+  }
+  
+  closeCustomComponentModal(): void {
+    this.showCustomComponentModal.set(false);
+  }
+  
+  onCustomComponentImageUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    
+    this.customComponentImageFile = file;
+    
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.customComponentImageUrl.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  submitCustomComponent(): void {
+    const name = this.customComponentName().trim();
+    if (!name) {
+      alert('Please enter a component name');
+      return;
+    }
+    
+    // Check if we have image or icon
+    const hasImage = this.customComponentImageUrl();
+    
+    // Create custom component
+    const customComponent: ComponentItem = {
+      id: `custom-${Date.now()}`,
+      name: name,
+      icon: hasImage ? '' : this.customComponentIcon(), // Clear icon if image is uploaded
+      category: 'custom',
+      description: this.customComponentDescription() || 'Custom component',
+      color: this.customComponentColor(),
+      provider: 'Custom'
+    };
+    
+    // If image is uploaded, store it (this will override icon/emoji)
+    if (hasImage) {
+      (customComponent as any).imageUrl = this.customComponentImageUrl();
+    }
+    
+    // Add to custom category or create it
+    let customCategory = this.categories.find(cat => cat.id === 'custom');
+    if (!customCategory) {
+      customCategory = {
+        id: 'custom',
+        name: 'Custom Components',
+        icon: '⭐',
+        collapsed: false,
+        components: []
+      };
+      this.categories.unshift(customCategory); // Add at the beginning
+    }
+    
+    customCategory.components.push(customComponent);
+    
+    // Save to localStorage
+    this.saveCustomComponents();
+    
+    // Close modal
+    this.closeCustomComponentModal();
+    
+    // Show success message
+    console.log('✅ Custom component added:', name);
+  }
+  
+  private saveCustomComponents(): void {
+    if (!this.isBrowser) return;
+    
+    const customCategory = this.categories.find(cat => cat.id === 'custom');
+    if (customCategory && customCategory.components.length > 0) {
+      try {
+        localStorage.setItem('custom-components', JSON.stringify(customCategory.components));
+      } catch (error) {
+        console.error('Failed to save custom components:', error);
+      }
+    }
+  }
+  
+  private loadCustomComponents(): void {
+    if (!this.isBrowser) return;
+    
+    try {
+      const saved = localStorage.getItem('custom-components');
+      if (saved) {
+        const customComponents = JSON.parse(saved);
+        if (customComponents.length > 0) {
+          const customCategory: ComponentCategory = {
+            id: 'custom',
+            name: 'Custom Components',
+            icon: '⭐',
+            collapsed: false,
+            components: customComponents
+          };
+          this.categories.unshift(customCategory);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load custom components:', error);
+    }
   }
   
   // Stub methods for template compatibility
