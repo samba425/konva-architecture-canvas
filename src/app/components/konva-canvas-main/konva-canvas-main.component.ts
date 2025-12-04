@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, Inject, PLATFORM_ID, signal, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, signal, HostListener, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Konva from 'konva';
@@ -50,7 +50,6 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('stylePanel', { static: false}) stylePanelRef!: ElementRef<HTMLDivElement>;
   @ViewChild('imageUpload', { static: false }) imageUploadRef!: ElementRef<HTMLInputElement>;
   
-  private isBrowser: boolean;
   private stage!: Konva.Stage;
   private layer!: Konva.Layer;
   private gridLayer!: Konva.Layer;
@@ -73,7 +72,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   // Icon cache for Font Awesome icons (similar to cytoscape implementation)
   private iconCache: Map<string, string> = new Map();
   private readonly ICON_CACHE_KEY = 'konva-iconify-cache';
-  private readonly ICON_CACHE_VERSION = 'v1';
+  private readonly ICON_CACHE_VERSION = 'v2'; // Bumped to v2 for multiple-path support
   
   // Draggable panel state
   private isDragging = false;
@@ -149,7 +148,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   // Component categories with icons - loaded from config
   categories: ComponentCategory[] = [];
   
-  constructor(@Inject(PLATFORM_ID) private platformId: object) {
+  // Use inject() function for Angular 21+ compatibility
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
+  
+  constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.loadComponentsFromConfig();
     this.loadIconCacheFromStorage();
@@ -198,7 +201,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   /**
    * Fetch icon from Iconify API (same as cytoscape implementation)
    */
-  private async fetchIconFromIconify(faIcon: string): Promise<{ path: string, viewBox: string } | null> {
+  private async fetchIconFromIconify(faIcon: string): Promise<{ paths: string[], viewBox: string } | null> {
     if (!this.isBrowser) return null;
     
     // Check cache first
@@ -237,15 +240,27 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
         const svgElement = svgDoc.querySelector('svg');
-        const pathElement = svgDoc.querySelector('path');
         
-        if (svgElement && pathElement) {
+        if (svgElement) {
           const viewBox = svgElement.getAttribute('viewBox') || '0 0 512 512';
-          const path = pathElement.getAttribute('d') || '';
-          const iconData = { path, viewBox };
-          this.iconCache.set(faIcon, JSON.stringify(iconData));
-          this.saveIconCacheToStorage();
-          return iconData;
+          
+          // Get all paths (some icons have multiple paths)
+          const pathElements = svgDoc.querySelectorAll('path');
+          const paths: string[] = [];
+          
+          pathElements.forEach((pathEl) => {
+            const d = pathEl.getAttribute('d');
+            if (d) {
+              paths.push(d);
+            }
+          });
+          
+          if (paths.length > 0) {
+            const iconData = { paths, viewBox };
+            this.iconCache.set(faIcon, JSON.stringify(iconData));
+            this.saveIconCacheToStorage();
+            return iconData;
+          }
         }
       }
     } catch (error) {
@@ -265,9 +280,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><circle cx="24" cy="24" r="20" fill="${color}"/></svg>`)}`;
     }
     
+    // Handle multiple paths (some icons have more than one path element)
+    const pathElements = iconData.paths.map((p: string) => `<path d="${p}" fill="${color}"/>`).join('');
+    
     const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
       <svg x="6" y="6" width="36" height="36" viewBox="${iconData.viewBox}">
-        <path d="${iconData.path}" fill="${color}"/>
+        ${pathElements}
       </svg>
     </svg>`;
     
@@ -446,7 +464,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       anchorSize: 14,
       anchorCornerRadius: 3,
       rotateEnabled: true,
-      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
       padding: 5,
       // Add visual emphasis
       keepRatio: false,
@@ -1119,12 +1137,83 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       this.layer.batchDraw();
     });
     
+    // Add double-click handler to edit component name
+    group.on('dblclick', (e) => {
+      e.cancelBubble = true;
+      
+      // Find the text node (it's the second child - the name)
+      const textNode = group.children?.find((child: any) => 
+        child.getClassName() === 'Text' && child.y() > 50
+      ) as Konva.Text;
+      
+      if (!textNode) return;
+      
+      // Hide text node while editing
+      textNode.hide();
+      
+      // Get the absolute position of the text node
+      const textPosition = textNode.getAbsolutePosition();
+      const stageBox = this.stage.container().getBoundingClientRect();
+      
+      // Create HTML input element
+      const textarea = document.createElement('input');
+      textarea.value = textNode.text();
+      textarea.style.position = 'absolute';
+      textarea.style.top = (textPosition.y + stageBox.top) + 'px';
+      textarea.style.left = (textPosition.x + stageBox.left) + 'px';
+      textarea.style.width = textNode.width() + 'px';
+      textarea.style.fontSize = textNode.fontSize() + 'px';
+      textarea.style.border = '2px solid #3b82f6';
+      textarea.style.padding = '2px';
+      textarea.style.margin = '0px';
+      textarea.style.overflow = 'hidden';
+      textarea.style.background = this.isDarkTheme() ? '#1e293b' : '#ffffff';
+      textarea.style.color = (typeof textNode.fill() === 'string' ? textNode.fill() : '#000000') as string;
+      textarea.style.outline = 'none';
+      textarea.style.resize = 'none';
+      textarea.style.fontFamily = textNode.fontFamily() || 'Arial';
+      textarea.style.fontWeight = textNode.fontStyle() || 'normal';
+      textarea.style.textAlign = 'center';
+      textarea.style.borderRadius = '4px';
+      textarea.style.zIndex = '1000';
+      
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      
+      const removeTextarea = () => {
+        const newText = textarea.value.trim();
+        if (newText) {
+          textNode.text(newText);
+          // Update the stored component name attribute
+          group.setAttr('componentName', newText);
+        }
+        textarea.parentNode?.removeChild(textarea);
+        textNode.show();
+        this.layer.batchDraw();
+        this.saveHistory();
+      };
+      
+      textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          removeTextarea();
+        } else if (e.key === 'Escape') {
+          textarea.parentNode?.removeChild(textarea);
+          textNode.show();
+          this.layer.batchDraw();
+        }
+      });
+      
+      textarea.addEventListener('blur', removeTextarea);
+    });
+    
     const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
     const iconColor = component.color || '#3b82f6';
     
     // Store component info for later color updates
     group.setAttr('faIcon', component.faIcon);
     group.setAttr('componentName', component.name);
+    group.setAttr('iconColor', iconColor); // Store icon color for export/import
     
     // Use Font Awesome icon via Iconify API
     if (component.faIcon) {
@@ -1215,6 +1304,36 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.layer.batchDraw();
   }
   
+  /**
+   * Helper method for imported components with emoji fallback
+   */
+  private addImportedComponentWithEmoji(group: Konva.Group, componentName: string, componentIcon: string, textColor: string): void {
+    const icon = new Konva.Text({
+      x: 0,
+      y: 0,
+      text: componentIcon,
+      fontSize: 48,
+      align: 'center',
+      fill: textColor,
+      width: 80,
+      fontFamily: 'Arial, sans-serif'
+    });
+    
+    const name = new Konva.Text({
+      x: 0,
+      y: 55,
+      text: componentName,
+      fontSize: 14,
+      fontStyle: 'bold',
+      align: 'center',
+      fill: textColor,
+      width: 80
+    });
+    
+    group.add(icon, name);
+    this.layer.batchDraw();
+  }
+  
   // History management
   private saveHistory(): void {
     const json = this.layer.toJSON();
@@ -1228,6 +1347,18 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   handleKeyDown(event: KeyboardEvent): void {
     if (!this.isBrowser) return;
     
+    // Check if user is typing in an input field or textarea
+    const target = event.target as HTMLElement;
+    const isTyping = target.tagName === 'INPUT' || 
+                     target.tagName === 'TEXTAREA' || 
+                     target.isContentEditable;
+    
+    // If user is typing, only allow Cmd/Ctrl shortcuts (undo, redo, etc.)
+    // but not single-key shortcuts
+    if (isTyping && !event.metaKey && !event.ctrlKey) {
+      return; // Let the typing continue without interference
+    }
+    
     // Undo: Cmd+Z or Ctrl+Z
     if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
       event.preventDefault();
@@ -1240,8 +1371,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       this.redo();
     }
     
-    // Delete: Delete or Backspace
-    if (event.key === 'Delete' || event.key === 'Backspace') {
+    // Delete: Delete or Backspace (skip if typing)
+    if ((event.key === 'Delete' || event.key === 'Backspace') && !isTyping) {
       event.preventDefault();
       this.deleteSelected();
     }
@@ -2297,6 +2428,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         x: shape.x(),
         y: shape.y(),
         rotation: shape.rotation() || 0,
+        scaleX: shape.scaleX() || 1,
+        scaleY: shape.scaleY() || 1,
       };
       
       // Add type-specific properties
@@ -2352,14 +2485,38 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           baseData.componentIcon = (iconText && typeof iconText.text === 'function') ? iconText.text() : '📦';
           baseData.componentName = (nameText && typeof nameText.text === 'function') ? nameText.text() : 'Component';
           baseData.groupType = 'component-group';
+          
+          // Save text color from the name text element
+          if (nameText && typeof nameText.fill === 'function') {
+            baseData.textColor = nameText.fill();
+          }
+          
+          // Save the faIcon attribute if it exists (needed for proper icon restoration)
+          const faIcon = shape.getAttr('faIcon');
+          if (faIcon) {
+            baseData.faIcon = faIcon;
+          }
+          
+          // Save the icon color for accurate restoration
+          const iconColor = shape.getAttr('iconColor');
+          if (iconColor) {
+            baseData.iconColor = iconColor;
+          }
         } else if (shape.hasName('user-group')) {
           // User-created group - export all children recursively
           baseData.groupType = 'user-group';
           
-          // Get the border to extract its color
+          // Get the border to extract its properties
           const border = shape.findOne('.group-border');
           if (border && typeof border.stroke === 'function') {
             baseData.borderColor = border.stroke();
+            // Export border dimensions
+            if (typeof border.width === 'function') {
+              baseData.width = border.width();
+            }
+            if (typeof border.height === 'function') {
+              baseData.height = border.height();
+            }
           }
           
           baseData.children = shape.getChildren().filter((child: any) => 
@@ -2409,7 +2566,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       type: className,
       x: node.x(),
       y: node.y(),
-      rotation: node.rotation() || 0
+      rotation: node.rotation() || 0,
+      scaleX: node.scaleX() || 1,
+      scaleY: node.scaleY() || 1
     };
     
     if (className === 'Group') {
@@ -2421,14 +2580,38 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         nodeData.componentIcon = (iconText && typeof iconText.text === 'function') ? iconText.text() : '📦';
         nodeData.componentName = (nameText && typeof nameText.text === 'function') ? nameText.text() : 'Component';
         nodeData.groupType = 'component-group';
+        
+        // Save text color from the name text element
+        if (nameText && typeof nameText.fill === 'function') {
+          nodeData.textColor = nameText.fill();
+        }
+        
+        // Save faIcon attribute for nested component groups too
+        const faIcon = node.getAttr('faIcon');
+        if (faIcon) {
+          nodeData.faIcon = faIcon;
+        }
+        
+        // Save icon color for nested component groups
+        const iconColor = node.getAttr('iconColor');
+        if (iconColor) {
+          nodeData.iconColor = iconColor;
+        }
       } else if (node.hasName('user-group')) {
         // Nested user group
         nodeData.groupType = 'user-group';
         
-        // Get border color
+        // Get border properties
         const border = node.findOne('.group-border');
         if (border && typeof border.stroke === 'function') {
           nodeData.borderColor = border.stroke();
+          // Export border dimensions for nested groups
+          if (typeof border.width === 'function') {
+            nodeData.width = border.width();
+          }
+          if (typeof border.height === 'function') {
+            nodeData.height = border.height();
+          }
         }
         
         // Recursively export children
@@ -2478,6 +2661,38 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           // Clear current canvas
           this.layer.destroyChildren();
           
+          // Check if this is the old Konva native format (has className: "Layer")
+          if (data.className === 'Layer' && data.children) {
+            // Old format - use Konva's native import
+            this.layer = Konva.Node.create(data, this.stage.container());
+            this.stage.add(this.layer);
+            
+            // Re-add transformer with enhanced visibility
+            this.transformer = new Konva.Transformer({
+              borderStroke: '#3b82f6',
+              borderStrokeWidth: 3,
+              anchorFill: '#3b82f6',
+              anchorStroke: '#ffffff',
+              anchorStrokeWidth: 2,
+              anchorSize: 14,
+              anchorCornerRadius: 3,
+              rotateEnabled: true,
+              enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+              padding: 5,
+              keepRatio: false,
+              centeredScaling: false
+            });
+            this.layer.add(this.transformer);
+            
+            this.layer.batchDraw();
+            this.drawInfiniteGrid();
+            this.saveHistory();
+            
+            alert(`Successfully loaded architecture from old format`);
+            return;
+          }
+          
+          // New format - continue with custom import logic
           // Restore canvas settings
           if (data.canvas) {
             if (data.canvas.scale) {
@@ -2575,6 +2790,19 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                   rotation: shapeData.rotation || 0,
                   draggable: true
                 });
+                
+                // Add double-click handler to edit text
+                shape.on('dblclick dbltap', () => {
+                  this.editText(shape as Konva.Text);
+                });
+                
+                // Apply scale if present
+                if (shapeData.scaleX !== undefined) {
+                  shape.scaleX(shapeData.scaleX);
+                }
+                if (shapeData.scaleY !== undefined) {
+                  shape.scaleY(shapeData.scaleY);
+                }
                 break;
                 
               case 'Image':
@@ -2610,34 +2838,175 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
                     name: 'component-group'
                   });
                   
+                  // Add click handler for selection
+                  shape.on('click', (e: any) => {
+                    if (this.currentTool() !== 'select') return;
+                    
+                    const isShiftKey = e.evt && e.evt.shiftKey;
+                    
+                    if (isShiftKey) {
+                      const currentNodes = this.transformer.nodes().slice();
+                      const index = currentNodes.indexOf(shape);
+                      
+                      if (index === -1) {
+                        currentNodes.push(shape);
+                        this.addSelectionHighlight(shape);
+                      } else {
+                        currentNodes.splice(index, 1);
+                        this.removeSelectionHighlight(shape);
+                      }
+                      
+                      this.transformer.nodes(currentNodes);
+                    } else {
+                      const previousNodes = this.transformer.nodes();
+                      previousNodes.forEach((node: any) => {
+                        if (node !== shape) {
+                          this.removeSelectionHighlight(node);
+                        }
+                      });
+                      
+                      this.addSelectionHighlight(shape);
+                      this.transformer.nodes([shape]);
+                    }
+                    
+                    this.layer.batchDraw();
+                  });
+                  
+                  // Add double-click handler to edit component name
+                  shape.on('dblclick', (e: any) => {
+                    e.cancelBubble = true;
+                    
+                    const textNode = shape.children?.find((child: any) => 
+                      child.getClassName() === 'Text' && child.y() > 50
+                    ) as Konva.Text;
+                    
+                    if (!textNode) return;
+                    
+                    textNode.hide();
+                    
+                    const textPosition = textNode.getAbsolutePosition();
+                    const stageBox = this.stage.container().getBoundingClientRect();
+                    
+                    const textarea = document.createElement('input');
+                    textarea.value = textNode.text();
+                    textarea.style.position = 'absolute';
+                    textarea.style.top = (textPosition.y + stageBox.top) + 'px';
+                    textarea.style.left = (textPosition.x + stageBox.left) + 'px';
+                    textarea.style.width = textNode.width() + 'px';
+                    textarea.style.fontSize = textNode.fontSize() + 'px';
+                    textarea.style.border = '2px solid #3b82f6';
+                    textarea.style.padding = '2px';
+                    textarea.style.margin = '0px';
+                    textarea.style.overflow = 'hidden';
+                    textarea.style.background = this.isDarkTheme() ? '#1e293b' : '#ffffff';
+                    textarea.style.color = (typeof textNode.fill() === 'string' ? textNode.fill() : '#000000') as string;
+                    textarea.style.outline = 'none';
+                    textarea.style.resize = 'none';
+                    textarea.style.fontFamily = textNode.fontFamily() || 'Arial';
+                    textarea.style.fontWeight = textNode.fontStyle() || 'normal';
+                    textarea.style.textAlign = 'center';
+                    textarea.style.borderRadius = '4px';
+                    textarea.style.zIndex = '1000';
+                    
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+                    
+                    const removeTextarea = () => {
+                      const newText = textarea.value.trim();
+                      if (newText) {
+                        textNode.text(newText);
+                        shape.setAttr('componentName', newText);
+                      }
+                      textarea.parentNode?.removeChild(textarea);
+                      textNode.show();
+                      this.layer.batchDraw();
+                      this.saveHistory();
+                    };
+                    
+                    textarea.addEventListener('keydown', (e) => {
+                      if (e.key === 'Enter') {
+                        removeTextarea();
+                      } else if (e.key === 'Escape') {
+                        textarea.parentNode?.removeChild(textarea);
+                        textNode.show();
+                        this.layer.batchDraw();
+                      }
+                    });
+                    
+                    textarea.addEventListener('blur', removeTextarea);
+                  });
+                  
+                  // Restore faIcon attribute if it exists
+                  if (shapeData.faIcon) {
+                    shape.setAttr('faIcon', shapeData.faIcon);
+                  }
+                  
+                  // Restore icon color if it exists
+                  if (shapeData.iconColor) {
+                    shape.setAttr('iconColor', shapeData.iconColor);
+                  }
+                  
                   const componentName = shapeData.componentName || 'Component';
                   const componentIcon = shapeData.componentIcon || '📦';
-                  const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
+                  const textColor = shapeData.textColor || (this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a');
+                  const iconColor = shapeData.iconColor || '#3b82f6'; // Use saved color or default
                   
-                  // Recreate simplified structure - icon above, name below
-                  const icon = new Konva.Text({
-                    x: 0,
-                    y: 0,
-                    text: componentIcon,
-                    fontSize: 48,
-                    align: 'center',
-                    fill: textColor,
-                    width: 80,
-                    fontFamily: 'Arial, sans-serif'
-                  });
+                  // Apply scale if present
+                  if (shapeData.scaleX !== undefined) {
+                    shape.scaleX(shapeData.scaleX);
+                  }
+                  if (shapeData.scaleY !== undefined) {
+                    shape.scaleY(shapeData.scaleY);
+                  }
                   
-                  const name = new Konva.Text({
-                    x: 0,
-                    y: 55,
-                    text: componentName,
-                    fontSize: 14,
-                    fontStyle: 'bold',
-                    align: 'center',
-                    fill: textColor,
-                    width: 80
-                  });
-                  
-                  shape.add(icon, name);
+                  // If faIcon exists, fetch from Iconify API
+                  if (shapeData.faIcon) {
+                    this.generateIconDataURL(shapeData.faIcon, iconColor).then(iconDataURL => {
+                      const imageObj = new Image();
+                      imageObj.onload = () => {
+                        // Remove any existing children
+                        shape.destroyChildren();
+                        
+                        const icon = new Konva.Image({
+                          x: 16,
+                          y: 0,
+                          image: imageObj,
+                          width: 48,
+                          height: 48
+                        });
+                        
+                        const name = new Konva.Text({
+                          x: 0,
+                          y: 55,
+                          text: componentName,
+                          fontSize: 14,
+                          fontStyle: 'bold',
+                          align: 'center',
+                          fill: textColor,
+                          width: 80
+                        });
+                        
+                        shape.add(icon, name);
+                        this.layer.batchDraw();
+                      };
+                      
+                      imageObj.onerror = () => {
+                        console.error('Failed to load icon:', shapeData.faIcon);
+                        // Fallback to emoji
+                        this.addImportedComponentWithEmoji(shape, componentName, componentIcon, textColor);
+                      };
+                      
+                      imageObj.src = iconDataURL;
+                    }).catch(error => {
+                      console.error('Error generating icon:', error);
+                      // Fallback to emoji
+                      this.addImportedComponentWithEmoji(shape, componentName, componentIcon, textColor);
+                    });
+                  } else {
+                    // No faIcon, use emoji fallback
+                    this.addImportedComponentWithEmoji(shape, componentName, componentIcon, textColor);
+                  }
                 } else if (shapeData.groupType === 'user-group') {
                   // Recreate user-created groups with nested children
                   shape = this.recreateUserGroup(shapeData);
@@ -2677,8 +3046,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             anchorSize: 14,
             anchorCornerRadius: 3,
             rotateEnabled: true,
-            enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
-            padding: 5
+            enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+            padding: 5,
+            keepRatio: false,
+            centeredScaling: false
           });
           this.layer.add(this.transformer);
           
@@ -2767,30 +3138,139 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
               name: 'component-group'
             });
             
-            const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
-            const icon = new Konva.Text({
-              x: 0,
-              y: 0,
-              text: childData.componentIcon || '📦',
-              fontSize: 48,
-              align: 'center',
-              fill: textColor,
-              width: 80,
-              fontFamily: 'Arial, sans-serif'
+            // Add double-click handler to edit nested component name
+            child.on('dblclick', (e: any) => {
+              e.cancelBubble = true;
+              
+              const textNode = child.children?.find((c: any) => 
+                c.getClassName() === 'Text' && c.y() > 50
+              ) as Konva.Text;
+              
+              if (!textNode) return;
+              
+              textNode.hide();
+              
+              const textPosition = textNode.getAbsolutePosition();
+              const stageBox = this.stage.container().getBoundingClientRect();
+              
+              const textarea = document.createElement('input');
+              textarea.value = textNode.text();
+              textarea.style.position = 'absolute';
+              textarea.style.top = (textPosition.y + stageBox.top) + 'px';
+              textarea.style.left = (textPosition.x + stageBox.left) + 'px';
+              textarea.style.width = textNode.width() + 'px';
+              textarea.style.fontSize = textNode.fontSize() + 'px';
+              textarea.style.border = '2px solid #3b82f6';
+              textarea.style.padding = '2px';
+              textarea.style.margin = '0px';
+              textarea.style.overflow = 'hidden';
+              textarea.style.background = this.isDarkTheme() ? '#1e293b' : '#ffffff';
+              textarea.style.color = (typeof textNode.fill() === 'string' ? textNode.fill() : '#000000') as string;
+              textarea.style.outline = 'none';
+              textarea.style.resize = 'none';
+              textarea.style.fontFamily = textNode.fontFamily() || 'Arial';
+              textarea.style.fontWeight = textNode.fontStyle() || 'normal';
+              textarea.style.textAlign = 'center';
+              textarea.style.borderRadius = '4px';
+              textarea.style.zIndex = '1000';
+              
+              document.body.appendChild(textarea);
+              textarea.focus();
+              textarea.select();
+              
+              const removeTextarea = () => {
+                const newText = textarea.value.trim();
+                if (newText) {
+                  textNode.text(newText);
+                  child.setAttr('componentName', newText);
+                }
+                textarea.parentNode?.removeChild(textarea);
+                textNode.show();
+                this.layer.batchDraw();
+                this.saveHistory();
+              };
+              
+              textarea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                  removeTextarea();
+                } else if (e.key === 'Escape') {
+                  textarea.parentNode?.removeChild(textarea);
+                  textNode.show();
+                  this.layer.batchDraw();
+                }
+              });
+              
+              textarea.addEventListener('blur', removeTextarea);
             });
             
-            const name = new Konva.Text({
-              x: 0,
-              y: 55,
-              text: childData.componentName || 'Component',
-              fontSize: 14,
-              fontStyle: 'bold',
-              align: 'center',
-              fill: textColor,
-              width: 80
-            });
+            // Apply scale if present
+            if (childData.scaleX !== undefined) {
+              child.scaleX(childData.scaleX);
+            }
+            if (childData.scaleY !== undefined) {
+              child.scaleY(childData.scaleY);
+            }
             
-            child.add(icon, name);
+            // Restore faIcon and iconColor attributes if they exist
+            if (childData.faIcon) {
+              child.setAttr('faIcon', childData.faIcon);
+            }
+            if (childData.iconColor) {
+              child.setAttr('iconColor', childData.iconColor);
+            }
+            
+            const componentName = childData.componentName || 'Component';
+            const componentIcon = childData.componentIcon || '📦';
+            const textColor = childData.textColor || (this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a');
+            const iconColor = childData.iconColor || '#3b82f6';
+            
+            // If faIcon exists, fetch from Iconify API
+            if (childData.faIcon) {
+              this.generateIconDataURL(childData.faIcon, iconColor).then(iconDataURL => {
+                const imageObj = new Image();
+                imageObj.onload = () => {
+                  // Remove any existing children
+                  child.destroyChildren();
+                  
+                  const icon = new Konva.Image({
+                    x: 16,
+                    y: 0,
+                    image: imageObj,
+                    width: 48,
+                    height: 48
+                  });
+                  
+                  const name = new Konva.Text({
+                    x: 0,
+                    y: 55,
+                    text: componentName,
+                    fontSize: 14,
+                    fontStyle: 'bold',
+                    align: 'center',
+                    fill: textColor,
+                    width: 80
+                  });
+                  
+                  child.add(icon, name);
+                  this.layer.batchDraw();
+                };
+                
+                imageObj.onerror = () => {
+                  console.error('Failed to load nested component icon:', childData.faIcon);
+                  // Fallback to emoji
+                  this.addImportedComponentWithEmoji(child, componentName, componentIcon, textColor);
+                };
+                
+                imageObj.src = iconDataURL;
+              }).catch(error => {
+                console.error('Error generating nested component icon:', error);
+                // Fallback to emoji
+                this.addImportedComponentWithEmoji(child, componentName, componentIcon, textColor);
+              });
+            } else {
+              // No faIcon, use emoji fallback
+              this.addImportedComponentWithEmoji(child, componentName, componentIcon, textColor);
+            }
             
             // Add click handler for color changes
             child.on('click tap', (e: any) => {
@@ -2834,14 +3314,31 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     // Add the group border
     const padding = 5;
-    const groupBounds = group.getClientRect({ relativeTo: group });
     const borderColor = groupData.borderColor || '#9333ea';
     
+    // Use saved dimensions if available, otherwise calculate from children
+    let borderWidth, borderHeight, borderX, borderY;
+    
+    if (groupData.width && groupData.height) {
+      // Use saved dimensions
+      borderWidth = groupData.width;
+      borderHeight = groupData.height;
+      borderX = -padding;  // Border is relative to group, so offset by padding
+      borderY = -padding;
+    } else {
+      // Calculate from children bounds
+      const groupBounds = group.getClientRect({ relativeTo: group });
+      borderX = groupBounds.x - padding;
+      borderY = groupBounds.y - padding;
+      borderWidth = groupBounds.width + (padding * 2);
+      borderHeight = groupBounds.height + (padding * 2);
+    }
+    
     const groupBorder = new Konva.Rect({
-      x: groupBounds.x - padding,
-      y: groupBounds.y - padding,
-      width: groupBounds.width + (padding * 2),
-      height: groupBounds.height + (padding * 2),
+      x: borderX,
+      y: borderY,
+      width: borderWidth,
+      height: borderHeight,
       stroke: borderColor,
       strokeWidth: 2,
       dash: [8, 4],
@@ -2868,8 +3365,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         anchorSize: 14,
         anchorCornerRadius: 3,
         rotateEnabled: true,
-        enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
-        padding: 5
+        enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+        padding: 5,
+        keepRatio: false,
+        centeredScaling: false
       });
       this.layer.add(this.transformer);
       this.saveHistory();

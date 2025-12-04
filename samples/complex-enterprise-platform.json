@@ -5,7 +5,10 @@
     "width": 1600,
     "height": 1200,
     "scale": 1,
-    "position": { "x": 0, "y": 0 }
+    "position": {
+      "x": 0,
+      "y": 0
+    }
   },
   "shapes": [
     {
@@ -52,8 +55,11 @@
       "y": 160,
       "rotation": 0,
       "componentName": "CloudFront",
-      "componentIcon": "☁️",
-      "color": "#8c4fff"
+      "componentIcon": "\u2601\ufe0f",
+      "color": "#8c4fff",
+      "groupType": "component-group",
+      "faIcon": "fas fa-cloud",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-2",
@@ -62,8 +68,11 @@
       "y": 160,
       "rotation": 0,
       "componentName": "API Gateway",
-      "componentIcon": "🚪",
-      "color": "#ff4f8b"
+      "componentIcon": "\ud83d\udeaa",
+      "color": "#ff4f8b",
+      "groupType": "component-group",
+      "faIcon": "fas fa-door-open",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-3",
@@ -72,8 +81,11 @@
       "y": 160,
       "rotation": 0,
       "componentName": "Load Balancer",
-      "componentIcon": "⚖️",
-      "color": "#8c4fff"
+      "componentIcon": "\u2696\ufe0f",
+      "color": "#8c4fff",
+      "groupType": "component-group",
+      "faIcon": "fas fa-balance-scale",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-4",
@@ -82,8 +94,11 @@
       "y": 330,
       "rotation": 0,
       "componentName": "AWS Lambda",
-      "componentIcon": "🔶",
-      "color": "#ff9900"
+      "componentIcon": "\ud83d\udd36",
+      "color": "#ff9900",
+      "groupType": "component-group",
+      "faIcon": "fas fa-bolt",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-5",
@@ -92,8 +107,11 @@
       "y": 330,
       "rotation": 0,
       "componentName": "AWS Lambda",
-      "componentIcon": "🔶",
-      "color": "#ff9900"
+      "componentIcon": "\ud83d\udd36",
+      "color": "#ff9900",
+      "groupType": "component-group",
+      "faIcon": "fas fa-bolt",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-6",
@@ -102,8 +120,11 @@
       "y": 330,
       "rotation": 0,
       "componentName": "AWS Lambda",
-      "componentIcon": "🔶",
-      "color": "#ff9900"
+      "componentIcon": "\ud83d\udd36",
+      "color": "#ff9900",
+      "groupType": "component-group",
+      "faIcon": "fas fa-bolt",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-subnet-2",
@@ -137,8 +158,11 @@
       "y": 160,
       "rotation": 0,
       "componentName": "GPT-4",
-      "componentIcon": "🟢",
-      "color": "#10b981"
+      "componentIcon": "\ud83d\udfe2",
+      "color": "#10b981",
+      "groupType": "component-group",
+      "faIcon": "fas fa-robot",
+      "iconColor": "#10A37F"
     },
     {
       "id": "comp-8",
@@ -147,8 +171,11 @@
       "y": 160,
       "rotation": 0,
       "componentName": "Claude",
-      "componentIcon": "🟣",
-      "color": "#8b5cf6"
+      "componentIcon": "\ud83d\udfe3",
+      "color": "#8b5cf6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-brain",
+      "iconColor": "#D97757"
     },
     {
       "id": "comp-9",
@@ -157,8 +184,11 @@
       "y": 160,
       "rotation": 0,
       "componentName": "Gemini",
-      "componentIcon": "🔵",
-      "color": "#3b82f6"
+      "componentIcon": "\ud83d\udd35",
+      "color": "#3b82f6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-gem",
+      "iconColor": "#4285F4"
     },
     {
       "id": "comp-10",
@@ -167,8 +197,11 @@
       "y": 330,
       "rotation": 0,
       "componentName": "Weaviate",
-      "componentIcon": "🟩",
-      "color": "#22c55e"
+      "componentIcon": "\ud83d\udfe9",
+      "color": "#22c55e",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#00C389"
     },
     {
       "id": "comp-11",
@@ -177,8 +210,11 @@
       "y": 330,
       "rotation": 0,
       "componentName": "Pinecone",
-      "componentIcon": "🌲",
-      "color": "#0ea5e9"
+      "componentIcon": "\ud83c\udf32",
+      "color": "#0ea5e9",
+      "groupType": "component-group",
+      "faIcon": "fas fa-sitemap",
+      "iconColor": "#00C8BE"
     },
     {
       "id": "comp-12",
@@ -187,8 +223,11 @@
       "y": 330,
       "rotation": 0,
       "componentName": "ChromaDB",
-      "componentIcon": "🎨",
-      "color": "#ec4899"
+      "componentIcon": "\ud83c\udfa8",
+      "color": "#ec4899",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#FFD233"
     },
     {
       "id": "comp-13",
@@ -197,8 +236,11 @@
       "y": 500,
       "rotation": 0,
       "componentName": "Redis",
-      "componentIcon": "🔴",
-      "color": "#dc382d"
+      "componentIcon": "\ud83d\udd34",
+      "color": "#dc382d",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#DC382D"
     },
     {
       "id": "comp-14",
@@ -207,8 +249,11 @@
       "y": 500,
       "rotation": 0,
       "componentName": "Redis",
-      "componentIcon": "🔴",
-      "color": "#dc382d"
+      "componentIcon": "\ud83d\udd34",
+      "color": "#dc382d",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#DC382D"
     },
     {
       "id": "comp-subnet-3",
@@ -242,8 +287,11 @@
       "y": 610,
       "rotation": 0,
       "componentName": "S3",
-      "componentIcon": "🪣",
-      "color": "#569a31"
+      "componentIcon": "\ud83e\udea3",
+      "color": "#569a31",
+      "groupType": "component-group",
+      "faIcon": "fas fa-hdd",
+      "iconColor": "#569A31"
     },
     {
       "id": "comp-16",
@@ -252,8 +300,11 @@
       "y": 610,
       "rotation": 0,
       "componentName": "DynamoDB",
-      "componentIcon": "🗃️",
-      "color": "#4053d6"
+      "componentIcon": "\ud83d\uddc3\ufe0f",
+      "color": "#4053d6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-table",
+      "iconColor": "#4053D6"
     },
     {
       "id": "comp-17",
@@ -262,8 +313,11 @@
       "y": 610,
       "rotation": 0,
       "componentName": "RDS",
-      "componentIcon": "🗄️",
-      "color": "#527fff"
+      "componentIcon": "\ud83d\uddc4\ufe0f",
+      "color": "#527fff",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#527FFF"
     },
     {
       "id": "comp-18",
@@ -272,8 +326,11 @@
       "y": 720,
       "rotation": 0,
       "componentName": "Kubernetes",
-      "componentIcon": "☸️",
-      "color": "#326ce5"
+      "componentIcon": "\u2638\ufe0f",
+      "color": "#326ce5",
+      "groupType": "component-group",
+      "faIcon": "fas fa-dharmachakra",
+      "iconColor": "#326CE5"
     },
     {
       "id": "comp-19",
@@ -282,8 +339,11 @@
       "y": 720,
       "rotation": 0,
       "componentName": "Docker",
-      "componentIcon": "🐳",
-      "color": "#2496ed"
+      "componentIcon": "\ud83d\udc33",
+      "color": "#2496ed",
+      "groupType": "component-group",
+      "faIcon": "fab fa-docker",
+      "iconColor": "#2496ED"
     },
     {
       "id": "comp-subnet-4",
@@ -317,8 +377,11 @@
       "y": 750,
       "rotation": 0,
       "componentName": "CloudWatch",
-      "componentIcon": "📈",
-      "color": "#ff4f8b"
+      "componentIcon": "\ud83d\udcc8",
+      "color": "#ff4f8b",
+      "groupType": "component-group",
+      "faIcon": "fas fa-chart-line",
+      "iconColor": "#FF9900"
     },
     {
       "id": "comp-21",
@@ -327,8 +390,11 @@
       "y": 750,
       "rotation": 0,
       "componentName": "Grafana",
-      "componentIcon": "📉",
-      "color": "#f46800"
+      "componentIcon": "\ud83d\udcc9",
+      "color": "#f46800",
+      "groupType": "component-group",
+      "faIcon": "fas fa-chart-area",
+      "iconColor": "#F46800"
     },
     {
       "id": "comp-22",
@@ -337,8 +403,11 @@
       "y": 750,
       "rotation": 0,
       "componentName": "Datadog",
-      "componentIcon": "🐕",
-      "color": "#632ca6"
+      "componentIcon": "\ud83d\udc15",
+      "color": "#632ca6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-dog",
+      "iconColor": "#632CA6"
     },
     {
       "id": "comp-arrow-1",
@@ -346,7 +415,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [260, 210, 320, 210],
+      "points": [
+        260,
+        210,
+        320,
+        210
+      ],
       "stroke": "#3b82f6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -358,7 +432,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [480, 210, 540, 210],
+      "points": [
+        480,
+        210,
+        540,
+        210
+      ],
       "stroke": "#3b82f6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -370,7 +449,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [400, 260, 400, 330],
+      "points": [
+        400,
+        260,
+        400,
+        330
+      ],
       "stroke": "#3b82f6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -382,7 +466,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [700, 380, 900, 210],
+      "points": [
+        700,
+        380,
+        900,
+        210
+      ],
       "stroke": "#22c55e",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -394,7 +483,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [700, 380, 1120, 210],
+      "points": [
+        700,
+        380,
+        1120,
+        210
+      ],
       "stroke": "#8b5cf6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -406,7 +500,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [980, 260, 980, 330],
+      "points": [
+        980,
+        260,
+        980,
+        330
+      ],
       "stroke": "#3b82f6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -418,7 +517,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [1200, 260, 1200, 330],
+      "points": [
+        1200,
+        260,
+        1200,
+        330
+      ],
       "stroke": "#3b82f6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -430,7 +534,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [980, 430, 980, 500],
+      "points": [
+        980,
+        430,
+        980,
+        500
+      ],
       "stroke": "#dc382d",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -442,7 +551,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [400, 430, 260, 610],
+      "points": [
+        400,
+        430,
+        260,
+        610
+      ],
       "stroke": "#4053d6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -454,7 +568,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [400, 430, 400, 610],
+      "points": [
+        400,
+        430,
+        400,
+        610
+      ],
       "stroke": "#4053d6",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -466,7 +585,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [1000, 600, 1000, 750],
+      "points": [
+        1000,
+        600,
+        1000,
+        750
+      ],
       "stroke": "#f59e0b",
       "strokeWidth": 2,
       "pointerLength": 10,
@@ -478,7 +602,12 @@
       "x": 0,
       "y": 0,
       "rotation": 0,
-      "points": [400, 710, 400, 750],
+      "points": [
+        400,
+        710,
+        400,
+        750
+      ],
       "stroke": "#f59e0b",
       "strokeWidth": 2,
       "pointerLength": 10,

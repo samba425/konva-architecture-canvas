@@ -44,7 +44,7 @@
               [style.border-left-color]="component.color"
             >
               <div class="service-icon" [style.color]="component.color">
-                <!-- Show Font Awesome icon if available, otherwise show emoji -->
+                <!-- Show Font Awesome icon if available, otherwise emoji -->
                 <i *ngIf="component.faIcon" [class]="component.faIcon"></i>
                 <span *ngIf="!component.faIcon">{{ component.icon }}</span>
               </div>

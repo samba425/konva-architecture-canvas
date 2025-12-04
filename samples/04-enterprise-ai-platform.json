@@ -1,0 +1,374 @@
+{
+  "version": "1.0",
+  "created": "2025-12-04T06:17:27.131471Z",
+  "canvas": {
+    "width": 1600,
+    "height": 900,
+    "scale": 1,
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "shapes": [
+    {
+      "id": "shape-1",
+      "type": "Text",
+      "x": 350,
+      "y": 20,
+      "rotation": 0,
+      "text": "Enterprise AI Platform",
+      "fontSize": 30,
+      "fontFamily": "Arial",
+      "fill": "#1a1a1a",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "shape-2",
+      "type": "Rect",
+      "x": 50,
+      "y": 80,
+      "rotation": 0,
+      "width": 450,
+      "height": 500,
+      "fill": "rgba(124, 58, 237, 0.08)",
+      "stroke": "#7c3aed",
+      "strokeWidth": 2,
+      "cornerRadius": 8
+    },
+    {
+      "id": "shape-3",
+      "type": "Text",
+      "x": 70,
+      "y": 95,
+      "rotation": 0,
+      "text": "Frontend Layer",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#7c3aed",
+      "width": 200,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "shape-4",
+      "type": "Rect",
+      "x": 550,
+      "y": 80,
+      "rotation": 0,
+      "width": 450,
+      "height": 500,
+      "fill": "rgba(16, 185, 129, 0.08)",
+      "stroke": "#10b981",
+      "strokeWidth": 2,
+      "cornerRadius": 8
+    },
+    {
+      "id": "shape-5",
+      "type": "Text",
+      "x": 570,
+      "y": 95,
+      "rotation": 0,
+      "text": "Backend Layer",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#10b981",
+      "width": 200,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "shape-6",
+      "type": "Group",
+      "x": 120,
+      "y": 150,
+      "rotation": 0,
+      "componentName": "Web App",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-desktop",
+      "iconColor": "#3B82F6"
+    },
+    {
+      "id": "shape-7",
+      "type": "Group",
+      "x": 300,
+      "y": 150,
+      "rotation": 0,
+      "componentName": "Mobile App",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-mobile-alt",
+      "iconColor": "#8B5CF6"
+    },
+    {
+      "id": "shape-8",
+      "type": "Group",
+      "x": 200,
+      "y": 300,
+      "rotation": 0,
+      "componentName": "API Gateway",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-door-open",
+      "iconColor": "#FF9900"
+    },
+    {
+      "id": "shape-9",
+      "type": "Group",
+      "x": 150,
+      "y": 450,
+      "rotation": 0,
+      "componentName": "Auth",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-shield-alt",
+      "iconColor": "#10B981"
+    },
+    {
+      "id": "shape-10",
+      "type": "Group",
+      "x": 320,
+      "y": 450,
+      "rotation": 0,
+      "componentName": "Search",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-search",
+      "iconColor": "#F59E0B"
+    },
+    {
+      "id": "shape-11",
+      "type": "Group",
+      "x": 620,
+      "y": 150,
+      "rotation": 0,
+      "componentName": "GPT-4",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-robot",
+      "iconColor": "#10A37F"
+    },
+    {
+      "id": "shape-12",
+      "type": "Group",
+      "x": 800,
+      "y": 150,
+      "rotation": 0,
+      "componentName": "Claude",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-brain",
+      "iconColor": "#D97757"
+    },
+    {
+      "id": "shape-13",
+      "type": "Group",
+      "x": 620,
+      "y": 300,
+      "rotation": 0,
+      "componentName": "LangChain",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-link",
+      "iconColor": "#1C3C3C"
+    },
+    {
+      "id": "shape-14",
+      "type": "Group",
+      "x": 800,
+      "y": 300,
+      "rotation": 0,
+      "componentName": "AutoGen",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-users",
+      "iconColor": "#06B6D4"
+    },
+    {
+      "id": "shape-15",
+      "type": "Group",
+      "x": 620,
+      "y": 450,
+      "rotation": 0,
+      "componentName": "PostgreSQL",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#336791"
+    },
+    {
+      "id": "shape-16",
+      "type": "Group",
+      "x": 800,
+      "y": 450,
+      "rotation": 0,
+      "componentName": "Pinecone",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#00C8BE"
+    },
+    {
+      "id": "shape-17",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        160,
+        220,
+        240,
+        300
+      ],
+      "stroke": "rgba(147, 51, 234, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(147, 51, 234, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-18",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        340,
+        220,
+        280,
+        300
+      ],
+      "stroke": "rgba(139, 92, 246, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(139, 92, 246, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-19",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        240,
+        360,
+        190,
+        450
+      ],
+      "stroke": "rgba(99, 102, 241, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(99, 102, 241, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-20",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        280,
+        360,
+        360,
+        450
+      ],
+      "stroke": "rgba(59, 130, 246, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(59, 130, 246, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-21",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        280,
+        330,
+        620,
+        330
+      ],
+      "stroke": "rgba(16, 185, 129, 1)",
+      "strokeWidth": 3,
+      "fill": "rgba(16, 185, 129, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-22",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        660,
+        220,
+        660,
+        300
+      ],
+      "stroke": "rgba(6, 182, 212, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(6, 182, 212, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-23",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        840,
+        220,
+        840,
+        300
+      ],
+      "stroke": "rgba(234, 179, 8, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(234, 179, 8, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-24",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        660,
+        360,
+        660,
+        450
+      ],
+      "stroke": "rgba(245, 158, 11, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(245, 158, 11, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-25",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        840,
+        360,
+        840,
+        450
+      ],
+      "stroke": "rgba(239, 68, 68, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(239, 68, 68, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    }
+  ]
+}

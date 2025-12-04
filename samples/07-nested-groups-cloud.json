@@ -1,0 +1,588 @@
+{
+  "version": "1.0",
+  "created": "2025-12-04T06:35:00.000Z",
+  "canvas": {
+    "width": 1600,
+    "height": 1200,
+    "scale": 1,
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "shapes": [
+    {
+      "id": "title-1",
+      "type": "Text",
+      "x": 450,
+      "y": 30,
+      "rotation": 0,
+      "text": "Nested Groups Example - Cloud Infrastructure",
+      "fontSize": 32,
+      "fontFamily": "Arial",
+      "fill": "#e2e8f0",
+      "width": 700,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "vpc-container",
+      "type": "Rect",
+      "x": 50,
+      "y": 100,
+      "rotation": 0,
+      "width": 1500,
+      "height": 1000,
+      "fill": "rgba(147, 51, 234, 0.05)",
+      "stroke": "#9333ea",
+      "strokeWidth": 3,
+      "cornerRadius": 12
+    },
+    {
+      "id": "vpc-label",
+      "type": "Text",
+      "x": 70,
+      "y": 115,
+      "rotation": 0,
+      "text": "VPC - Main Network (Outermost Group)",
+      "fontSize": 20,
+      "fontFamily": "Arial",
+      "fill": "#9333ea",
+      "width": 500,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "subnet-1-container",
+      "type": "Rect",
+      "x": 100,
+      "y": 180,
+      "rotation": 0,
+      "width": 650,
+      "height": 400,
+      "fill": "rgba(59, 130, 246, 0.1)",
+      "stroke": "#3b82f6",
+      "strokeWidth": 2,
+      "cornerRadius": 10
+    },
+    {
+      "id": "subnet-1-label",
+      "type": "Text",
+      "x": 120,
+      "y": 195,
+      "rotation": 0,
+      "text": "Public Subnet - Level 1 Group",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#3b82f6",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-web-tier",
+      "type": "Group",
+      "x": 150,
+      "y": 250,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-alb",
+          "type": "Group",
+          "x": 50,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Load Balancer",
+          "componentIcon": "⚖️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-balance-scale",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-web1",
+          "type": "Group",
+          "x": 200,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Web Server 1",
+          "componentIcon": "🌐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-server",
+          "iconColor": "#3b82f6"
+        },
+        {
+          "id": "comp-web2",
+          "type": "Group",
+          "x": 350,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Web Server 2",
+          "componentIcon": "🌐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-server",
+          "iconColor": "#3b82f6"
+        },
+        {
+          "id": "comp-web3",
+          "type": "Group",
+          "x": 500,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Web Server 3",
+          "componentIcon": "🌐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-server",
+          "iconColor": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "id": "group-cdn",
+      "type": "Group",
+      "x": 200,
+      "y": 420,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-cf",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "CloudFront",
+          "componentIcon": "☁️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-cloud",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-waf",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "WAF",
+          "componentIcon": "🛡️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-shield-alt",
+          "iconColor": "#ec4899"
+        },
+        {
+          "id": "comp-route53",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Route 53",
+          "componentIcon": "🌍",
+          "groupType": "component-group",
+          "faIcon": "fas fa-globe",
+          "iconColor": "#FF9900"
+        }
+      ]
+    },
+    {
+      "id": "subnet-2-container",
+      "type": "Rect",
+      "x": 100,
+      "y": 630,
+      "rotation": 0,
+      "width": 650,
+      "height": 400,
+      "fill": "rgba(234, 179, 8, 0.1)",
+      "stroke": "#eab308",
+      "strokeWidth": 2,
+      "cornerRadius": 10
+    },
+    {
+      "id": "subnet-2-label",
+      "type": "Text",
+      "x": 120,
+      "y": 645,
+      "rotation": 0,
+      "text": "Private Subnet - Level 1 Group",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#eab308",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-app-tier",
+      "type": "Group",
+      "x": 150,
+      "y": 700,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-app1",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "App Server 1",
+          "componentIcon": "⚙️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-cogs",
+          "iconColor": "#10b981"
+        },
+        {
+          "id": "comp-app2",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "App Server 2",
+          "componentIcon": "⚙️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-cogs",
+          "iconColor": "#10b981"
+        },
+        {
+          "id": "comp-app3",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "App Server 3",
+          "componentIcon": "⚙️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-cogs",
+          "iconColor": "#10b981"
+        }
+      ]
+    },
+    {
+      "id": "group-data-tier",
+      "type": "Group",
+      "x": 200,
+      "y": 870,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-rds-primary",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "RDS Primary",
+          "componentIcon": "🗄️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-database",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-rds-replica",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "RDS Replica",
+          "componentIcon": "🗄️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-database",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-elasticache",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "ElastiCache",
+          "componentIcon": "⚡",
+          "groupType": "component-group",
+          "faIcon": "fas fa-bolt",
+          "iconColor": "#FF9900"
+        }
+      ]
+    },
+    {
+      "id": "subnet-3-container",
+      "type": "Rect",
+      "x": 800,
+      "y": 180,
+      "rotation": 0,
+      "width": 700,
+      "height": 850,
+      "fill": "rgba(236, 72, 153, 0.1)",
+      "stroke": "#ec4899",
+      "strokeWidth": 2,
+      "cornerRadius": 10
+    },
+    {
+      "id": "subnet-3-label",
+      "type": "Text",
+      "x": 820,
+      "y": 195,
+      "rotation": 0,
+      "text": "Services Subnet - Level 1 Group",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#ec4899",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-monitoring",
+      "type": "Group",
+      "x": 850,
+      "y": 250,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-cloudwatch",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "CloudWatch",
+          "componentIcon": "📊",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-line",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-xray",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "X-Ray",
+          "componentIcon": "🔍",
+          "groupType": "component-group",
+          "faIcon": "fas fa-search",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-prometheus",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Prometheus",
+          "componentIcon": "📈",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-bar",
+          "iconColor": "#E6522C"
+        },
+        {
+          "id": "comp-grafana",
+          "type": "Group",
+          "x": 450,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Grafana",
+          "componentIcon": "📊",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-area",
+          "iconColor": "#F46800"
+        }
+      ]
+    },
+    {
+      "id": "group-messaging",
+      "type": "Group",
+      "x": 850,
+      "y": 420,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-sqs",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "SQS",
+          "componentIcon": "📬",
+          "groupType": "component-group",
+          "faIcon": "fas fa-envelope",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-sns",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "SNS",
+          "componentIcon": "📢",
+          "groupType": "component-group",
+          "faIcon": "fas fa-bullhorn",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-eventbridge",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "EventBridge",
+          "componentIcon": "🌉",
+          "groupType": "component-group",
+          "faIcon": "fas fa-bridge",
+          "iconColor": "#FF9900"
+        }
+      ]
+    },
+    {
+      "id": "group-security",
+      "type": "Group",
+      "x": 850,
+      "y": 590,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-iam",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "IAM",
+          "componentIcon": "🔐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-lock",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-secrets",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Secrets Mgr",
+          "componentIcon": "🔑",
+          "groupType": "component-group",
+          "faIcon": "fas fa-key",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-kms",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "KMS",
+          "componentIcon": "🔐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-lock",
+          "iconColor": "#FF9900"
+        }
+      ]
+    },
+    {
+      "id": "group-storage",
+      "type": "Group",
+      "x": 900,
+      "y": 760,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-s3",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "S3 Bucket",
+          "componentIcon": "🪣",
+          "groupType": "component-group",
+          "faIcon": "fab fa-aws",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-efs",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "EFS",
+          "componentIcon": "📁",
+          "groupType": "component-group",
+          "faIcon": "fas fa-folder",
+          "iconColor": "#FF9900"
+        },
+        {
+          "id": "comp-glacier",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Glacier",
+          "componentIcon": "🧊",
+          "groupType": "component-group",
+          "faIcon": "fas fa-archive",
+          "iconColor": "#FF9900"
+        }
+      ]
+    },
+    {
+      "id": "arrow-web-app",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        450,
+        580,
+        350,
+        700
+      ],
+      "stroke": "rgba(59, 130, 246, 1)",
+      "strokeWidth": 3,
+      "fill": "rgba(59, 130, 246, 1)",
+      "pointerLength": 12,
+      "pointerWidth": 12
+    },
+    {
+      "id": "arrow-app-db",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        350,
+        870,
+        350,
+        870
+      ],
+      "stroke": "rgba(16, 185, 129, 1)",
+      "strokeWidth": 3,
+      "fill": "rgba(16, 185, 129, 1)",
+      "pointerLength": 12,
+      "pointerWidth": 12
+    },
+    {
+      "id": "note-nested",
+      "type": "Text",
+      "x": 100,
+      "y": 1120,
+      "rotation": 0,
+      "text": "💡 This example shows nested groups:\n• VPC (outermost) contains multiple subnets\n• Each subnet contains service groups\n• Service groups contain individual components\n• You can select and move entire tiers together\n• Colors indicate different nesting levels (purple → blue → yellow → pink)",
+      "fontSize": 14,
+      "fontFamily": "Arial",
+      "fill": "#64748b",
+      "width": 1400
+    }
+  ]
+}

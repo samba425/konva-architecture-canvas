@@ -1,6 +1,6 @@
 {
   "name": "konva-architecture-canvas",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "A powerful Angular component for creating interactive architecture diagrams with Konva.js. Features 47+ pre-built components, nested grouping, color customization, and export/import functionality.",
   "keywords": [
     "angular",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/samba425/konva-architecture-canvas.git"
+    "url": "git+https://github.com/samba425/konva-architecture-canvas.git"
   },
   "homepage": "https://github.com/samba425/konva-architecture-canvas#readme",
   "bugs": {

@@ -1,0 +1,122 @@
+{
+  "version": "1.0",
+  "created": "2025-12-04T06:17:27.128736Z",
+  "canvas": {
+    "width": 1600,
+    "height": 900,
+    "scale": 1,
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "shapes": [
+    {
+      "id": "shape-1",
+      "type": "Group",
+      "x": 200,
+      "y": 100,
+      "rotation": 0,
+      "componentName": "User Interface",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-comments",
+      "iconColor": "#6366F1"
+    },
+    {
+      "id": "shape-2",
+      "type": "Group",
+      "x": 450,
+      "y": 100,
+      "rotation": 0,
+      "componentName": "GPT-4",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-robot",
+      "iconColor": "#10A37F"
+    },
+    {
+      "id": "shape-3",
+      "type": "Group",
+      "x": 700,
+      "y": 100,
+      "rotation": 0,
+      "componentName": "Pinecone",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#00C8BE"
+    },
+    {
+      "id": "shape-4",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        280,
+        130,
+        450,
+        130
+      ],
+      "stroke": "rgba(59, 130, 246, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(59, 130, 246, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-5",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        530,
+        130,
+        700,
+        130
+      ],
+      "stroke": "rgba(16, 185, 129, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(16, 185, 129, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-6",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        700,
+        180,
+        530,
+        180
+      ],
+      "stroke": "rgba(14, 165, 233, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(14, 165, 233, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [
+        5,
+        5
+      ]
+    },
+    {
+      "id": "shape-7",
+      "type": "Text",
+      "x": 200,
+      "y": 30,
+      "rotation": 0,
+      "text": "Simple RAG Chatbot Architecture",
+      "fontSize": 24,
+      "fontFamily": "Arial",
+      "fill": "#1a1a1a",
+      "width": 500,
+      "fontStyle": "bold"
+    }
+  ]
+}

@@ -1,0 +1,652 @@
+{
+  "version": "1.0",
+  "created": "2025-12-04T06:40:00.000Z",
+  "canvas": {
+    "width": 1400,
+    "height": 900,
+    "scale": 1,
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "shapes": [
+    {
+      "id": "title",
+      "type": "Text",
+      "x": 350,
+      "y": 20,
+      "rotation": 0,
+      "text": "Kubernetes Cluster - Pod Groups Example",
+      "fontSize": 32,
+      "fontFamily": "Arial",
+      "fill": "#e2e8f0",
+      "width": 700,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "cluster-box",
+      "type": "Rect",
+      "x": 50,
+      "y": 80,
+      "rotation": 0,
+      "width": 1300,
+      "height": 750,
+      "fill": "rgba(99, 102, 241, 0.05)",
+      "stroke": "#6366f1",
+      "strokeWidth": 3,
+      "cornerRadius": 12
+    },
+    {
+      "id": "cluster-label",
+      "type": "Text",
+      "x": 70,
+      "y": 95,
+      "rotation": 0,
+      "text": "Kubernetes Cluster",
+      "fontSize": 20,
+      "fontFamily": "Arial",
+      "fill": "#6366f1",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "namespace-1-box",
+      "type": "Rect",
+      "x": 100,
+      "y": 150,
+      "rotation": 0,
+      "width": 600,
+      "height": 300,
+      "fill": "rgba(16, 185, 129, 0.1)",
+      "stroke": "#10b981",
+      "strokeWidth": 2,
+      "cornerRadius": 10
+    },
+    {
+      "id": "namespace-1-label",
+      "type": "Text",
+      "x": 120,
+      "y": 165,
+      "rotation": 0,
+      "text": "Namespace: production",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#10b981",
+      "width": 300,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-frontend-pod",
+      "type": "Group",
+      "x": 130,
+      "y": 210,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-1",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "Pod: frontend",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#10b981",
+          "width": 200,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-nginx",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "nginx",
+          "componentIcon": "🌐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-server",
+          "iconColor": "#059669"
+        },
+        {
+          "id": "container-app",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "app",
+          "componentIcon": "⚙️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-cogs",
+          "iconColor": "#0ea5e9"
+        },
+        {
+          "id": "container-sidecar",
+          "type": "Group",
+          "x": 240,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "logger",
+          "componentIcon": "📝",
+          "groupType": "component-group",
+          "faIcon": "fas fa-file-alt",
+          "iconColor": "#8b5cf6"
+        }
+      ]
+    },
+    {
+      "id": "group-api-pod",
+      "type": "Group",
+      "x": 130,
+      "y": 340,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-2",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "Pod: api-server",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#10b981",
+          "width": 200,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-api",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "api",
+          "componentIcon": "🚪",
+          "groupType": "component-group",
+          "faIcon": "fas fa-door-open",
+          "iconColor": "#f59e0b"
+        },
+        {
+          "id": "container-redis",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "redis",
+          "componentIcon": "⚡",
+          "groupType": "component-group",
+          "faIcon": "fas fa-bolt",
+          "iconColor": "#DC382D"
+        }
+      ]
+    },
+    {
+      "id": "namespace-2-box",
+      "type": "Rect",
+      "x": 100,
+      "y": 500,
+      "rotation": 0,
+      "width": 600,
+      "height": 300,
+      "fill": "rgba(236, 72, 153, 0.1)",
+      "stroke": "#ec4899",
+      "strokeWidth": 2,
+      "cornerRadius": 10
+    },
+    {
+      "id": "namespace-2-label",
+      "type": "Text",
+      "x": 120,
+      "y": 515,
+      "rotation": 0,
+      "text": "Namespace: monitoring",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#ec4899",
+      "width": 300,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-prometheus-pod",
+      "type": "Group",
+      "x": 130,
+      "y": 560,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-3",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "Pod: prometheus",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#ec4899",
+          "width": 200,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-prom",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "prometheus",
+          "componentIcon": "📊",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-bar",
+          "iconColor": "#E6522C"
+        },
+        {
+          "id": "container-alert",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "alertmgr",
+          "componentIcon": "🔔",
+          "groupType": "component-group",
+          "faIcon": "fas fa-bell",
+          "iconColor": "#f59e0b"
+        },
+        {
+          "id": "container-exporter",
+          "type": "Group",
+          "x": 240,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "exporter",
+          "componentIcon": "📤",
+          "groupType": "component-group",
+          "faIcon": "fas fa-upload",
+          "iconColor": "#06b6d4"
+        }
+      ]
+    },
+    {
+      "id": "group-grafana-pod",
+      "type": "Group",
+      "x": 130,
+      "y": 690,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-4",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "Pod: grafana",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#ec4899",
+          "width": 200,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-grafana",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "grafana",
+          "componentIcon": "📈",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-area",
+          "iconColor": "#F46800"
+        },
+        {
+          "id": "container-renderer",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "renderer",
+          "componentIcon": "🖼️",
+          "groupType": "component-group",
+          "faIcon": "fas fa-image",
+          "iconColor": "#8b5cf6"
+        }
+      ]
+    },
+    {
+      "id": "namespace-3-box",
+      "type": "Rect",
+      "x": 750,
+      "y": 150,
+      "rotation": 0,
+      "width": 550,
+      "height": 650,
+      "fill": "rgba(234, 179, 8, 0.1)",
+      "stroke": "#eab308",
+      "strokeWidth": 2,
+      "cornerRadius": 10
+    },
+    {
+      "id": "namespace-3-label",
+      "type": "Text",
+      "x": 770,
+      "y": 165,
+      "rotation": 0,
+      "text": "Namespace: data",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#eab308",
+      "width": 300,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-postgres-pod",
+      "type": "Group",
+      "x": 780,
+      "y": 210,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-5",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "StatefulSet: postgres",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#eab308",
+          "width": 250,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-postgres",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "postgres",
+          "componentIcon": "🐘",
+          "groupType": "component-group",
+          "faIcon": "fas fa-database",
+          "iconColor": "#336791"
+        },
+        {
+          "id": "container-backup",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "backup",
+          "componentIcon": "💾",
+          "groupType": "component-group",
+          "faIcon": "fas fa-save",
+          "iconColor": "#10b981"
+        },
+        {
+          "id": "container-metrics",
+          "type": "Group",
+          "x": 240,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "metrics",
+          "componentIcon": "📊",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-line",
+          "iconColor": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "id": "group-mongo-pod",
+      "type": "Group",
+      "x": 780,
+      "y": 340,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-6",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "StatefulSet: mongodb",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#eab308",
+          "width": 250,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-mongo",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "mongodb",
+          "componentIcon": "🍃",
+          "groupType": "component-group",
+          "faIcon": "fas fa-leaf",
+          "iconColor": "#47A248"
+        },
+        {
+          "id": "container-mongo-exp",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "exporter",
+          "componentIcon": "📤",
+          "groupType": "component-group",
+          "faIcon": "fas fa-upload",
+          "iconColor": "#06b6d4"
+        }
+      ]
+    },
+    {
+      "id": "group-kafka-pod",
+      "type": "Group",
+      "x": 780,
+      "y": 470,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-7",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "StatefulSet: kafka",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#eab308",
+          "width": 250,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-kafka",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "kafka",
+          "componentIcon": "📨",
+          "groupType": "component-group",
+          "faIcon": "fas fa-stream",
+          "iconColor": "#231F20"
+        },
+        {
+          "id": "container-zk",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "zookeeper",
+          "componentIcon": "🦓",
+          "groupType": "component-group",
+          "faIcon": "fas fa-network-wired",
+          "iconColor": "#ef4444"
+        },
+        {
+          "id": "container-schema",
+          "type": "Group",
+          "x": 240,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "schema-reg",
+          "componentIcon": "📋",
+          "groupType": "component-group",
+          "faIcon": "fas fa-clipboard-list",
+          "iconColor": "#8b5cf6"
+        }
+      ]
+    },
+    {
+      "id": "group-elastic-pod",
+      "type": "Group",
+      "x": 780,
+      "y": 600,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "pod-label-8",
+          "type": "Text",
+          "x": 0,
+          "y": -25,
+          "rotation": 0,
+          "text": "StatefulSet: elasticsearch",
+          "fontSize": 12,
+          "fontFamily": "Arial",
+          "fill": "#eab308",
+          "width": 250,
+          "fontStyle": "bold"
+        },
+        {
+          "id": "container-elastic",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "elastic",
+          "componentIcon": "🔍",
+          "groupType": "component-group",
+          "faIcon": "fas fa-search",
+          "iconColor": "#005571"
+        },
+        {
+          "id": "container-kibana",
+          "type": "Group",
+          "x": 120,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "kibana",
+          "componentIcon": "📊",
+          "groupType": "component-group",
+          "faIcon": "fas fa-chart-pie",
+          "iconColor": "#E8478D"
+        },
+        {
+          "id": "container-logstash",
+          "type": "Group",
+          "x": 240,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "logstash",
+          "componentIcon": "📝",
+          "groupType": "component-group",
+          "faIcon": "fas fa-file-alt",
+          "iconColor": "#FEC514"
+        }
+      ]
+    },
+    {
+      "id": "arrow-1",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        280,
+        315,
+        280,
+        340
+      ],
+      "stroke": "rgba(99, 102, 241, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(99, 102, 241, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow-2",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        430,
+        380,
+        780,
+        280
+      ],
+      "stroke": "rgba(16, 185, 129, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(16, 185, 129, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [5, 5]
+    },
+    {
+      "id": "arrow-3",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        700,
+        280,
+        780,
+        380
+      ],
+      "stroke": "rgba(234, 179, 8, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(234, 179, 8, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [5, 5]
+    },
+    {
+      "id": "note-k8s",
+      "type": "Text",
+      "x": 100,
+      "y": 850,
+      "rotation": 0,
+      "text": "💡 Kubernetes Pod Grouping:\n• Each pod is a group containing multiple containers\n• Containers within a pod share network and storage\n• Namespaces organize pods by environment/function\n• StatefulSets maintain persistent storage and identity\n• Use groups to move entire pods or namespace sections together",
+      "fontSize": 13,
+      "fontFamily": "Arial",
+      "fill": "#64748b",
+      "width": 1200
+    }
+  ]
+}

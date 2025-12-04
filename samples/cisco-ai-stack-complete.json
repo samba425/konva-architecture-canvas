@@ -55,7 +55,10 @@
       "y": 204.3262980831949,
       "rotation": 0,
       "componentIcon": "📊",
-      "componentName": "Splunk"
+      "componentName": "Splunk",
+      "groupType": "component-group",
+      "faIcon": "fas fa-chart-bar",
+      "iconColor": "#FF6B00"
     },
     {
       "id": "ai-frameworks-box",
@@ -200,7 +203,10 @@
       "y": 391.73701916805,
       "rotation": 0,
       "componentIcon": "📊",
-      "componentName": "Nexus Dashboard"
+      "componentName": "Nexus Dashboard",
+      "groupType": "component-group",
+      "faIcon": "fas fa-network-wired",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-intersight",
@@ -209,7 +215,10 @@
       "y": 396.06331725124505,
       "rotation": 0,
       "componentIcon": "☁️",
-      "componentName": "Intersight"
+      "componentName": "Intersight",
+      "groupType": "component-group",
+      "faIcon": "fas fa-cloud",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-ansible",
@@ -218,7 +227,10 @@
       "y": 398.94751597337506,
       "rotation": 0,
       "componentIcon": "⚙️",
-      "componentName": "Ansible"
+      "componentName": "Ansible",
+      "groupType": "component-group",
+      "faIcon": "fas fa-cogs",
+      "iconColor": "#EE0000"
     },
     {
       "id": "ai-infrastructure-box",
@@ -251,8 +263,11 @@
       "x": 350,
       "y": 530,
       "rotation": 0,
-      "componentIcon": "�",
-      "componentName": "Intel"
+      "componentIcon": "💻",
+      "componentName": "Intel",
+      "groupType": "component-group",
+      "faIcon": "fas fa-microchip",
+      "iconColor": "#0071C5"
     },
     {
       "id": "comp-nvidia",
@@ -261,7 +276,10 @@
       "y": 564.6103846655599,
       "rotation": 0,
       "componentIcon": "🎮",
-      "componentName": "NVIDIA"
+      "componentName": "NVIDIA",
+      "groupType": "component-group",
+      "faIcon": "fas fa-microchip",
+      "iconColor": "#76B900"
     },
     {
       "id": "comp-amd",
@@ -270,7 +288,10 @@
       "y": 502.6001121397651,
       "rotation": 0,
       "componentIcon": "⚡",
-      "componentName": "AMD"
+      "componentName": "AMD",
+      "groupType": "component-group",
+      "faIcon": "fas fa-microchip",
+      "iconColor": "#ED1C24"
     },
     {
       "id": "comp-flashstack",
@@ -279,7 +300,10 @@
       "y": 590,
       "rotation": 0,
       "componentIcon": "⚡",
-      "componentName": "FlashStack"
+      "componentName": "FlashStack",
+      "groupType": "component-group",
+      "faIcon": "fas fa-bolt",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-nutanix",
@@ -287,8 +311,11 @@
       "x": 673.5470674143145,
       "y": 569.8106089450899,
       "rotation": 0,
-      "componentIcon": "�",
-      "componentName": "Nutanix"
+      "componentIcon": "🔷",
+      "componentName": "Nutanix",
+      "groupType": "component-group",
+      "faIcon": "fas fa-cubes",
+      "iconColor": "#024DA1"
     },
     {
       "id": "comp-nexus",
@@ -297,7 +324,10 @@
       "y": 540.5898396139703,
       "rotation": 0,
       "componentIcon": "🔀",
-      "componentName": "Cisco Nexus"
+      "componentName": "Cisco Nexus",
+      "groupType": "component-group",
+      "faIcon": "fas fa-network-wired",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-flexpod",
@@ -305,8 +335,11 @@
       "x": 461.06331725124505,
       "y": 592.50541661231,
       "rotation": 0,
-      "componentIcon": "�",
-      "componentName": "FlexPod"
+      "componentIcon": "📦",
+      "componentName": "FlexPod",
+      "groupType": "component-group",
+      "faIcon": "fas fa-box",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-ucs",
@@ -315,7 +348,10 @@
       "y": 585.2949198069849,
       "rotation": 0,
       "componentIcon": "🖥️",
-      "componentName": "Cisco UCS"
+      "componentName": "Cisco UCS",
+      "groupType": "component-group",
+      "faIcon": "fas fa-server",
+      "iconColor": "#049FD9"
     },
     {
       "id": "deployment-box",
@@ -337,7 +373,10 @@
       "y": 721.34740383361,
       "rotation": 0,
       "componentIcon": "🏢",
-      "componentName": "Data Center"
+      "componentName": "Data Center",
+      "groupType": "component-group",
+      "faIcon": "fas fa-building",
+      "iconColor": "#2196F3"
     },
     {
       "id": "comp-edge",
@@ -346,7 +385,10 @@
       "y": 711.2527083061551,
       "rotation": 0,
       "componentIcon": "🌐",
-      "componentName": "Edge"
+      "componentName": "Edge",
+      "groupType": "component-group",
+      "faIcon": "fas fa-globe",
+      "iconColor": "#10B981"
     },
     {
       "id": "comp-colocation",
@@ -355,7 +397,10 @@
       "y": 711.2527083061551,
       "rotation": 0,
       "componentIcon": "🏛️",
-      "componentName": "Colocation"
+      "componentName": "Colocation",
+      "groupType": "component-group",
+      "faIcon": "fas fa-warehouse",
+      "iconColor": "#8B5CF6"
     },
     {
       "id": "comp-public-cloud",
@@ -364,7 +409,10 @@
       "y": 708.3685095840251,
       "rotation": 0,
       "componentIcon": "☁️",
-      "componentName": "Public Cloud"
+      "componentName": "Public Cloud",
+      "groupType": "component-group",
+      "faIcon": "fas fa-cloud",
+      "iconColor": "#3B82F6"
     },
     {
       "id": "splunk-right-box",
@@ -398,7 +446,10 @@
       "y": 145.57900638935,
       "rotation": 0,
       "componentIcon": "📈",
-      "componentName": "Splunk"
+      "componentName": "Splunk",
+      "groupType": "component-group",
+      "faIcon": "fas fa-chart-line",
+      "iconColor": "#FF6B00"
     },
     {
       "id": "comp-thousand-eyes",
@@ -407,7 +458,10 @@
       "y": 220,
       "rotation": 0,
       "componentIcon": "👁️",
-      "componentName": "Thousand Eyes"
+      "componentName": "Thousand Eyes",
+      "groupType": "component-group",
+      "faIcon": "fas fa-eye",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-ai-defense-right",
@@ -416,7 +470,10 @@
       "y": 307.3998878602348,
       "rotation": 0,
       "componentIcon": "🛡️",
-      "componentName": "AI Defense"
+      "componentName": "AI Defense",
+      "groupType": "component-group",
+      "faIcon": "fas fa-shield-alt",
+      "iconColor": "#10B981"
     },
     {
       "id": "security-box",
@@ -449,8 +506,11 @@
       "x": 82.88419872212984,
       "y": 342.7895031946749,
       "rotation": 0,
-      "componentIcon": "�",
-      "componentName": "Secure Firewall"
+      "componentIcon": "🔥",
+      "componentName": "Secure Firewall",
+      "groupType": "component-group",
+      "faIcon": "fas fa-fire",
+      "iconColor": "#E74C3C"
     },
     {
       "id": "comp-secure-workload",
@@ -459,7 +519,10 @@
       "y": 437.30519233278005,
       "rotation": 0,
       "componentIcon": "💼",
-      "componentName": "Secure Workload"
+      "componentName": "Secure Workload",
+      "groupType": "component-group",
+      "faIcon": "fas fa-briefcase",
+      "iconColor": "#049FD9"
     },
     {
       "id": "comp-ai-defense-left",
@@ -468,7 +531,10 @@
       "y": 533.2629808319498,
       "rotation": 0,
       "componentIcon": "🛡️",
-      "componentName": "AI Defense"
+      "componentName": "AI Defense",
+      "groupType": "component-group",
+      "faIcon": "fas fa-shield-alt",
+      "iconColor": "#10B981"
     },
     {
       "id": "sustainability-box",
@@ -502,7 +568,10 @@
       "y": 444.23160255574,
       "rotation": 0,
       "componentIcon": "🌱",
-      "componentName": "Green Computing"
+      "componentName": "Green Computing",
+      "groupType": "component-group",
+      "faIcon": "fas fa-leaf",
+      "iconColor": "#27AE60"
     },
     {
       "id": "simplified-ops-box",
