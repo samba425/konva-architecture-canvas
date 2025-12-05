@@ -1,0 +1,220 @@
+{
+  "version": "1.0",
+  "created": "2025-12-04T06:17:27.130460Z",
+  "canvas": {
+    "width": 1600,
+    "height": 900,
+    "scale": 1,
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "shapes": [
+    {
+      "id": "shape-1",
+      "type": "Text",
+      "x": 300,
+      "y": 30,
+      "rotation": 0,
+      "text": "Cloud Infrastructure Architecture",
+      "fontSize": 26,
+      "fontFamily": "Arial",
+      "fill": "#1a1a1a",
+      "width": 500,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "shape-2",
+      "type": "Rect",
+      "x": 100,
+      "y": 120,
+      "rotation": 0,
+      "width": 800,
+      "height": 450,
+      "fill": "rgba(255, 153, 0, 0.08)",
+      "stroke": "#ff9900",
+      "strokeWidth": 2,
+      "cornerRadius": 8
+    },
+    {
+      "id": "shape-3",
+      "type": "Text",
+      "x": 120,
+      "y": 135,
+      "rotation": 0,
+      "text": "AWS Cloud",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#ff9900",
+      "width": 200,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "shape-4",
+      "type": "Group",
+      "x": 150,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "AWS EC2",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fab fa-aws",
+      "iconColor": "#FF9900"
+    },
+    {
+      "id": "shape-5",
+      "type": "Group",
+      "x": 350,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "RDS",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#527FFF"
+    },
+    {
+      "id": "shape-6",
+      "type": "Group",
+      "x": 550,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "S3",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-box",
+      "iconColor": "#569A31"
+    },
+    {
+      "id": "shape-7",
+      "type": "Group",
+      "x": 750,
+      "y": 200,
+      "rotation": 0,
+      "componentName": "Security",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-lock",
+      "iconColor": "#EF4444"
+    },
+    {
+      "id": "shape-8",
+      "type": "Group",
+      "x": 250,
+      "y": 400,
+      "rotation": 0,
+      "componentName": "Kubernetes",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fas fa-dharmachakra",
+      "iconColor": "#326CE5"
+    },
+    {
+      "id": "shape-9",
+      "type": "Group",
+      "x": 500,
+      "y": 400,
+      "rotation": 0,
+      "componentName": "Docker",
+      "componentIcon": "\ud83d\udce6",
+      "groupType": "component-group",
+      "faIcon": "fab fa-docker",
+      "iconColor": "#2496ED"
+    },
+    {
+      "id": "shape-10",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        230,
+        230,
+        350,
+        230
+      ],
+      "stroke": "rgba(255, 153, 0, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(255, 153, 0, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-11",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        430,
+        230,
+        550,
+        230
+      ],
+      "stroke": "rgba(59, 130, 246, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(59, 130, 246, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-12",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        190,
+        270,
+        290,
+        400
+      ],
+      "stroke": "rgba(16, 185, 129, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(16, 185, 129, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-13",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        330,
+        400,
+        500,
+        400
+      ],
+      "stroke": "rgba(99, 102, 241, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(99, 102, 241, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "shape-14",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        630,
+        230,
+        750,
+        230
+      ],
+      "stroke": "rgba(239, 68, 68, 1)",
+      "strokeWidth": 2,
+      "fill": "rgba(239, 68, 68, 1)",
+      "pointerLength": 10,
+      "pointerWidth": 10,
+      "dash": [
+        5,
+        5
+      ]
+    }
+  ]
+}

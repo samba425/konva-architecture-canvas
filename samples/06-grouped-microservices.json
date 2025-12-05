@@ -1,0 +1,334 @@
+{
+  "version": "1.0",
+  "created": "2025-12-04T06:30:00.000Z",
+  "canvas": {
+    "width": 1600,
+    "height": 1000,
+    "scale": 1,
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "shapes": [
+    {
+      "id": "title-1",
+      "type": "Text",
+      "x": 400,
+      "y": 30,
+      "rotation": 0,
+      "text": "Grouped Microservices Architecture",
+      "fontSize": 32,
+      "fontFamily": "Arial",
+      "fill": "#e2e8f0",
+      "width": 800,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "container-1",
+      "type": "Rect",
+      "x": 50,
+      "y": 100,
+      "rotation": 0,
+      "width": 450,
+      "height": 400,
+      "fill": "rgba(99, 102, 241, 0.1)",
+      "stroke": "#6366f1",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "container-1-label",
+      "type": "Text",
+      "x": 70,
+      "y": 115,
+      "rotation": 0,
+      "text": "Frontend Services Group",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#6366f1",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-frontend",
+      "type": "Group",
+      "x": 100,
+      "y": 180,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-1",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Web App",
+          "componentIcon": "🌐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-globe",
+          "iconColor": "#3b82f6"
+        },
+        {
+          "id": "comp-2",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Mobile App",
+          "componentIcon": "📱",
+          "groupType": "component-group",
+          "faIcon": "fas fa-mobile-alt",
+          "iconColor": "#8b5cf6"
+        },
+        {
+          "id": "comp-3",
+          "type": "Group",
+          "x": 75,
+          "y": 120,
+          "rotation": 0,
+          "componentName": "API Gateway",
+          "componentIcon": "🚪",
+          "groupType": "component-group",
+          "faIcon": "fas fa-door-open",
+          "iconColor": "#10b981"
+        }
+      ]
+    },
+    {
+      "id": "container-2",
+      "type": "Rect",
+      "x": 550,
+      "y": 100,
+      "rotation": 0,
+      "width": 500,
+      "height": 400,
+      "fill": "rgba(16, 185, 129, 0.1)",
+      "stroke": "#10b981",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "container-2-label",
+      "type": "Text",
+      "x": 570,
+      "y": 115,
+      "rotation": 0,
+      "text": "Backend Services Group",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#10b981",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-backend",
+      "type": "Group",
+      "x": 600,
+      "y": 180,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-4",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Auth Service",
+          "componentIcon": "🔐",
+          "groupType": "component-group",
+          "faIcon": "fas fa-lock",
+          "iconColor": "#ef4444"
+        },
+        {
+          "id": "comp-5",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "User Service",
+          "componentIcon": "👤",
+          "groupType": "component-group",
+          "faIcon": "fas fa-user",
+          "iconColor": "#f59e0b"
+        },
+        {
+          "id": "comp-6",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Order Service",
+          "componentIcon": "📦",
+          "groupType": "component-group",
+          "faIcon": "fas fa-box",
+          "iconColor": "#06b6d4"
+        },
+        {
+          "id": "comp-7",
+          "type": "Group",
+          "x": 75,
+          "y": 120,
+          "rotation": 0,
+          "componentName": "Message Queue",
+          "componentIcon": "📨",
+          "groupType": "component-group",
+          "faIcon": "fas fa-envelope",
+          "iconColor": "#8b5cf6"
+        },
+        {
+          "id": "comp-8",
+          "type": "Group",
+          "x": 225,
+          "y": 120,
+          "rotation": 0,
+          "componentName": "Cache",
+          "componentIcon": "⚡",
+          "groupType": "component-group",
+          "faIcon": "fas fa-bolt",
+          "iconColor": "#eab308"
+        }
+      ]
+    },
+    {
+      "id": "container-3",
+      "type": "Rect",
+      "x": 250,
+      "y": 550,
+      "rotation": 0,
+      "width": 600,
+      "height": 250,
+      "fill": "rgba(236, 72, 153, 0.1)",
+      "stroke": "#ec4899",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "container-3-label",
+      "type": "Text",
+      "x": 270,
+      "y": 565,
+      "rotation": 0,
+      "text": "Data Layer Group",
+      "fontSize": 18,
+      "fontFamily": "Arial",
+      "fill": "#ec4899",
+      "width": 400,
+      "fontStyle": "bold"
+    },
+    {
+      "id": "group-data",
+      "type": "Group",
+      "x": 300,
+      "y": 630,
+      "rotation": 0,
+      "groupType": "user-group",
+      "scaleX": 1,
+      "scaleY": 1,
+      "children": [
+        {
+          "id": "comp-9",
+          "type": "Group",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "PostgreSQL",
+          "componentIcon": "🐘",
+          "groupType": "component-group",
+          "faIcon": "fas fa-database",
+          "iconColor": "#336791"
+        },
+        {
+          "id": "comp-10",
+          "type": "Group",
+          "x": 150,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "MongoDB",
+          "componentIcon": "🍃",
+          "groupType": "component-group",
+          "faIcon": "fas fa-leaf",
+          "iconColor": "#47A248"
+        },
+        {
+          "id": "comp-11",
+          "type": "Group",
+          "x": 300,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "Redis",
+          "componentIcon": "⚡",
+          "groupType": "component-group",
+          "faIcon": "fas fa-database",
+          "iconColor": "#DC382D"
+        },
+        {
+          "id": "comp-12",
+          "type": "Group",
+          "x": 450,
+          "y": 0,
+          "rotation": 0,
+          "componentName": "S3 Storage",
+          "componentIcon": "☁️",
+          "groupType": "component-group",
+          "faIcon": "fab fa-aws",
+          "iconColor": "#FF9900"
+        }
+      ]
+    },
+    {
+      "id": "arrow-1",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        500,
+        300,
+        600,
+        300
+      ],
+      "stroke": "rgba(99, 102, 241, 1)",
+      "strokeWidth": 3,
+      "fill": "rgba(99, 102, 241, 1)",
+      "pointerLength": 12,
+      "pointerWidth": 12
+    },
+    {
+      "id": "arrow-2",
+      "type": "Arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "points": [
+        750,
+        500,
+        550,
+        630
+      ],
+      "stroke": "rgba(16, 185, 129, 1)",
+      "strokeWidth": 3,
+      "fill": "rgba(16, 185, 129, 1)",
+      "pointerLength": 12,
+      "pointerWidth": 12
+    },
+    {
+      "id": "note-1",
+      "type": "Text",
+      "x": 1100,
+      "y": 200,
+      "rotation": 0,
+      "text": "💡 Groups allow you to:\n\n✓ Move multiple components together\n✓ Organize related services\n✓ Maintain relationships\n✓ Scale entire sections\n✓ Apply transformations\n\nUse Cmd+G (Mac) or Ctrl+G (Win)\nto group selected items",
+      "fontSize": 14,
+      "fontFamily": "Arial",
+      "fill": "#64748b",
+      "width": 400
+    }
+  ]
+}
