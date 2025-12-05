@@ -2538,36 +2538,72 @@ textarea.form-control {
 /* Template Tabs */
 .templates-tabs {
   display: flex;
-  gap: 8px;
-  padding: 12px 24px;
-  background: rgba(15, 23, 42, 0.5);
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(15, 23, 42, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tab-btn {
   flex: 1;
   padding: 12px 20px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   color: #94a3b8;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .tab-btn.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-color: #667eea;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.tab-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.tab-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.tab-btn.active .tab-count {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Template Action Buttons */
@@ -2634,11 +2670,35 @@ textarea.form-control {
 }
 
 .templates-search {
-  padding: 16px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
+/* Template search input - white background */
+.template-search-input {
+  width: 100%;
+  padding: 14px 20px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  color: #1e293b;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.template-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.template-search-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+/* Keep original search-input for left panel */
 .search-input {
   width: 90%;
   padding: 12px 16px;
@@ -2775,9 +2835,17 @@ textarea.form-control {
 .konva-container.light-theme .templates-panel { background: white; border: 1px solid #e0e0e0; }
 .konva-container.light-theme .templates-header { background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%); border-bottom: 1px solid #e0e0e0; }
 .konva-container.light-theme .templates-header h3 { color: #1a1a1a; }
-.konva-container.light-theme .templates-search { background: rgba(0, 0, 0, 0.02); border-bottom: 1px solid #e0e0e0; }
+.konva-container.light-theme .templates-search { background: transparent; border-bottom: 1px solid #e0e0e0; }
+.konva-container.light-theme .template-search-input { background: white; border-color: #d1d5db; color: #1e293b; }
+.konva-container.light-theme .template-search-input:focus { border-color: #667eea; }
 .konva-container.light-theme .search-input { background: #0f172a; border-color: #475569; color: #e2e8f0; }
 .konva-container.light-theme .search-input:focus { border-color: #06b6d4; }
+.konva-container.light-theme .templates-tabs { background: rgba(0, 0, 0, 0.02); border-bottom: 1px solid #e0e0e0; }
+.konva-container.light-theme .tab-btn { background: white; border-color: #e2e8f0; color: #64748b; }
+.konva-container.light-theme .tab-btn:hover { background: #f8fafc; border-color: #cbd5e1; color: #1e293b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+.konva-container.light-theme .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea; color: white; }
+.konva-container.light-theme .tab-count { background: rgba(100, 116, 139, 0.15); }
+.konva-container.light-theme .tab-btn.active .tab-count { background: rgba(255, 255, 255, 0.3); }
 .konva-container.light-theme .template-item { background: rgba(0, 0, 0, 0.02); }
 .konva-container.light-theme .template-item:hover { background: rgba(0, 0, 0, 0.04); }
 .konva-container.light-theme .template-icon { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 1px solid #e0e0e0; }
