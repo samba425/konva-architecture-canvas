@@ -5326,7 +5326,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Basic RAG architecture with vector DB and LLM',
       thumbnail: '🤖',
       category: 'AI/ML',
-      file: '/samples/01-simple-rag-chatbot.json'
+      file: 'samples/01-simple-rag-chatbot.json'
     },
     {
       id: '02-multi-model-ai-platform',
@@ -5334,7 +5334,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Platform supporting multiple AI models',
       thumbnail: '🧠',
       category: 'AI/ML',
-      file: '/samples/02-multi-model-ai-platform.json'
+      file: 'samples/02-multi-model-ai-platform.json'
     },
     {
       id: '03-cloud-infrastructure',
@@ -5342,7 +5342,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Standard cloud deployment architecture',
       thumbnail: '☁️',
       category: 'Cloud',
-      file: '/samples/03-cloud-infrastructure.json'
+      file: 'samples/03-cloud-infrastructure.json'
     },
     {
       id: '04-enterprise-ai-platform',
@@ -5350,7 +5350,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Complete enterprise-grade AI system',
       thumbnail: '🏢',
       category: 'AI/ML',
-      file: '/samples/04-enterprise-ai-platform.json'
+      file: 'samples/04-enterprise-ai-platform.json'
     },
     {
       id: '05-observability-stack',
@@ -5358,7 +5358,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Monitoring and logging infrastructure',
       thumbnail: '📊',
       category: 'DevOps',
-      file: '/samples/05-observability-stack.json'
+      file: 'samples/05-observability-stack.json'
     },
     {
       id: '06-grouped-microservices',
@@ -5366,7 +5366,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Microservices architecture with groups',
       thumbnail: '🔷',
       category: 'Architecture',
-      file: '/samples/06-grouped-microservices.json'
+      file: 'samples/06-grouped-microservices.json'
     },
     {
       id: '07-nested-groups-cloud',
@@ -5374,7 +5374,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Complex nested group architecture',
       thumbnail: '📦',
       category: 'Cloud',
-      file: '/samples/07-nested-groups-cloud.json'
+      file: 'samples/07-nested-groups-cloud.json'
     },
     {
       id: '08-kubernetes-pods-groups',
@@ -5382,7 +5382,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'K8s pod organization and groups',
       thumbnail: '☸️',
       category: 'DevOps',
-      file: '/samples/08-kubernetes-pods-groups.json'
+      file: 'samples/08-kubernetes-pods-groups.json'
     },
     {
       id: 'cisco-ai-stack-complete',
@@ -5390,7 +5390,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Complete Cisco AI infrastructure',
       thumbnail: '🌐',
       category: 'Enterprise',
-      file: '/samples/cisco-ai-stack-complete.json'
+      file: 'samples/cisco-ai-stack-complete.json'
     },
     {
       id: 'complex-enterprise-platform',
@@ -5398,7 +5398,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       description: 'Full-featured enterprise system',
       thumbnail: '🏗️',
       category: 'Enterprise',
-      file: '/samples/complex-enterprise-platform.json'
+      file: 'samples/complex-enterprise-platform.json'
     }
   ];
   
