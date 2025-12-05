@@ -1,4 +1,4 @@
-# 🎨 Konva Architecture Canvas# 🎨 Konva Architecture Canvas# konva-architecture-canvas# konva-architecture-canvas# KonvaCanvasBuilder
+# 🎨 Konva Architecture Canvas# 🎨 Konva Architecture Canvas# 🎨 Konva Architecture Canvas# konva-architecture-canvas# konva-architecture-canvas# KonvaCanvasBuilder
 
 
 
@@ -14,23 +14,31 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-[![License](https://img.shields.io/badge/License-MIT-success.svg)](LICENSE)[![npm version](https://img.shields.io/npm/v/konva-architecture-canvas.svg)](https://www.npmjs.com/package/konva-architecture-canvas)> 🎨 **Build stunning architecture diagrams in minutes** - A powerful Angular component with 47+ pre-built tech components, drag-and-drop interface, and professional drawing tools.
+[![License](https://img.shields.io/badge/License-MIT-success.svg)](LICENSE)[![npm version](https://img.shields.io/npm/v/konva-architecture-canvas.svg)](https://www.npmjs.com/package/konva-architecture-canvas)> **Professional Architecture Diagram Builder** - Create stunning cloud infrastructure, AI/ML systems, and technical architecture diagrams with an intuitive drag-and-drop interface.
 
 
 
----[![Angular](https://img.shields.io/badge/Angular-21+-DD0031?logo=angular)](https://angular.io/)
+🚀 **[Live Demo](https://samba425.github.io/konva-architecture-canvas/)** | 📦 [npm Package](https://www.npmjs.com/package/konva-architecture-canvas) | 📚 [GitHub](https://github.com/samba425/konva-architecture-canvas)[![Angular](https://img.shields.io/badge/Angular-21+-DD0031?logo=angular)](https://angular.io/)
 
 
 
-## 📖 Table of Contents[![Konva](https://img.shields.io/badge/Konva-10+-0D83CD?logo=konva)](https://konvajs.org/)
+> 🎨 **Build stunning architecture diagrams in minutes** - A powerful Angular component with 47+ pre-built tech components, drag-and-drop interface, and professional drawing tools.[![Konva](https://img.shields.io/badge/Konva-10+-0D83CD?logo=konva)](https://konvajs.org/)
 
 
 
-- [Features](#-features)[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+---[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+
+
+
+## 📖 Table of Contents[![License](https://img.shields.io/badge/License-MIT-success.svg)](LICENSE)[![npm version](https://img.shields.io/npm/v/konva-architecture-canvas.svg)](https://www.npmjs.com/package/konva-architecture-canvas)> 🎨 **Build stunning architecture diagrams in minutes** - A powerful Angular component with 47+ pre-built tech components, drag-and-drop interface, and professional drawing tools.
+
+
+
+- [Features](#-features)
 
 - [Installation](#-installation)
 
-- [Quick Start](#-quick-start)[![License](https://img.shields.io/badge/License-MIT-success.svg)](LICENSE)[![Angular](https://img.shields.io/badge/Angular-21+-red)](https://angular.io/)> A powerful Angular component for creating interactive architecture diagrams with Konva.jsThis project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
+- [Quick Start](#-quick-start)---[![Angular](https://img.shields.io/badge/Angular-21+-DD0031?logo=angular)](https://angular.io/)
 
 - [Component Library](#-component-library)
 
@@ -38,7 +46,7 @@
 
 - [Keyboard Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
 
-- [API Reference](#-api-reference)---[![Konva](https://img.shields.io/badge/Konva-10+-blue)](https://konvajs.org/)
+- [API Reference](#-api-reference)## 📖 Table of Contents[![Konva](https://img.shields.io/badge/Konva-10+-0D83CD?logo=konva)](https://konvajs.org/)
 
 - [Examples](#-examples)
 
@@ -46,533 +54,1100 @@
 
 
 
----## 📖 Table of Contents[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+---- [Features](#-features)[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
 
 
-## ✨ Features
+## ✨ Features- [Installation](#-installation)
 
 
 
-### 🎯 **Rich Component Library**- [Features](#-features)
+### 🎯 **Core Capabilities**- [Quick Start](#-quick-start)[![License](https://img.shields.io/badge/License-MIT-success.svg)](LICENSE)[![Angular](https://img.shields.io/badge/Angular-21+-red)](https://angular.io/)> A powerful Angular component for creating interactive architecture diagrams with Konva.jsThis project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
 
-- **47+ Pre-built Components** across 6 categories:
+- **47+ Pre-built Components** - Cloud providers, AI/ML services, databases, and more
 
-  - 🤖 **AI Models**: Mistral, Llama, Gemma, GPT, Claude, Gemini, DeepSeek, Phi, Qwen, Grok, Nova, Cohere- [Installation](#-installation)
+- **Drag & Drop Interface** - Intuitive component placement and connection- [Component Library](#-component-library)
 
-  - 🗄️ **Vector Databases**: Weaviate, Milvus, Pinecone, Chroma, pgVector, Neon
+- **Smart Connections** - Auto-routing arrows with multiple styles
 
-  - 🔗 **Agent Frameworks**: LangChain, LangGraph, Semantic Kernel, AutoGen, CrewAI, LlamaIndex- [Quick Start](#-quick-start)---[![Angular](https://img.shields.io/badge/Angular-21.0-red)](https://angular.io/)## Code scaffolding
+- **Professional Drawing Tools** - Shapes, text, annotations, and more- [Usage Guide](#-usage-guide)
 
-  - 📊 **Observability**: Langfuse, Comet Opik, Helicone, Arize Phoenix, Datadog, Amplitude
+- **Template System** - Save and reuse your diagram templates
 
-  - 🛠️ **Tool Execution**: Composio, NPI, Exa, LinkUp, Browserbase- [Component Library](#-component-library)
+- **Export Options** - PNG, JSON, and more formats- [Keyboard Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
 
-  - 💾 **Memory Systems**: Zep, Cognee, Mem0, VertexAI, NapthaAI, MaestroAI
 
-- [Usage Guide](#-usage-guide)
 
-### 🎨 **Professional Drawing Tools**
+### 🎨 **Drawing Tools**- [API Reference](#-api-reference)---[![Konva](https://img.shields.io/badge/Konva-10+-blue)](https://konvajs.org/)
 
-- **Basic Shapes**: Rectangle, Circle, Line, Arrow, Triangle, Diamond, Pentagon, Hexagon, Star- [Keyboard Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
+- Rectangle, Circle, Ellipse, Triangle shapes
 
-- **Freehand Drawing**: Pen tool for custom paths and annotations
+- Lines with multiple arrow styles- [Examples](#-examples)
 
-- **Text Labels**: Rich text editor with customizable fonts and colors- [API Reference](#-api-reference)## ✨ Features[![Konva](https://img.shields.io/badge/Konva-10.0-blue)](https://konvajs.org/)
+- Text annotations with formatting
 
-- **Image Upload**: Add custom icons and logos to your diagrams
+- Free-hand drawing tool- [Troubleshooting](#-troubleshooting)
 
-- [Examples](#-examples)
+- Selection and manipulation tools
 
-### 🎨 **Advanced Styling System**
 
-- **Dual Color Control**: Separate stroke (border) and fill (interior) colors- [Troubleshooting](#-troubleshooting)
 
-- **Independent Opacity**: Adjust stroke and fill transparency separately
+### 🔧 **Advanced Features**
 
-- **12-Color Palette**: Quick color selection with custom color picker
+- **Multi-selection** - Select and move multiple components---## 📖 Table of Contents[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-- **Stroke Width**: Adjustable border thickness (1-10px)
+- **Grouping** - Organize components into logical groups
 
----- **47+ Pre-built Components** (AI models, databases, cloud services, frameworks, etc.)[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Undo/Redo** - Complete history management
 
-### 📦 **Smart Grouping System**
+- **Zoom & Pan** - Navigate large diagrams easily
 
-- **Hierarchical Groups**: Create nested groups with automatic color coding
+- **Grid Snapping** - Precise component alignment## ✨ Features
 
-- **Visual Borders**: Color-coded borders (purple, red, orange, green, blue) by nesting level
+- **Keyboard Shortcuts** - Professional workflow support
 
-- **Drag & Move**: Move entire groups as single units## ✨ Features- **Complete Drawing Tools** (shapes, arrows, lines, text, pen tool)
 
-- **Extract Items**: Remove items from groups or create new groups
 
+### 🌈 **UI Features**
 
+- **Light/Dark Theme** - Comfortable viewing in any environment### 🎯 **Rich Component Library**- [Features](#-features)
 
-### 💾 **Save & Restore**
+- **Responsive Design** - Works on desktop and tablet
 
-- **Auto-Save**: Automatic localStorage backup of your work### 🎯 **Rich Component Library**- **Professional Styling** (colors, opacity, borders, fills)[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+- **Search & Filter** - Find components quickly- **47+ Pre-built Components** across 6 categories:
 
-- **My Templates**: Save custom diagrams as reusable templates
+- **Component Categories** - Organized by technology type
 
-- **Export Formats**: JSON, PNG, and SVG export options- **47+ Pre-built Components** across 6 categories:
+- **Color Customization** - Match your brand colors  - 🤖 **AI Models**: Mistral, Llama, Gemma, GPT, Claude, Gemini, DeepSeek, Phi, Qwen, Grok, Nova, Cohere- [Installation](#-installation)
 
-- **Import**: Load saved JSON diagrams
 
-  - 🤖 **AI Models**: Mistral, Llama, Gemma, GPT, Claude, Gemini, DeepSeek, Phi, Qwen, Grok, Nova, Cohere- **Smart Grouping** (with nested support and colored borders)
 
-### ⚡ **High Performance**
+### 📦 **Component Categories**  - 🗄️ **Vector Databases**: Weaviate, Milvus, Pinecone, Chroma, pgVector, Neon
 
-- **Canvas Rendering**: Powered by Konva.js for smooth interactions  - 🗄️ **Vector Databases**: Weaviate, Milvus, Pinecone, Chroma, pgVector, Neon
+- **Cloud Providers** - AWS, Azure, GCP services
 
-- **Icon Caching**: Optimized component rendering
+- **AI/ML Services** - OpenAI, Claude, Gemini, LLaMA  - 🔗 **Agent Frameworks**: LangChain, LangGraph, Semantic Kernel, AutoGen, CrewAI, LlamaIndex- [Quick Start](#-quick-start)---[![Angular](https://img.shields.io/badge/Angular-21.0-red)](https://angular.io/)## Code scaffolding
 
-- **Infinite Canvas**: Pan and zoom without limits  - 🔗 **Agent Frameworks**: LangChain, LangGraph, Semantic Kernel, AutoGen, CrewAI, LlamaIndex- **Export/Import** (save and load as JSON)```bash
+- **Databases** - PostgreSQL, MongoDB, Redis, etc.
 
-- **Grid System**: Optional alignment grid
+- **Infrastructure** - Kubernetes, Docker, Load Balancers  - 📊 **Observability**: Langfuse, Comet Opik, Helicone, Arize Phoenix, Datadog, Amplitude
 
-  - 📊 **Observability**: Langfuse, Comet Opik, Helicone, Arize Phoenix, Datadog, Amplitude
+- **Messaging** - Kafka, RabbitMQ, Event Hubs
 
-### 🎯 **User-Friendly Interface**
+- **Monitoring** - Prometheus, Grafana, CloudWatch  - 🛠️ **Tool Execution**: Composio, NPI, Exa, LinkUp, Browserbase- [Component Library](#-component-library)
 
-- **Multi-Selection**: Shift+Click or drag-rectangle to select multiple items  - 🛠️ **Tool Execution**: Composio, NPI, Exa, LinkUp, Browserbase- **Full Keyboard Shortcuts** (Cmd+G for group, Cmd+Z for undo, etc.)
 
-- **Keyboard Shortcuts**: Full keyboard support for power users
 
-- **Dark/Light Themes**: Switch between themes for comfortable viewing  - 💾 **Memory Systems**: Zep, Cognee, Mem0, VertexAI, NapthaAI, MaestroAI
+---  - 💾 **Memory Systems**: Zep, Cognee, Mem0, VertexAI, NapthaAI, MaestroAI
 
-- **Responsive**: Works on various screen sizes
 
-- **Multi-Selection** (Shift+Click or drag to select)## ✨ Featuresng generate component component-name
 
----
+## 📦 Installation- [Usage Guide](#-usage-guide)
 
-### 🎨 **Professional Drawing Tools**
 
-## 📦 Installation
 
-- **Basic Shapes**: Rectangle, Circle, Line, Arrow, Triangle, Diamond, Pentagon, Hexagon, Star
+```bash### 🎨 **Professional Drawing Tools**
 
-Install the package and its peer dependency:
+npm install konva-architecture-canvas konva
 
-- **Freehand Drawing**: Pen tool for custom paths and annotations
+```- **Basic Shapes**: Rectangle, Circle, Line, Arrow, Triangle, Diamond, Pentagon, Hexagon, Star- [Keyboard Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
 
-```bash
 
-npm install konva-architecture-canvas konva- **Text Labels**: Rich text editor with customizable fonts and colors---```
 
-```
+### Peer Dependencies- **Freehand Drawing**: Pen tool for custom paths and annotations
 
-- **Image Upload**: Add custom icons and logos to your diagrams
 
-### Peer Dependencies
 
+Ensure you have the required peer dependencies:- **Text Labels**: Rich text editor with customizable fonts and colors- [API Reference](#-api-reference)## ✨ Features[![Konva](https://img.shields.io/badge/Konva-10.0-blue)](https://konvajs.org/)
 
 
-This library requires:
 
-### 🎨 **Advanced Styling System**
+```bash- **Image Upload**: Add custom icons and logos to your diagrams
 
-```json
+npm install @angular/common@^21.0.0 @angular/core@^21.0.0 konva@^10.0.12
 
-{- **Dual Color Control**: Separate stroke (border) and fill (interior) colors## 📦 Installation- 🎨 **47+ Pre-built Components** across 6 categories (AI Models, Databases, Frameworks, etc.)
+```- [Examples](#-examples)
 
-  "@angular/common": "^21.0.0",
 
-  "@angular/core": "^21.0.0",- **Independent Opacity**: Adjust stroke and fill transparency separately
 
-  "@angular/forms": "^21.0.0",
+---### 🎨 **Advanced Styling System**
 
-  "konva": "^10.0.12"- **12-Color Palette**: Quick color selection with custom color picker
 
-}
 
-```- **Stroke Width**: Adjustable border thickness (1-10px)
+## 🚀 Quick Start- **Dual Color Control**: Separate stroke (border) and fill (interior) colors- [Troubleshooting](#-troubleshooting)
 
 
 
----```bash- 🎯 **Drag & Drop Interface** for intuitive diagram creationFor a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Step 1: Import the Component- **Independent Opacity**: Adjust stroke and fill transparency separately
 
 
 
-## 🚀 Quick Start### 📦 **Smart Grouping System**
-
-
-
-### Step 1: Import the Component- **Hierarchical Groups**: Create nested groups with automatic color codingnpm install konva-architecture-canvas konva
-
-
-
-```typescript- **Visual Borders**: Color-coded borders (purple, red, orange, green, blue) by nesting level
+```typescript- **12-Color Palette**: Quick color selection with custom color picker
 
 import { Component } from '@angular/core';
 
-import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';- **Drag & Move**: Move entire groups as single units```- 🌈 **Advanced Color System** with separate stroke/fill controls and opacity
+import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';- **Stroke Width**: Adjustable border thickness (1-10px)
 
 
 
-@Component({- **Extract Items**: Remove items from groups or create new groups
+@Component({---- **47+ Pre-built Components** (AI models, databases, cloud services, frameworks, etc.)[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
   selector: 'app-root',
 
-  standalone: true,
+  standalone: true,### 📦 **Smart Grouping System**
 
   imports: [KonvaCanvasMainComponent],
 
-  template: '<arch-canvas></arch-canvas>',### 💾 **Save & Restore**
+  template: '<lib-konva-canvas-main></lib-konva-canvas-main>'- **Hierarchical Groups**: Create nested groups with automatic color coding
 
-  styles: [`
+})
 
-    arch-canvas {- **Auto-Save**: Automatic localStorage backup of your work---- 📦 **Nested Grouping** with colored borders by hierarchy level```bash
+export class AppComponent {}- **Visual Borders**: Color-coded borders (purple, red, orange, green, blue) by nesting level
 
-      display: block;
+```
 
-      width: 100%;- **My Templates**: Save custom diagrams as reusable templates
+- **Drag & Move**: Move entire groups as single units## ✨ Features- **Complete Drawing Tools** (shapes, arrows, lines, text, pen tool)
 
-      height: 100vh;
+### Step 2: Add to Your Template
 
-    }- **Export Formats**: JSON, PNG, and SVG export options
+- **Extract Items**: Remove items from groups or create new groups
 
-  `]
+```html
 
-})- **Import**: Load saved JSON diagrams
+<lib-konva-canvas-main></lib-konva-canvas-main>
+
+```
+
+### 💾 **Save & Restore**
+
+### Step 3: Run Your Application
+
+- **Auto-Save**: Automatic localStorage backup of your work### 🎯 **Rich Component Library**- **Professional Styling** (colors, opacity, borders, fills)[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+```bash
+
+ng serve- **My Templates**: Save custom diagrams as reusable templates
+
+```
+
+- **Export Formats**: JSON, PNG, and SVG export options- **47+ Pre-built Components** across 6 categories:
+
+That's it! 🎉 The canvas is now ready with all features enabled.
+
+- **Import**: Load saved JSON diagrams
+
+---
+
+  - 🤖 **AI Models**: Mistral, Llama, Gemma, GPT, Claude, Gemini, DeepSeek, Phi, Qwen, Grok, Nova, Cohere- **Smart Grouping** (with nested support and colored borders)
+
+## 📚 Component Library
+
+### ⚡ **High Performance**
+
+### 🤖 AI & Machine Learning (10 components)
+
+- **Canvas Rendering**: Powered by Konva.js for smooth interactions  - 🗄️ **Vector Databases**: Weaviate, Milvus, Pinecone, Chroma, pgVector, Neon
+
+| Component | Description | Use Case |
+
+|-----------|-------------|----------|- **Icon Caching**: Optimized component rendering
+
+| OpenAI GPT | GPT-3.5, GPT-4 models | Text generation, chat |
+
+| Claude | Anthropic's Claude AI | Advanced reasoning |- **Infinite Canvas**: Pan and zoom without limits  - 🔗 **Agent Frameworks**: LangChain, LangGraph, Semantic Kernel, AutoGen, CrewAI, LlamaIndex- **Export/Import** (save and load as JSON)```bash
+
+| Gemini | Google's Gemini AI | Multimodal AI |
+
+| LLaMA | Meta's open-source LLM | Self-hosted AI |- **Grid System**: Optional alignment grid
+
+| Mistral | Mistral AI models | European AI solution |
+
+| Cohere | Cohere language models | Enterprise NLP |  - 📊 **Observability**: Langfuse, Comet Opik, Helicone, Arize Phoenix, Datadog, Amplitude
+
+| Hugging Face | Model hub & inference | ML model hosting |
+
+| Azure OpenAI | Microsoft-hosted OpenAI | Enterprise AI |### 🎯 **User-Friendly Interface**
+
+| Bedrock | AWS managed LLMs | Cloud-native AI |
+
+| Vertex AI | Google Cloud AI platform | ML operations |- **Multi-Selection**: Shift+Click or drag-rectangle to select multiple items  - 🛠️ **Tool Execution**: Composio, NPI, Exa, LinkUp, Browserbase- **Full Keyboard Shortcuts** (Cmd+G for group, Cmd+Z for undo, etc.)
+
+
+
+### ☁️ Cloud Services (15 components)- **Keyboard Shortcuts**: Full keyboard support for power users
+
+
+
+| Component | Description | Use Case |- **Dark/Light Themes**: Switch between themes for comfortable viewing  - 💾 **Memory Systems**: Zep, Cognee, Mem0, VertexAI, NapthaAI, MaestroAI
+
+|-----------|-------------|----------|
+
+| AWS Lambda | Serverless compute | Event-driven code |- **Responsive**: Works on various screen sizes
+
+| Azure Functions | Microsoft serverless | Cloud automation |
+
+| GCP Cloud Functions | Google serverless | Microservices |- **Multi-Selection** (Shift+Click or drag to select)## ✨ Featuresng generate component component-name
+
+| API Gateway | API management | RESTful APIs |
+
+| S3 Bucket | Object storage | File storage |---
+
+| CloudFront | CDN service | Content delivery |
+
+| Route 53 | DNS service | Domain management |### 🎨 **Professional Drawing Tools**
+
+| EC2 | Virtual machines | Compute instances |
+
+| ECS | Container service | Docker hosting |## 📦 Installation
+
+| EKS | Kubernetes service | Container orchestration |
+
+| RDS | Relational database | Managed SQL |- **Basic Shapes**: Rectangle, Circle, Line, Arrow, Triangle, Diamond, Pentagon, Hexagon, Star
+
+| DynamoDB | NoSQL database | Key-value store |
+
+| SNS | Notification service | Pub/sub messaging |Install the package and its peer dependency:
+
+| SQS | Message queue | Async processing |
+
+| EventBridge | Event bus | Event routing |- **Freehand Drawing**: Pen tool for custom paths and annotations
+
+
+
+### 🗄️ Databases (8 components)```bash
+
+
+
+| Component | Description | Use Case |npm install konva-architecture-canvas konva- **Text Labels**: Rich text editor with customizable fonts and colors---```
+
+|-----------|-------------|----------|
+
+| PostgreSQL | Relational database | ACID transactions |```
+
+| MongoDB | Document database | Flexible schemas |
+
+| Redis | In-memory cache | Session storage |- **Image Upload**: Add custom icons and logos to your diagrams
+
+| Elasticsearch | Search engine | Full-text search |
+
+| Cassandra | Wide-column store | Time-series data |### Peer Dependencies
+
+| Neo4j | Graph database | Relationships |
+
+| Pinecone | Vector database | AI embeddings |
+
+| Weaviate | Vector search | Semantic search |
+
+This library requires:
+
+### 🐳 Infrastructure (7 components)
+
+### 🎨 **Advanced Styling System**
+
+| Component | Description | Use Case |
+
+|-----------|-------------|----------|```json
+
+| Kubernetes | Container orchestration | Microservices |
+
+| Docker | Containerization | Application packaging |{- **Dual Color Control**: Separate stroke (border) and fill (interior) colors## 📦 Installation- 🎨 **47+ Pre-built Components** across 6 categories (AI Models, Databases, Frameworks, etc.)
+
+| Load Balancer | Traffic distribution | High availability |
+
+| Nginx | Web server | Reverse proxy |  "@angular/common": "^21.0.0",
+
+| HAProxy | Load balancer | TCP/HTTP balancing |
+
+| Consul | Service mesh | Service discovery |  "@angular/core": "^21.0.0",- **Independent Opacity**: Adjust stroke and fill transparency separately
+
+| Istio | Service mesh | Traffic management |
+
+  "@angular/forms": "^21.0.0",
+
+### 📨 Messaging (5 components)
+
+  "konva": "^10.0.12"- **12-Color Palette**: Quick color selection with custom color picker
+
+| Component | Description | Use Case |
+
+|-----------|-------------|----------|}
+
+| Kafka | Event streaming | Real-time data |
+
+| RabbitMQ | Message broker | Task queues |```- **Stroke Width**: Adjustable border thickness (1-10px)
+
+| Azure Event Hubs | Event ingestion | Telemetry |
+
+| Google Pub/Sub | Messaging service | Async messaging |
+
+| Amazon MQ | Managed broker | Enterprise messaging |
+
+---```bash- 🎯 **Drag & Drop Interface** for intuitive diagram creationFor a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+
+### 📊 Monitoring (2 components)
+
+
+
+| Component | Description | Use Case |
+
+|-----------|-------------|----------|## 🚀 Quick Start### 📦 **Smart Grouping System**
+
+| Prometheus | Metrics collection | Time-series monitoring |
+
+| Grafana | Visualization | Dashboards |
+
+
+
+---### Step 1: Import the Component- **Hierarchical Groups**: Create nested groups with automatic color codingnpm install konva-architecture-canvas konva
+
+
+
+## 🎯 Usage Guide
+
+
+
+### Basic Operations```typescript- **Visual Borders**: Color-coded borders (purple, red, orange, green, blue) by nesting level
+
+
+
+| Action | Method | Description |import { Component } from '@angular/core';
+
+|--------|--------|-------------|
+
+| **Add Component** | Drag from sidebar | Place component on canvas |import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';- **Drag & Move**: Move entire groups as single units```- 🌈 **Advanced Color System** with separate stroke/fill controls and opacity
+
+| **Move Component** | Drag component | Reposition on canvas |
+
+| **Delete Component** | Select + Delete/Backspace | Remove from canvas |
+
+| **Connect Components** | Use Arrow tool | Draw connections |
+
+| **Select Multiple** | Ctrl/Cmd + Click | Multi-selection |@Component({- **Extract Items**: Remove items from groups or create new groups
+
+| **Pan Canvas** | Space + Drag | Navigate large diagrams |
+
+| **Zoom** | Mouse wheel / Zoom controls | Adjust view scale |  selector: 'app-root',
+
+
+
+### Drawing Tools  standalone: true,
+
+
+
+| Tool | Icon | Description | Usage |  imports: [KonvaCanvasMainComponent],
+
+|------|------|-------------|-------|
+
+| **Select** | ↖️ | Selection tool | Click to select objects |  template: '<arch-canvas></arch-canvas>',### 💾 **Save & Restore**
+
+| **Rectangle** | ▭ | Draw rectangles | Click and drag |
+
+| **Circle** | ○ | Draw circles | Click and drag |  styles: [`
+
+| **Ellipse** | ⬭ | Draw ellipses | Click and drag |
+
+| **Triangle** | △ | Draw triangles | Click and drag |    arch-canvas {- **Auto-Save**: Automatic localStorage backup of your work---- 📦 **Nested Grouping** with colored borders by hierarchy level```bash
+
+| **Line** | ─ | Draw lines | Click points |
+
+| **Arrow** | → | Draw arrows | Click start/end points |      display: block;
+
+| **Text** | T | Add text | Click to place |
+
+| **Pen** | ✎ | Free drawing | Click and drag |      width: 100%;- **My Templates**: Save custom diagrams as reusable templates
+
+
+
+### Connection Styles      height: 100vh;
+
+
+
+The canvas supports multiple arrow styles for connections:    }- **Export Formats**: JSON, PNG, and SVG export options
+
+
+
+- **Straight Line** - Direct point-to-point  `]
+
+- **Curved Line** - Smooth bezier curves
+
+- **Right Angle** - 90-degree corners})- **Import**: Load saved JSON diagrams
+
+- **Step Line** - Horizontal/vertical steps
 
 export class AppComponent {}
+
+---
 
 ```## 🚀 Quick Start (3 Steps)- 💾 **Export/Import** architecture diagrams as JSONng generate --help
 
-
-
-### Step 2: Configure Global Styles### ⚡ **High Performance**
-
-
-
-Add to your `styles.css` or `styles.scss`:- **Canvas Rendering**: Powered by Konva.js for smooth interactions
-
-
-
-```css- **Icon Caching**: Optimized component rendering
-
-* {
-
-  margin: 0;- **Infinite Canvas**: Pan and zoom without limits### 1️⃣ Import the Component- ⚡ **High Performance** with icon caching and optimized rendering```
-
-  padding: 0;
-
-  box-sizing: border-box;- **Grid System**: Optional alignment grid
-
-}
-
-
-
-html, body {
-
-  width: 100%;### 🎯 **User-Friendly Interface**
-
-  height: 100%;
-
-  overflow: hidden;- **Multi-Selection**: Shift+Click or drag-rectangle to select multiple items```typescript- ⌨️ **Keyboard Shortcuts** (Cmd+G, Cmd+Z, Cmd+S, etc.)
-
-}
-
-```- **Keyboard Shortcuts**: Full keyboard support for power users
-
-
-
-### Step 3: Run Your Application- **Dark/Light Themes**: Switch between themes for comfortable viewingimport { Component } from '@angular/core';
-
-
-
-```bash- **Responsive**: Works on various screen sizes
-
-ng serve
-
-```import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';- 🎪 **Multi-Selection** with Shift+Click and drag-rectangle## Building
-
-
-
-Open your browser to `http://localhost:4200` and start creating diagrams!---
-
-
-
----
-
-
-
-## 🧩 Component Library## 📦 Installation
-
-
-
-### 🤖 AI Foundation Models (12)@Component({- 📱 **Responsive Canvas** with infinite grid and zoom/pan
-
-- Mistral, Llama, Gemma, GPT, Claude, Gemini
-
-- DeepSeek, Phi, Qwen, Grok, Nova, CohereInstall the package and its peer dependency:
-
-
-
-### 🗄️ Vector Databases (6)  selector: 'app-root',
-
-- Weaviate, Milvus, Pinecone
-
-- Chroma, pgVector, Neon```bash
-
-
-
-### 🔗 Agent Frameworks (10)npm install konva-architecture-canvas konva  standalone: true,- 🔧 **Easy to Extend** with custom components and themesTo build the library, run:
-
-- LangChain, LangGraph, Semantic Kernel
-
-- AutoGen, Camel AI, LlamaIndex```
-
-- CrewAI, AWS Bedrock, Replit, OpenAI Operator
-
-  imports: [KonvaCanvasMainComponent],
-
-### 📊 Observability Tools (7)
-
-- Langfuse, Comet Opik, Helicone### Peer Dependencies
-
-- Arize Phoenix, Datadog, Amplitude, Sentry
-
-  template: '<arch-canvas></arch-canvas>',
-
-### 🛠️ Tool Execution (5)
-
-- Composio, NPI, Exa, LinkUp, BrowserbaseThis library requires:
-
-
-
-### 💾 Memory Systems (6)  styles: [`
-
-- Zep, Cognee, Mem0
-
-- VertexAI, NapthaAI, MaestroAI```json
-
-
-
----{    arch-canvas {---```bash
-
-
-
-## 📚 Usage Guide  "@angular/common": "^21.0.0",
-
-
-
-### Creating Your First Diagram  "@angular/core": "^21.0.0",      display: block;
-
-
-
-1. **Select a Tool**: Click the ↖️ (Select), ✋ (Hand), or drawing tool from the toolbar  "@angular/forms": "^21.0.0",
-
-2. **Add Components**: Search for components in the left panel and drag them to the canvas
-
-3. **Connect Components**: Use the 🔗 Connector tool to draw lines between components  "konva": "^10.0.12"      width: 100%;ng build konva-canvas-builder
-
-4. **Style Your Diagram**: Select items and use the color/opacity controls
-
-5. **Save Your Work**: Click 💾 to save as a template or export to JSON/PNG}
-
-
-
-### Drawing Tools```      height: 100vh;
-
-
-
-| Tool | Icon | Shortcut | Description |
-
-|------|------|----------|-------------|
-
-| Select | ↖️ | V | Select and move shapes |---    }## 📦 Installation```
-
-| Hand | ✋ | H | Pan the canvas |
-
-| Connector | 🔗 | K | Draw connections between shapes |
-
-| Pen | ✏️ | P | Freehand drawing |
-
-| Rectangle | ▭ | R | Draw rectangles |## 🚀 Quick Start  `]
-
-| Circle | ○ | C | Draw circles |
-
-| Arrow | → | A | Draw directional arrows |
-
-| Line | ─ | L | Draw straight lines |
-
-| Text | T | T | Add text labels |### Step 1: Import the Component})
-
-
-
-### Using Connectors
-
-
-
-1. Click the **🔗 Connector** tool```typescriptexport class AppComponent {}
-
-2. Click on the **source component**
-
-3. Click on the **target component**import { Component } from '@angular/core';
-
-4. A curved line will be drawn automatically
-
-5. Toggle between curved/straight lines with the **〰️** buttonimport { KonvaCanvasMainComponent } from 'konva-architecture-canvas';``````bashThis command will compile your project, and the build artifacts will be placed in the `dist/` directory.
-
-
-
-### Grouping Components
-
-
-
-1. Select multiple components (Shift+Click or drag-rectangle)@Component({
-
-2. Press **Cmd+G** (Mac) or **Ctrl+G** (Windows/Linux)
-
-3. The group will have a colored border based on nesting level  selector: 'app-root',
-
-4. Drag the group to move all items together
-
-  standalone: true,### 2️⃣ Update Your Styles (Important!)npm install konva-architecture-canvas konva
-
-**Group Border Colors by Nesting Level:**
-
-- Level 1: Purple  imports: [KonvaCanvasMainComponent],
-
-- Level 2: Red  
-
-- Level 3: Orange  template: '<arch-canvas></arch-canvas>',
-
-- Level 4: Green
-
-- Level 5: Blue  styles: [`
-
-
-
-### Styling Components    arch-canvas {In your global `styles.css`:```### Publishing the Library
-
-
-
-**Stroke Mode (Border):**      display: block;
-
-- Click any component to select it
-
-- Use the color palette or custom color picker      width: 100%;
-
-- Adjust stroke opacity (0-100%)
-
-- Change stroke width (1-10px)      height: 100vh;
-
-
-
-**Fill Mode (Interior):**    }```css
-
-- Switch to "Fill" mode
-
-- Select color independently from stroke  `]
-
-- Adjust fill opacity separately
-
-})* {
-
-### My Templates
-
-export class AppComponent {}
-
-**Save a Custom Template:**
-
-1. Create your diagram```  margin: 0;### Peer DependenciesOnce the project is built, you can publish your library by following these steps:
-
-2. Click the **💾 Save as Template** button in the Templates panel
-
-3. Enter a name and description
-
-4. Your template is saved to browser localStorage
-
-### Step 2: Configure Global Styles  padding: 0;
-
-**Load a Template:**
-
-1. Click **📋 Templates** button
-
-2. Switch to **💾 My Templates** tab
-
-3. Click on any template to load itAdd to your `styles.css` or `styles.scss`:  box-sizing: border-box;
-
-
-
-**Create New Canvas:**
-
-- Click the **📄 New Canvas** button to start fresh
-
-```css}
-
----
-
-* {
-
 ## ⌨️ Keyboard Shortcuts
 
-  margin: 0;```json1. Navigate to the `dist` directory:
+
 
 ### Selection & Navigation
 
-| Shortcut | Action |  padding: 0;
-
-|----------|--------|
-
-| `V` | Select Tool |  box-sizing: border-box;html, body {
-
-| `H` | Hand Tool (Pan) |
-
-| `Space + Drag` | Temporary Hand Tool |}
-
-| `Shift + Click` | Multi-select |
-
-| `Cmd/Ctrl + A` | Select All |  width: 100%;{   ```bash
-
-
-
-### Drawing Toolshtml, body {
+### Step 2: Configure Global Styles### ⚡ **High Performance**
 
 | Shortcut | Action |
 
-|----------|--------|  width: 100%;  height: 100%;
+|----------|--------|
 
-| `K` | Connector Tool |
+| `Ctrl/Cmd + A` | Select all |
 
-| `P` | Pen Tool |  height: 100%;
+| `Ctrl/Cmd + Click` | Multi-select |Add to your `styles.css` or `styles.scss`:- **Canvas Rendering**: Powered by Konva.js for smooth interactions
 
-| `R` | Rectangle Tool |
+| `Escape` | Deselect all |
 
-| `C` | Circle Tool |  overflow: hidden;  overflow: hidden;  "@angular/common": "^21.0.0",   cd dist/konva-canvas-builder
+| `Space + Drag` | Pan canvas |
 
-| `A` | Arrow Tool |
+| `Mouse Wheel` | Zoom in/out |
 
-| `L` | Line Tool |}
+```css- **Icon Caching**: Optimized component rendering
 
-| `T` | Text Tool |
+### Drawing Tools
 
-```}
+* {
+
+| Shortcut | Tool |
+
+|----------|------|  margin: 0;- **Infinite Canvas**: Pan and zoom without limits### 1️⃣ Import the Component- ⚡ **High Performance** with icon caching and optimized rendering```
+
+| `V` | Select tool |
+
+| `R` | Rectangle |  padding: 0;
+
+| `C` | Circle |
+
+| `E` | Ellipse |  box-sizing: border-box;- **Grid System**: Optional alignment grid
+
+| `T` | Triangle |
+
+| `L` | Line |}
+
+| `A` | Arrow |
+
+| `X` | Text |
+
+| `P` | Pen (free draw) |
+
+html, body {
 
 ### Editing
 
+  width: 100%;### 🎯 **User-Friendly Interface**
+
+| Shortcut | Action |
+
+|----------|--------|  height: 100%;
+
+| `Delete / Backspace` | Delete selected |
+
+| `Ctrl/Cmd + Z` | Undo |  overflow: hidden;- **Multi-Selection**: Shift+Click or drag-rectangle to select multiple items```typescript- ⌨️ **Keyboard Shortcuts** (Cmd+G, Cmd+Z, Cmd+S, etc.)
+
+| `Ctrl/Cmd + Shift + Z` | Redo |
+
+| `Ctrl/Cmd + C` | Copy |}
+
+| `Ctrl/Cmd + V` | Paste |
+
+| `Ctrl/Cmd + X` | Cut |```- **Keyboard Shortcuts**: Full keyboard support for power users
+
+| `Ctrl/Cmd + D` | Duplicate |
+
+
+
+### View Controls
+
+### Step 3: Run Your Application- **Dark/Light Themes**: Switch between themes for comfortable viewingimport { Component } from '@angular/core';
+
 | Shortcut | Action |
 
 |----------|--------|
 
-| `Cmd/Ctrl + G` | Group Selected |### Step 3: Run Your Application```  "@angular/core": "^21.0.0",   ```
+| `Ctrl/Cmd + 0` | Reset zoom |
 
-| `Cmd/Ctrl + Z` | Undo |
+| `Ctrl/Cmd + +` | Zoom in |```bash- **Responsive**: Works on various screen sizes
 
-| `Cmd/Ctrl + Y` | Redo |
+| `Ctrl/Cmd + -` | Zoom out |
 
-| `Delete/Backspace` | Delete Selected |
-
-| `Cmd/Ctrl + D` | Duplicate Selected |```bash
+| `Ctrl/Cmd + Shift + F` | Fit to screen |ng serve
 
 
 
-### Viewng serve
+### Export & Save```import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';- 🎪 **Multi-Selection** with Shift+Click and drag-rectangle## Building
+
+
 
 | Shortcut | Action |
+
+|----------|--------|
+
+| `Ctrl/Cmd + S` | Save template |Open your browser to `http://localhost:4200` and start creating diagrams!---
+
+| `Ctrl/Cmd + E` | Export PNG |
+
+| `Ctrl/Cmd + Shift + E` | Export JSON |
+
+
+
+------
+
+
+
+## 🔌 API Reference
+
+
+
+### Component Input Properties## 🧩 Component Library## 📦 Installation
+
+
+
+```typescript
+
+import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';
+
+### 🤖 AI Foundation Models (12)@Component({- 📱 **Responsive Canvas** with infinite grid and zoom/pan
+
+@Component({
+
+  selector: 'app-diagram',- Mistral, Llama, Gemma, GPT, Claude, Gemini
+
+  template: `
+
+    <lib-konva-canvas-main- DeepSeek, Phi, Qwen, Grok, Nova, CohereInstall the package and its peer dependency:
+
+      [initialTemplate]="myTemplate"
+
+      [theme]="'dark'"
+
+      [readOnly]="false">
+
+    </lib-konva-canvas-main>### 🗄️ Vector Databases (6)  selector: 'app-root',
+
+  `
+
+})- Weaviate, Milvus, Pinecone
+
+export class DiagramComponent {
+
+  myTemplate = {- Chroma, pgVector, Neon```bash
+
+    components: [...],
+
+    connections: [...]
+
+  };
+
+}### 🔗 Agent Frameworks (10)npm install konva-architecture-canvas konva  standalone: true,- 🔧 **Easy to Extend** with custom components and themesTo build the library, run:
+
+```
+
+- LangChain, LangGraph, Semantic Kernel
+
+### Properties
+
+- AutoGen, Camel AI, LlamaIndex```
+
+| Property | Type | Default | Description |
+
+|----------|------|---------|-------------|- CrewAI, AWS Bedrock, Replit, OpenAI Operator
+
+| `initialTemplate` | `DiagramTemplate` | `null` | Load initial diagram |
+
+| `theme` | `'light' \| 'dark'` | `'light'` | UI theme |  imports: [KonvaCanvasMainComponent],
+
+| `readOnly` | `boolean` | `false` | Disable editing |
+
+| `showGrid` | `boolean` | `true` | Show grid lines |### 📊 Observability Tools (7)
+
+| `snapToGrid` | `boolean` | `true` | Enable snapping |
+
+| `gridSize` | `number` | `20` | Grid cell size |- Langfuse, Comet Opik, Helicone### Peer Dependencies
+
+
+
+### Events- Arize Phoenix, Datadog, Amplitude, Sentry
+
+
+
+```typescript  template: '<arch-canvas></arch-canvas>',
+
+@Component({
+
+  template: `### 🛠️ Tool Execution (5)
+
+    <lib-konva-canvas-main
+
+      (diagramChange)="onDiagramChange($event)"- Composio, NPI, Exa, LinkUp, BrowserbaseThis library requires:
+
+      (componentAdded)="onComponentAdded($event)"
+
+      (componentDeleted)="onComponentDeleted($event)">
+
+    </lib-konva-canvas-main>
+
+  `### 💾 Memory Systems (6)  styles: [`
+
+})
+
+export class DiagramComponent {- Zep, Cognee, Mem0
+
+  onDiagramChange(diagram: DiagramTemplate) {
+
+    console.log('Diagram updated:', diagram);- VertexAI, NapthaAI, MaestroAI```json
+
+  }
+
+
+
+  onComponentAdded(component: DiagramComponent) {
+
+    console.log('Component added:', component);---{    arch-canvas {---```bash
+
+  }
+
+
+
+  onComponentDeleted(componentId: string) {
+
+    console.log('Component deleted:', componentId);## 📚 Usage Guide  "@angular/common": "^21.0.0",
+
+  }
+
+}
+
+```
+
+### Creating Your First Diagram  "@angular/core": "^21.0.0",      display: block;
+
+### Methods
+
+
+
+Access component methods via ViewChild:
+
+1. **Select a Tool**: Click the ↖️ (Select), ✋ (Hand), or drawing tool from the toolbar  "@angular/forms": "^21.0.0",
+
+```typescript
+
+import { ViewChild } from '@angular/core';2. **Add Components**: Search for components in the left panel and drag them to the canvas
+
+import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';
+
+3. **Connect Components**: Use the 🔗 Connector tool to draw lines between components  "konva": "^10.0.12"      width: 100%;ng build konva-canvas-builder
+
+@Component({
+
+  template: '<lib-konva-canvas-main></lib-konva-canvas-main>'4. **Style Your Diagram**: Select items and use the color/opacity controls
+
+})
+
+export class DiagramComponent {5. **Save Your Work**: Click 💾 to save as a template or export to JSON/PNG}
+
+  @ViewChild(KonvaCanvasMainComponent) canvas!: KonvaCanvasMainComponent;
+
+
+
+  exportDiagram() {
+
+    // Export as PNG### Drawing Tools```      height: 100vh;
+
+    const imageData = this.canvas.exportAsPNG();
+
+    
+
+    // Export as JSON
+
+    const jsonData = this.canvas.exportAsJSON();| Tool | Icon | Shortcut | Description |
+
+    
+
+    // Clear canvas|------|------|----------|-------------|
+
+    this.canvas.clearCanvas();
+
+    | Select | ↖️ | V | Select and move shapes |---    }## 📦 Installation```
+
+    // Load template
+
+    this.canvas.loadTemplate(myTemplate);| Hand | ✋ | H | Pan the canvas |
+
+  }
+
+}| Connector | 🔗 | K | Draw connections between shapes |
+
+```
+
+| Pen | ✏️ | P | Freehand drawing |
+
+### TypeScript Interfaces
+
+| Rectangle | ▭ | R | Draw rectangles |## 🚀 Quick Start  `]
+
+```typescript
+
+interface DiagramTemplate {| Circle | ○ | C | Draw circles |
+
+  id?: string;
+
+  name: string;| Arrow | → | A | Draw directional arrows |
+
+  description?: string;
+
+  components: DiagramComponent[];| Line | ─ | L | Draw straight lines |
+
+  connections: DiagramConnection[];
+
+  metadata?: {| Text | T | T | Add text labels |### Step 1: Import the Component})
+
+    createdAt: string;
+
+    updatedAt: string;
+
+    version: string;
+
+  };### Using Connectors
+
+}
+
+
+
+interface DiagramComponent {
+
+  id: string;1. Click the **🔗 Connector** tool```typescriptexport class AppComponent {}
+
+  type: string;
+
+  label: string;2. Click on the **source component**
+
+  x: number;
+
+  y: number;3. Click on the **target component**import { Component } from '@angular/core';
+
+  width: number;
+
+  height: number;4. A curved line will be drawn automatically
+
+  icon?: string;
+
+  color?: string;5. Toggle between curved/straight lines with the **〰️** buttonimport { KonvaCanvasMainComponent } from 'konva-architecture-canvas';``````bashThis command will compile your project, and the build artifacts will be placed in the `dist/` directory.
+
+  metadata?: Record<string, any>;
+
+}
+
+
+
+interface DiagramConnection {### Grouping Components
+
+  id: string;
+
+  from: string;  // Component ID
+
+  to: string;    // Component ID
+
+  label?: string;1. Select multiple components (Shift+Click or drag-rectangle)@Component({
+
+  style?: 'straight' | 'curved' | 'rightAngle' | 'step';
+
+  color?: string;2. Press **Cmd+G** (Mac) or **Ctrl+G** (Windows/Linux)
+
+}
+
+```3. The group will have a colored border based on nesting level  selector: 'app-root',
+
+
+
+---4. Drag the group to move all items together
+
+
+
+## 💡 Examples  standalone: true,### 2️⃣ Update Your Styles (Important!)npm install konva-architecture-canvas konva
+
+
+
+### Example 1: RAG Chatbot Architecture**Group Border Colors by Nesting Level:**
+
+
+
+```typescript- Level 1: Purple  imports: [KonvaCanvasMainComponent],
+
+import { Component } from '@angular/core';
+
+import { KonvaCanvasMainComponent } from 'konva-architecture-canvas';- Level 2: Red  
+
+
+
+@Component({- Level 3: Orange  template: '<arch-canvas></arch-canvas>',
+
+  selector: 'app-rag-demo',
+
+  standalone: true,- Level 4: Green
+
+  imports: [KonvaCanvasMainComponent],
+
+  template: '<lib-konva-canvas-main [initialTemplate]="ragTemplate"></lib-konva-canvas-main>'- Level 5: Blue  styles: [`
+
+})
+
+export class RagDemoComponent {
+
+  ragTemplate = {
+
+    name: 'RAG Chatbot',### Styling Components    arch-canvas {In your global `styles.css`:```### Publishing the Library
+
+    components: [
+
+      { id: '1', type: 'openai-gpt', label: 'GPT-4', x: 100, y: 100, width: 120, height: 80 },
+
+      { id: '2', type: 'pinecone', label: 'Vector DB', x: 300, y: 100, width: 120, height: 80 },
+
+      { id: '3', type: 'api-gateway', label: 'API', x: 200, y: 250, width: 120, height: 80 }**Stroke Mode (Border):**      display: block;
+
+    ],
+
+    connections: [- Click any component to select it
+
+      { id: 'c1', from: '1', to: '2', style: 'curved' },
+
+      { id: 'c2', from: '2', to: '3', style: 'curved' }- Use the color palette or custom color picker      width: 100%;
+
+    ]
+
+  };- Adjust stroke opacity (0-100%)
+
+}
+
+```- Change stroke width (1-10px)      height: 100vh;
+
+
+
+### Example 2: Microservices Platform
+
+
+
+```typescript**Fill Mode (Interior):**    }```css
+
+const microservicesTemplate = {
+
+  name: 'Microservices Platform',- Switch to "Fill" mode
+
+  components: [
+
+    { id: '1', type: 'kubernetes', label: 'K8s Cluster', x: 100, y: 100, width: 150, height: 100 },- Select color independently from stroke  `]
+
+    { id: '2', type: 'load-balancer', label: 'Load Balancer', x: 100, y: 250, width: 150, height: 80 },
+
+    { id: '3', type: 'kafka', label: 'Event Bus', x: 300, y: 150, width: 120, height: 80 },- Adjust fill opacity separately
+
+    { id: '4', type: 'mongodb', label: 'Database', x: 300, y: 280, width: 120, height: 80 },
+
+    { id: '5', type: 'redis', label: 'Cache', x: 500, y: 200, width: 100, height: 70 }})* {
+
+  ],
+
+  connections: [### My Templates
+
+    { id: 'c1', from: '2', to: '1', label: 'HTTP', style: 'straight' },
+
+    { id: 'c2', from: '1', to: '3', label: 'Events', style: 'curved' },export class AppComponent {}
+
+    { id: 'c3', from: '1', to: '4', label: 'Data', style: 'curved' },
+
+    { id: 'c4', from: '1', to: '5', label: 'Cache', style: 'curved' }**Save a Custom Template:**
+
+  ]
+
+};1. Create your diagram```  margin: 0;### Peer DependenciesOnce the project is built, you can publish your library by following these steps:
+
+```
+
+2. Click the **💾 Save as Template** button in the Templates panel
+
+---
+
+3. Enter a name and description
+
+## 🔧 Troubleshooting
+
+4. Your template is saved to browser localStorage
+
+### Common Issues
+
+### Step 2: Configure Global Styles  padding: 0;
+
+#### 1. **Components not appearing**
+
+**Load a Template:**
+
+**Cause**: Browser environment check failing in SSR
+
+1. Click **📋 Templates** button
+
+**Solution**: Ensure you're using Angular's SSR-compatible code:
+
+2. Switch to **💾 My Templates** tab
+
+```typescript
+
+import { isPlatformBrowser } from '@angular/common';3. Click on any template to load itAdd to your `styles.css` or `styles.scss`:  box-sizing: border-box;
+
+import { PLATFORM_ID, inject } from '@angular/core';
+
+
+
+const platformId = inject(PLATFORM_ID);
+
+if (isPlatformBrowser(platformId)) {**Create New Canvas:**
+
+  // Canvas operations here
+
+}- Click the **📄 New Canvas** button to start fresh
+
+```
+
+```css}
+
+#### 2. **Konva errors in console**
+
+---
+
+**Cause**: Missing Konva peer dependency
+
+* {
+
+**Solution**: Install Konva:
+
+## ⌨️ Keyboard Shortcuts
+
+```bash
+
+npm install konva@^10.0.12  margin: 0;```json1. Navigate to the `dist` directory:
+
+```
+
+### Selection & Navigation
+
+#### 3. **Canvas not responsive**
+
+| Shortcut | Action |  padding: 0;
+
+**Cause**: Container size not set
+
+|----------|--------|
+
+**Solution**: Set explicit height on parent container:
+
+| `V` | Select Tool |  box-sizing: border-box;html, body {
+
+```css
+
+.diagram-container {| `H` | Hand Tool (Pan) |
+
+  width: 100%;
+
+  height: 600px; /* or 100vh */| `Space + Drag` | Temporary Hand Tool |}
+
+}
+
+```| `Shift + Click` | Multi-select |
+
+
+
+#### 4. **Theme not applying**| `Cmd/Ctrl + A` | Select All |  width: 100%;{   ```bash
+
+
+
+**Cause**: Theme input not properly bound
+
+
+
+**Solution**: Use property binding:### Drawing Toolshtml, body {
+
+
+
+```html| Shortcut | Action |
+
+<lib-konva-canvas-main [theme]="'dark'"></lib-konva-canvas-main>
+
+```|----------|--------|  width: 100%;  height: 100%;
+
+
+
+#### 5. **Export not working**| `K` | Connector Tool |
+
+
+
+**Cause**: Canvas not fully initialized| `P` | Pen Tool |  height: 100%;
+
+
+
+**Solution**: Wait for component to be ready:| `R` | Rectangle Tool |
+
+
+
+```typescript| `C` | Circle Tool |  overflow: hidden;  overflow: hidden;  "@angular/common": "^21.0.0",   cd dist/konva-canvas-builder
+
+ngAfterViewInit() {
+
+  setTimeout(() => {| `A` | Arrow Tool |
+
+    this.canvas.exportAsPNG();
+
+  }, 100);| `L` | Line Tool |}
+
+}
+
+```| `T` | Text Tool |
+
+
+
+---```}
+
+
+
+## 📄 License### Editing
+
+
+
+MIT License - feel free to use in personal and commercial projects.| Shortcut | Action |
+
+
+
+---|----------|--------|
+
+
+
+## 🤝 Contributing| `Cmd/Ctrl + G` | Group Selected |### Step 3: Run Your Application```  "@angular/core": "^21.0.0",   ```
+
+
+
+Contributions are welcome! Please feel free to submit a Pull Request.| `Cmd/Ctrl + Z` | Undo |
+
+
+
+---| `Cmd/Ctrl + Y` | Redo |
+
+
+
+## 📞 Support| `Delete/Backspace` | Delete Selected |
+
+
+
+- **GitHub Issues**: [Report bugs](https://github.com/samba425/konva-architecture-canvas/issues)| `Cmd/Ctrl + D` | Duplicate Selected |```bash
+
+- **Documentation**: [Full docs](https://github.com/samba425/konva-architecture-canvas)
+
+- **Live Demo**: [Try it out](https://samba425.github.io/konva-architecture-canvas/)
+
+
+
+---### Viewng serve
+
+
+
+**Built with ❤️ using Angular and Konva.js**| Shortcut | Action |
+
 
 |----------|--------|```### 3️⃣ Run Your App  "@angular/forms": "^21.0.0",
 
