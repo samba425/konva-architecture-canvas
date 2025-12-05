@@ -196,6 +196,8 @@
   border-radius: 12px;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap; /* Allow wrapping to prevent toolbar from being too long */
+  max-width: min(95vw, 1200px); /* Limit maximum width */
   align-items: center;
   padding: 8px;
   gap: 6px;
@@ -223,6 +225,64 @@
   justify-content: center;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Disable native browser tooltips */
+.h-tool-btn[data-tooltip] {
+  position: relative;
+}
+
+/* Custom tooltip using data-tooltip attribute - POSITIONED BELOW WITH LARGE OFFSET */
+.h-tool-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #e2e8f0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 999999;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  border: none;
+  animation: tooltipPopIn 0.2s ease;
+  letter-spacing: 0.3px;
+  text-shadow: none;
+  min-width: max-content;
+}
+
+@keyframes tooltipPopIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Tooltip arrow pointing UP (since tooltip is below with large gap) */
+.h-tool-btn[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  top: calc(100% + 60px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #000000;
+  z-index: 999999;
+  pointer-events: none;
 }
 
 .h-tool-btn svg {
@@ -1641,10 +1701,10 @@
 
 .konva-container.light-theme .color-circle.active {
   border-color: #ffffff;
-  box-shadow: 
+  /* box-shadow: 
     0 0 0 2px #3b82f6,
     0 0 0 4px rgba(59, 130, 246, 0.3),
-    0 4px 16px rgba(59, 130, 246, 0.3);
+    0 4px 16px rgba(59, 130, 246, 0.3); */
 }
 
 .konva-container.light-theme .color-circle.active::before {
@@ -2223,6 +2283,507 @@ textarea.form-control {
   background: #d0d0d0;
 }
 
+/* ==================== KEYBOARD SHORTCUTS PANEL ==================== */
+.shortcuts-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s ease;
+}
+
+.shortcuts-panel {
+  background: #1a1a1a;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 750px;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.shortcuts-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+}
+
+.shortcuts-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shortcuts-header .close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #999;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.shortcuts-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.shortcuts-content {
+  padding: 24px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.shortcuts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shortcuts-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+  padding-bottom: 8px;
+}
+
+.shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.shortcut-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.shortcut-key {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  background: rgba(102, 126, 234, 0.2);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.shortcut-desc {
+  color: #cbd5e0;
+  font-size: 14px;
+  text-align: right;
+  flex: 1;
+  margin-left: 16px;
+}
+
+/* Light Theme Support */
+.konva-container.light-theme .shortcuts-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.konva-container.light-theme .shortcuts-panel {
+  background: white;
+  border: 1px solid #e0e0e0;
+}
+
+.konva-container.light-theme .shortcuts-header {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.konva-container.light-theme .shortcuts-header h3 {
+  color: #1a1a1a;
+}
+
+.konva-container.light-theme .shortcuts-header .close-btn {
+  background: rgba(0, 0, 0, 0.05);
+  color: #666;
+}
+
+.konva-container.light-theme .shortcuts-header .close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.konva-container.light-theme .shortcuts-section h4 {
+  color: #667eea;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.konva-container.light-theme .shortcut-row {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.konva-container.light-theme .shortcut-row:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.konva-container.light-theme .shortcut-key {
+  color: #1a1a1a;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.konva-container.light-theme .shortcut-desc {
+  color: #4a5568;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .shortcuts-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .shortcuts-panel {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .shortcut-key {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  
+  .shortcut-desc {
+    font-size: 13px;
+  }
+}
 
 
+
+
+
+
+
+
+/* ==================== TEMPLATES GALLERY PANEL ==================== */
+.templates-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s ease;
+}
+
+.templates-panel {
+  background: #1a1a1a;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.templates-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+}
+
+.templates-header h3 { margin: 0; font-size: 24px; font-weight: 700; color: white; }
+
+/* Template Tabs */
+.templates-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(15, 23, 42, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Template Action Buttons */
+.template-actions {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.save-template-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.save-template-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.save-template-btn:active {
+  transform: translateY(0);
+}
+
+/* My Template Item Styles */
+.my-template-item {
+  position: relative;
+}
+
+.delete-template-btn {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #ef4444;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.my-template-item:hover .delete-template-btn {
+  opacity: 1;
+}
+
+.delete-template-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.templates-search {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.search-input {
+  width: 90%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+}
+
+.search-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.templates-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.templates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.template-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.template-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #667eea;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.template-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.template-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.template-details h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+}
+
+.template-details p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.template-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.no-results {
+  text-align: center;
+  padding: 48px 24px;
+  color: #94a3b8;
+}
+
+.no-results p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.no-results .hint {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.templates-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.templates-hint {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Light Theme */
+.konva-container.light-theme .templates-overlay { background: rgba(0, 0, 0, 0.5); }
+.konva-container.light-theme .templates-panel { background: white; border: 1px solid #e0e0e0; }
+.konva-container.light-theme .templates-header { background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%); border-bottom: 1px solid #e0e0e0; }
+.konva-container.light-theme .templates-header h3 { color: #1a1a1a; }
+.konva-container.light-theme .templates-search { background: rgba(0, 0, 0, 0.02); border-bottom: 1px solid #e0e0e0; }
+.konva-container.light-theme .search-input { background: #0f172a; border-color: #475569; color: #e2e8f0; }
+.konva-container.light-theme .search-input:focus { border-color: #06b6d4; }
+.konva-container.light-theme .template-item { background: rgba(0, 0, 0, 0.02); }
+.konva-container.light-theme .template-item:hover { background: rgba(0, 0, 0, 0.04); }
+.konva-container.light-theme .template-icon { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 1px solid #e0e0e0; }
+.konva-container.light-theme .template-details h4 { color: #1a1a1a; }
+.konva-container.light-theme .template-details p { color: #64748b; }
+.konva-container.light-theme .templates-footer { background: rgba(0, 0, 0, 0.02); border-top: 1px solid #e0e0e0; }
+.konva-container.light-theme .templates-hint { color: #64748b; }
+.konva-container.light-theme .no-results { color: #64748b; }
 

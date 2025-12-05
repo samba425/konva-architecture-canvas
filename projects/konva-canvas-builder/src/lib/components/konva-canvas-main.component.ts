@@ -33,7 +33,7 @@ export interface ShapeTemplate {
   svgPath?: string;
 }
 
-type Tool = 'select' | 'rectangle' | 'circle' | 'line' | 'arrow' | 'pen' | 'text' | 'eraser' | 'hand' | 'shape';
+type Tool = 'select' | 'rectangle' | 'circle' | 'line' | 'arrow' | 'pen' | 'text' | 'eraser' | 'hand' | 'shape' | 'connector';
 type FillStyle = 'solid' | 'hatch' | 'cross-hatch' | 'dotted' | 'none';
 type SizePreset = 'small' | 'medium' | 'large' | 'xlarge';
 
@@ -81,6 +81,28 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // Shape picker position
   shapePickerPosition = { top: '80px', right: '16px' };
+  
+  // Smart Connector state
+  private connectorFirstShape: any = null;
+  private connectorPreviewLine: Konva.Arrow | null = null;
+  
+  // Clipboard for copy/paste
+  private clipboard: any[] = [];
+  
+  // Keyboard shortcuts help panel
+  showShortcutsPanel = signal(false);
+  
+  // Curved connector toggle
+  useCurvedConnectors = signal(false);
+  
+  // Templates panel
+  showTemplatesPanel = signal(false);
+  templateSearchQuery = '';
+  showMyTemplates = signal(false); // Toggle between pre-built and my templates
+  myTemplates: any[] = []; // User's saved templates
+  
+  // Auto-save flag
+  private isRestoring = false;
   
   // Signals for UI state
   sidebarOpen = signal(true);
@@ -348,6 +370,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   ngOnInit(): void {
     console.log('Konva Canvas initialized');
+    // Load user's saved templates
+    this.loadMyTemplates();
   }
   
   ngAfterViewInit(): void {
@@ -355,6 +379,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     setTimeout(() => {
       this.initKonva();
       this.initDraggablePanels();
+      
+      // Restore auto-saved canvas after Konva is initialized
+      setTimeout(() => {
+        this.restoreFromLocalStorage();
+      }, 500);
     }, 100);
   }
   
@@ -525,8 +554,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // Handle window resize
     window.addEventListener('resize', () => this.handleResize());
     
-    // Save initial state to history
-    this.saveHistory();
+    // DON'T save initial state - let restore happen first, then save
+    // this.saveHistory(); // Removed to prevent overwriting auto-save data on init
     
     console.log('✅ Konva stage initialized');
   }
@@ -831,6 +860,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           this.layer.add(this.currentShape);
           this.drawingLayer.destroyChildren();
           
+          // Add double-click handler for connection labels on lines/arrows
+          if (tool === 'line' || tool === 'arrow') {
+            this.addConnectionLabelHandler(this.currentShape);
+          }
+          
           this.currentShape = null;
           this.saveHistory();
         }
@@ -839,14 +873,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           this.layer.add(this.lastLine);
           this.drawingLayer.destroyChildren();
           
+          // Add double-click handler for connection labels on pen lines
+          this.addConnectionLabelHandler(this.lastLine);
+          
           this.lastLine = null;
           this.saveHistory();
         }
       }
     });
     
-    // Click on shape to select with visual feedback
+    // Click on shape to select with visual feedback OR to connect shapes in connector mode
     this.stage.on('click tap', (e) => {
+      // Smart Connector Mode
+      if (this.currentTool() === 'connector') {
+        this.handleConnectorClick(e);
+        return;
+      }
+      
+      // Select Mode
       if (this.currentTool() !== 'select') return;
       
       if (e.target === this.stage) {
@@ -930,6 +974,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       fill: this.fillStyle() !== 'none' ? this.hexToRgba(fillColor, fillOpacity) : 'transparent',
       stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
+      dash: this.getDashArray(),
       draggable: true
     });
     this.drawingLayer.add(this.currentShape);
@@ -958,6 +1003,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       fill: this.fillStyle() !== 'none' ? this.hexToRgba(fillColor, fillOpacity) : 'transparent',
       stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
+      dash: this.getDashArray(),
       draggable: true
     });
     this.drawingLayer.add(this.currentShape);
@@ -983,7 +1029,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       fill: this.hexToRgba(strokeColor, strokeOpacity),
       pointerLength: isArrow ? 10 : 0,
       pointerWidth: isArrow ? 10 : 0,
-      draggable: true
+      dash: this.getDashArray(),
+      draggable: true,
+      listening: true,
+      hitStrokeWidth: 20 // Make it easier to click on thin lines
     });
     this.drawingLayer.add(this.currentShape);
   }
@@ -1006,7 +1055,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       lineCap: 'round',
       lineJoin: 'round',
       points: [pos.x, pos.y],
-      draggable: true
+      dash: this.getDashArray(),
+      draggable: true,
+      listening: true,
+      hitStrokeWidth: 20 // Make it easier to click on thin lines
     });
     this.drawingLayer.add(this.lastLine);
   }
@@ -1080,6 +1132,551 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       document.body.removeChild(textarea);
       this.saveHistory();
     });
+  }
+  
+  // Connection Label Handler for Lines/Arrows
+  private addConnectionLabelHandler(line: any): void {
+    if (!line) return;
+    
+    console.log('Adding connection label handler to:', line.getClassName());
+    
+    line.on('dblclick dbltap', (e: any) => {
+      console.log('Double-click detected on line/arrow');
+      e.cancelBubble = true; // Prevent event propagation
+      
+      // Get the midpoint of the line
+      const points = line.points();
+      let midX = line.x();
+      let midY = line.y();
+      
+      if (line instanceof Konva.Arrow || line instanceof Konva.Line) {
+        if (points && points.length >= 4) {
+          midX = line.x() + (points[0] + points[points.length - 2]) / 2;
+          midY = line.y() + (points[1] + points[points.length - 1]) / 2;
+        }
+      }
+      
+      console.log('Label position:', midX, midY);
+      
+      // Check if label already exists
+      const allLabels = this.layer.find('.connection-label');
+      const existingLabel = allLabels.find((node: any) => {
+        return node.getAttr('linkedLine') === line.id();
+      }) as Konva.Text | undefined;
+      
+      if (existingLabel) {
+        console.log('Editing existing label');
+        this.editConnectionLabel(existingLabel);
+        return;
+      }
+      
+      console.log('Creating new label');
+      
+      // Create a new text label
+      const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
+      const label = new Konva.Text({
+        x: midX - 30,
+        y: midY - 10,
+        text: 'Label',
+        fontSize: 14,
+        fontStyle: 'bold',
+        fill: textColor,
+        name: 'connection-label',
+        draggable: true,
+        listening: true,
+        padding: 6,
+        align: 'center',
+        width: 60
+      });
+      
+      // Add background rectangle for label
+      const labelBg = new Konva.Rect({
+        x: midX - 35,
+        y: midY - 14,
+        width: 70,
+        height: 28,
+        fill: this.isDarkTheme() ? 'rgba(26, 26, 26, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        cornerRadius: 6,
+        name: 'connection-label-bg',
+        draggable: true,
+        listening: true,
+        shadowColor: 'black',
+        shadowBlur: 10,
+        shadowOpacity: 0.3
+      });
+      
+      // Store reference to line and label for moving together
+      label.setAttr('linkedLine', line.id());
+      labelBg.setAttr('linkedLabel', label._id);
+      
+      // Add to layer
+      this.layer.add(labelBg);
+      this.layer.add(label);
+      
+      // Sync dragging of label and background
+      label.on('dragmove', () => {
+        labelBg.position(label.position());
+      });
+      
+      labelBg.on('dragmove', () => {
+        label.position(labelBg.position());
+      });
+      
+      // Make label editable on double-click
+      label.on('dblclick dbltap', (labelEvent: any) => {
+        labelEvent.cancelBubble = true;
+        console.log('Double-click on label text');
+        this.editConnectionLabel(label);
+      });
+      
+      labelBg.on('dblclick dbltap', (bgEvent: any) => {
+        bgEvent.cancelBubble = true;
+        console.log('Double-click on label background');
+        this.editConnectionLabel(label);
+      });
+      
+      this.layer.batchDraw();
+      this.saveHistory();
+      
+      // Auto-edit the new label
+      setTimeout(() => this.editConnectionLabel(label), 100);
+    });
+  }
+  
+  private editConnectionLabel(label: Konva.Text): void {
+    const textPosition = label.getAbsolutePosition();
+    const stageBox = this.stage.container().getBoundingClientRect();
+    
+    const input = document.createElement('input');
+    input.value = label.text();
+    input.style.position = 'absolute';
+    input.style.top = (stageBox.top + textPosition.y) + 'px';
+    input.style.left = (stageBox.left + textPosition.x) + 'px';
+    input.style.width = '80px';
+    input.style.fontSize = '12px';
+    input.style.border = '2px solid #667eea';
+    input.style.padding = '4px';
+    input.style.background = this.isDarkTheme() ? '#1a1a1a' : '#ffffff';
+    input.style.color = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
+    input.style.outline = 'none';
+    input.style.borderRadius = '4px';
+    input.style.fontWeight = 'bold';
+    input.style.textAlign = 'center';
+    input.style.zIndex = '10000';
+    
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+    
+    const updateLabel = () => {
+      const newText = input.value.trim();
+      if (newText) {
+        label.text(newText);
+        // Update background width based on text
+        const labelBg = this.layer.findOne(`.connection-label-bg[linkedLabel="${label._id}"]`);
+        if (labelBg) {
+          const textWidth = label.width();
+          labelBg.width(textWidth + 8);
+        }
+      } else {
+        // Remove label if empty
+        label.destroy();
+        const labelBg = this.layer.findOne(`.connection-label-bg[linkedLabel="${label._id}"]`);
+        if (labelBg) labelBg.destroy();
+      }
+      document.body.removeChild(input);
+      this.layer.batchDraw();
+      this.saveHistory();
+    };
+    
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        updateLabel();
+      } else if (e.key === 'Escape') {
+        document.body.removeChild(input);
+      }
+    });
+    
+    input.addEventListener('blur', updateLabel);
+  }
+  
+  // Smart Connector - Click to connect shapes
+  private handleConnectorClick(e: any): void {
+    // Ignore clicks on stage background
+    if (e.target === this.stage) {
+      this.cancelConnector();
+      return;
+    }
+    
+    let target = e.target as any;
+    
+    // Navigate to parent group if clicked on child element
+    if (target && target.parent) {
+      const parent = target.parent;
+      if (parent instanceof Konva.Group && 
+          parent !== this.layer && 
+          parent !== this.drawingLayer &&
+          parent.draggable()) {
+        target = parent;
+      }
+    }
+    
+    // Only connect draggable shapes/groups
+    if (!target || !target.draggable()) {
+      return;
+    }
+    
+    // First click - select source shape
+    if (!this.connectorFirstShape) {
+      this.connectorFirstShape = target;
+      this.addConnectorHighlight(target);
+      console.log('Smart Connector: First shape selected', target.id());
+      
+      // Add mouse move listener for preview line
+      this.stage.on('mousemove.connector', () => {
+        this.updateConnectorPreview();
+      });
+    } 
+    // Second click - create connection
+    else if (this.connectorFirstShape !== target) {
+      this.createSmartConnection(this.connectorFirstShape, target);
+      this.cancelConnector();
+    }
+    // Clicked same shape - cancel
+    else {
+      this.cancelConnector();
+    }
+  }
+  
+  private createSmartConnection(fromShape: any, toShape: any): void {
+    // Check if we should use curved connectors
+    if (this.useCurvedConnectors()) {
+      this.createCurvedConnection(fromShape, toShape);
+      return;
+    }
+    
+    // Get connection points at the edges of shapes
+    const { from, to } = this.getConnectionPoints(fromShape, toShape);
+    
+    console.log('Creating smart connection from', from, 'to', to);
+    
+    // Create arrow
+    const strokeColor = this.strokeColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    
+    const arrow = new Konva.Arrow({
+      id: `connector-${Date.now()}-${Math.random()}`,
+      points: [from.x, from.y, to.x, to.y],
+      stroke: this.hexToRgba(strokeColor, strokeOpacity),
+      strokeWidth: this.strokeWidth(),
+      fill: this.hexToRgba(strokeColor, strokeOpacity),
+      pointerLength: 10,
+      pointerWidth: 10,
+      dash: this.getDashArray(),
+      draggable: false,
+      listening: true,
+      hitStrokeWidth: 20,
+      // Store connection metadata
+      name: 'smart-connector'
+    });
+    
+    // Store references to connected shapes
+    arrow.setAttr('fromShape', fromShape.id());
+    arrow.setAttr('toShape', toShape.id());
+    
+    this.layer.add(arrow);
+    arrow.moveToBottom(); // Keep connectors behind shapes
+    
+    // Make arrow selectable for color changes
+    arrow.on('click', (e: any) => {
+      if (this.currentTool() === 'select') {
+        e.cancelBubble = true;
+        
+        const isShiftKey = e.evt?.shiftKey;
+        
+        if (isShiftKey) {
+          // Multi-select
+          const currentNodes = this.transformer.nodes().slice();
+          const index = currentNodes.indexOf(arrow);
+          
+          if (index === -1) {
+            currentNodes.push(arrow);
+            this.addSelectionHighlight(arrow);
+          } else {
+            currentNodes.splice(index, 1);
+            this.removeSelectionHighlight(arrow);
+          }
+          
+          this.transformer.nodes(currentNodes);
+        } else {
+          // Single select
+          const previousNodes = this.transformer.nodes();
+          previousNodes.forEach((node: any) => {
+            if (node !== arrow) {
+              this.removeSelectionHighlight(node);
+            }
+          });
+          
+          this.addSelectionHighlight(arrow);
+          this.transformer.nodes([arrow]);
+        }
+        
+        this.layer.batchDraw();
+      }
+    });
+    
+    // Add connection label handler
+    this.addConnectionLabelHandler(arrow);
+    
+    // Update connector when shapes move
+    this.setupConnectorUpdates(arrow, fromShape, toShape);
+    
+    this.layer.batchDraw();
+    this.saveHistory();
+  }
+  
+  private getShapeCenter(shape: any): { x: number, y: number } {
+    const box = shape.getClientRect();
+    return {
+      x: box.x + box.width / 2,
+      y: box.y + box.height / 2
+    };
+  }
+  
+  // Get connection points at the edges of shapes (not centers)
+  private getConnectionPoints(fromShape: any, toShape: any): { from: { x: number, y: number }, to: { x: number, y: number } } {
+    const fromBox = fromShape.getClientRect();
+    const toBox = toShape.getClientRect();
+    
+    const fromCenter = {
+      x: fromBox.x + fromBox.width / 2,
+      y: fromBox.y + fromBox.height / 2
+    };
+    
+    const toCenter = {
+      x: toBox.x + toBox.width / 2,
+      y: toBox.y + toBox.height / 2
+    };
+    
+    // Calculate angle between centers
+    const dx = toCenter.x - fromCenter.x;
+    const dy = toCenter.y - fromCenter.y;
+    const angle = Math.atan2(dy, dx);
+    
+    // Find exit point on fromShape's edge
+    const from = this.getEdgePoint(fromBox, fromCenter, angle);
+    
+    // Find entry point on toShape's edge (opposite angle)
+    const to = this.getEdgePoint(toBox, toCenter, angle + Math.PI);
+    
+    return { from, to };
+  }
+  
+  // Get the point where a line at given angle intersects the shape's edge
+  private getEdgePoint(box: any, center: { x: number, y: number }, angle: number): { x: number, y: number } {
+    const halfWidth = box.width / 2;
+    const halfHeight = box.height / 2;
+    
+    // Calculate intersection with rectangle edges
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    
+    // Check which edge the line intersects
+    const tanAngle = Math.tan(angle);
+    
+    let x = center.x;
+    let y = center.y;
+    
+    // Determine which edge to use based on angle
+    if (Math.abs(cos) > Math.abs(sin)) {
+      // Intersects left or right edge
+      if (cos > 0) {
+        // Right edge
+        x = box.x + box.width;
+        y = center.y + (box.x + box.width - center.x) * tanAngle;
+      } else {
+        // Left edge
+        x = box.x;
+        y = center.y + (box.x - center.x) * tanAngle;
+      }
+    } else {
+      // Intersects top or bottom edge
+      if (sin > 0) {
+        // Bottom edge
+        y = box.y + box.height;
+        x = center.x + (box.y + box.height - center.y) / tanAngle;
+      } else {
+        // Top edge
+        y = box.y;
+        x = center.x + (box.y - center.y) / tanAngle;
+      }
+    }
+    
+    // Clamp to box boundaries
+    x = Math.max(box.x, Math.min(box.x + box.width, x));
+    y = Math.max(box.y, Math.min(box.y + box.height, y));
+    
+    return { x, y };
+  }
+  
+  private setupConnectorUpdates(arrow: Konva.Arrow, fromShape: any, toShape: any): void {
+    // Update arrow when either shape moves
+    const updateArrow = () => {
+      const { from, to } = this.getConnectionPoints(fromShape, toShape);
+      arrow.points([from.x, from.y, to.x, to.y]);
+      this.layer.batchDraw();
+    };
+    
+    fromShape.on('dragmove.connector', updateArrow);
+    toShape.on('dragmove.connector', updateArrow);
+    
+    // Store update function for cleanup
+    arrow.setAttr('updateFn', updateArrow);
+  }
+  
+  private updateConnectorPreview(): void {
+    if (!this.connectorFirstShape) return;
+    
+    const pointerPos = this.stage.getPointerPosition();
+    if (!pointerPos) return;
+    
+    const from = this.getShapeCenter(this.connectorFirstShape);
+    
+    // Remove old preview
+    if (this.connectorPreviewLine) {
+      this.connectorPreviewLine.destroy();
+    }
+    
+    // Create preview line
+    this.connectorPreviewLine = new Konva.Arrow({
+      points: [from.x, from.y, pointerPos.x, pointerPos.y],
+      stroke: '#667eea',
+      strokeWidth: 2,
+      fill: '#667eea',
+      pointerLength: 10,
+      pointerWidth: 10,
+      dash: [10, 5],
+      opacity: 0.5,
+      listening: false
+    });
+    
+    this.drawingLayer.add(this.connectorPreviewLine);
+    this.drawingLayer.batchDraw();
+  }
+  
+  private cancelConnector(): void {
+    console.log('Smart Connector: Cancelled');
+    
+    // Remove highlight
+    if (this.connectorFirstShape) {
+      this.removeConnectorHighlight(this.connectorFirstShape);
+      this.connectorFirstShape = null;
+    }
+    
+    // Remove preview line
+    if (this.connectorPreviewLine) {
+      this.connectorPreviewLine.destroy();
+      this.connectorPreviewLine = null;
+    }
+    
+    // Remove mouse move listener
+    this.stage.off('mousemove.connector');
+    
+    this.drawingLayer.batchDraw();
+  }
+  
+  private addConnectorHighlight(shape: any): void {
+    // Store original values for later restoration
+    if (!shape.getAttr('_connectorHighlight')) {
+      shape.setAttr('_connectorHighlight', true);
+      
+      // Store original shadow values
+      shape.setAttr('_originalShadow', {
+        color: shape.shadowColor?.() || 'black',
+        blur: shape.shadowBlur?.() || 0,
+        opacity: shape.shadowOpacity?.() || 0
+      });
+      
+      // For Groups, highlight the background rectangle if it exists
+      if (shape instanceof Konva.Group) {
+        const bgRect = shape.findOne('.component-bg') as any;
+        if (bgRect && typeof bgRect.stroke === 'function') {
+          bgRect.setAttr('_originalStroke', bgRect.stroke());
+          bgRect.setAttr('_originalStrokeWidth', bgRect.strokeWidth());
+          bgRect.stroke('#667eea');
+          bgRect.strokeWidth(3);
+        }
+      } else if (typeof shape.stroke === 'function') {
+        // For basic shapes
+        shape.setAttr('_originalStroke', shape.stroke());
+        shape.setAttr('_originalStrokeWidth', shape.strokeWidth?.() || 2);
+        shape.stroke('#667eea');
+        if (typeof shape.strokeWidth === 'function') {
+          shape.strokeWidth(3);
+        }
+      }
+    }
+    
+    // Apply shadow (works for both Groups and Shapes)
+    if (typeof shape.shadowColor === 'function') {
+      shape.shadowColor('#667eea');
+      shape.shadowBlur(20);
+      shape.shadowOpacity(0.6);
+    }
+    
+    this.layer.batchDraw();
+  }
+  
+  private removeConnectorHighlight(shape: any): void {
+    if (!shape.getAttr('_connectorHighlight')) {
+      return; // No highlight to remove
+    }
+    
+    shape.setAttr('_connectorHighlight', false);
+    
+    // Restore original shadow values
+    const originalShadow = shape.getAttr('_originalShadow');
+    if (originalShadow && typeof shape.shadowColor === 'function') {
+      shape.shadowColor(originalShadow.color);
+      shape.shadowBlur(originalShadow.blur);
+      shape.shadowOpacity(originalShadow.opacity);
+    }
+    shape.setAttr('_originalShadow', undefined);
+    
+    // For Groups, restore background rectangle
+    if (shape instanceof Konva.Group) {
+      const bgRect = shape.findOne('.component-bg') as any;
+      if (bgRect) {
+        const originalStroke = bgRect.getAttr('_originalStroke');
+        const originalStrokeWidth = bgRect.getAttr('_originalStrokeWidth');
+        
+        if (originalStroke !== undefined && typeof bgRect.stroke === 'function') {
+          bgRect.stroke(originalStroke);
+        }
+        if (originalStrokeWidth !== undefined && typeof bgRect.strokeWidth === 'function') {
+          bgRect.strokeWidth(originalStrokeWidth);
+        }
+        
+        bgRect.setAttr('_originalStroke', undefined);
+        bgRect.setAttr('_originalStrokeWidth', undefined);
+      }
+    } else {
+      // For basic shapes
+      const originalStroke = shape.getAttr('_originalStroke');
+      const originalStrokeWidth = shape.getAttr('_originalStrokeWidth');
+      
+      if (originalStroke !== undefined && typeof shape.stroke === 'function') {
+        shape.stroke(originalStroke);
+      }
+      if (originalStrokeWidth !== undefined && typeof shape.strokeWidth === 'function') {
+        shape.strokeWidth(originalStrokeWidth);
+      }
+      
+      shape.setAttr('_originalStroke', undefined);
+      shape.setAttr('_originalStrokeWidth', undefined);
+    }
+    
+    this.layer.batchDraw();
   }
   
   // Component drag and drop
@@ -1206,14 +1803,23 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       textarea.focus();
       textarea.select();
       
+      let isTextareaRemoved = false;
+      
       const removeTextarea = () => {
+        if (isTextareaRemoved) return; // Prevent double removal
+        isTextareaRemoved = true;
+        
         const newText = textarea.value.trim();
         if (newText) {
           textNode.text(newText);
           // Update the stored component name attribute
           group.setAttr('componentName', newText);
         }
-        textarea.parentNode?.removeChild(textarea);
+        
+        // Safely remove textarea
+        if (textarea.parentNode) {
+          textarea.parentNode.removeChild(textarea);
+        }
         textNode.show();
         this.layer.batchDraw();
         this.saveHistory();
@@ -1221,9 +1827,13 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       
       textarea.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
+          e.preventDefault();
           removeTextarea();
         } else if (e.key === 'Escape') {
-          textarea.parentNode?.removeChild(textarea);
+          isTextareaRemoved = true;
+          if (textarea.parentNode) {
+            textarea.parentNode.removeChild(textarea);
+          }
           textNode.show();
           this.layer.batchDraw();
         }
@@ -1417,6 +2027,66 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.history = this.history.slice(0, this.historyStep + 1);
     this.history.push(json);
     this.historyStep++;
+    
+    // Auto-save to localStorage (but not during restore)
+    if (!this.isRestoring) {
+      this.autoSaveToLocalStorage();
+    }
+  }
+  
+  // Auto-save current canvas to localStorage
+  private autoSaveToLocalStorage(): void {
+    try {
+      const canvasData = this.exportToJSONString();
+      localStorage.setItem('architecture-builder-autosave', canvasData);
+      localStorage.setItem('architecture-builder-autosave-timestamp', new Date().toISOString());
+      console.log('Auto-saved to localStorage');
+    } catch (error) {
+      console.error('Failed to auto-save:', error);
+    }
+  }
+  
+  // Restore from localStorage on init
+  private restoreFromLocalStorage(): void {
+    try {
+      const savedData = localStorage.getItem('architecture-builder-autosave');
+      if (savedData) {
+        const timestamp = localStorage.getItem('architecture-builder-autosave-timestamp');
+        console.log('📥 Restoring from:', timestamp);
+        
+        // Parse to check what we're restoring
+        const data = JSON.parse(savedData);
+        const shapeCount = data.shapes?.length || 0;
+        
+        if (shapeCount === 0) {
+          console.warn('⚠️ No shapes to restore - localStorage may be empty');
+          return; // Don't restore if there's nothing to restore
+        }
+        
+        console.log(`📦 Restoring ${shapeCount} shapes`);
+        
+        // Set flag to prevent auto-save during restore
+        this.isRestoring = true;
+        
+        this.loadFromJSONString(savedData);
+        
+        // Ensure grid is redrawn
+        this.drawInfiniteGrid();
+        
+        // Force redraw
+        this.layer.batchDraw();
+        
+        // Clear flag after restore
+        this.isRestoring = false;
+        
+        console.log('✅ Canvas restored successfully');
+      } else {
+        console.log('ℹ️ No auto-save data found');
+      }
+    } catch (error) {
+      console.error('❌ Failed to restore from auto-save:', error);
+      this.isRestoring = false;
+    }
   }
   
   // Simplified export for history (similar to exportToJSON but lighter)
@@ -1535,6 +2205,30 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       this.duplicateSelected();
     }
     
+    // Copy: Cmd+C or Ctrl+C
+    if ((event.metaKey || event.ctrlKey) && event.key === 'c') {
+      event.preventDefault();
+      this.copySelected();
+    }
+    
+    // Paste: Cmd+V or Ctrl+V
+    if ((event.metaKey || event.ctrlKey) && event.key === 'v' && !isTyping) {
+      event.preventDefault();
+      this.pasteShapes();
+    }
+    
+    // Keyboard Shortcuts Help: ?
+    if (event.key === '?' && !isTyping) {
+      event.preventDefault();
+      this.toggleShortcutsPanel();
+    }
+    
+    // Escape: Return to Select tool
+    if (event.key === 'Escape' && !isTyping) {
+      event.preventDefault();
+      this.setTool('select');
+    }
+    
     // Group: Cmd+G or Ctrl+G
     if ((event.metaKey || event.ctrlKey) && event.key === 'g' && !event.shiftKey) {
       event.preventDefault();
@@ -1558,6 +2252,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       switch(event.key.toLowerCase()) {
         case 'v': this.setTool('select'); break;
         case 'h': this.setTool('hand'); break;
+        case 'k': this.setTool('connector'); break;
         case 'r': this.setTool('rectangle'); break;
         case 'c': this.setTool('circle'); break;
         case 'l': this.setTool('line'); break;
@@ -2045,6 +2740,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   private addLockIndicator(shape: any): void {
+    // Only add indicator to Groups (component shapes)
+    if (!(shape instanceof Konva.Group)) return;
     if (shape.findOne('.lock-indicator')) return;
     
     const box = shape.getClientRect();
@@ -2058,12 +2755,13 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       fill: '#ef4444'
     });
     
-    if (shape instanceof Konva.Group) {
-      shape.add(lockIcon);
-    }
+    shape.add(lockIcon);
   }
   
   private removeLockIndicator(shape: any): void {
+    // Only remove from Groups (component shapes)
+    if (!(shape instanceof Konva.Group)) return;
+    
     const indicator = shape.findOne('.lock-indicator');
     if (indicator) {
       indicator.destroy();
@@ -2106,6 +2804,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   setTool(tool: Tool): void {
+    // Cancel connector mode if switching away
+    if (this.currentTool() === 'connector' && tool !== 'connector') {
+      this.cancelConnector();
+    }
+    
     this.currentTool.set(tool);
     if (tool !== 'select') {
       this.transformer.nodes([]);
@@ -2372,6 +3075,18 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       }
     });
     this.layer.batchDraw();
+  }
+  
+  private getDashArray(): number[] {
+    switch (this.strokePattern) {
+      case 'dashed':
+        return [10, 5];
+      case 'dotted':
+        return [2, 4];
+      case 'solid':
+      default:
+        return [];
+    }
   }
   
   setSizePreset(size: SizePreset): void {
@@ -4231,7 +4946,899 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     if (tool === 'shape') return 'crosshair';
     return 'crosshair';
   }
-  toggleLayers(): void {}
+  
+  // ===== NEW FEATURES =====
+  
+  // 1. AUTO-LAYOUT - Arrange components in a clean grid
+  autoLayout(): void {
+    if (!this.layer) return;
+    
+    const shapes = this.layer.children.filter((child: any) => 
+      child.getClassName() !== 'Transformer' && 
+      child.draggable() &&
+      child.name() !== 'smart-connector' // Skip connectors
+    );
+    
+    if (shapes.length === 0) return;
+    
+    console.log('Auto-layout for', shapes.length, 'shapes');
+    
+    // Simple grid layout
+    const padding = 40;
+    const spacing = 60;
+    const cols = Math.ceil(Math.sqrt(shapes.length));
+    
+    // Find average shape size
+    let totalWidth = 0;
+    let totalHeight = 0;
+    shapes.forEach((shape: any) => {
+      const box = shape.getClientRect();
+      totalWidth += box.width;
+      totalHeight += box.height;
+    });
+    const avgWidth = totalWidth / shapes.length;
+    const avgHeight = totalHeight / shapes.length;
+    
+    // Arrange in grid
+    shapes.forEach((shape: any, index: number) => {
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      
+      const x = padding + col * (avgWidth + spacing);
+      const y = padding + row * (avgHeight + spacing);
+      
+      shape.to({
+        x: x,
+        y: y,
+        duration: 0.5
+      });
+    });
+    
+    // Update smart connectors
+    this.updateAllSmartConnectors();
+    
+    this.saveHistory();
+  }
+  
+  // Update all smart connectors after layout changes
+  private updateAllSmartConnectors(): void {
+    const connectors = this.layer.find('.smart-connector');
+    connectors.forEach((connector: any) => {
+      const fromId = connector.getAttr('fromShape');
+      const toId = connector.getAttr('toShape');
+      
+      if (fromId && toId) {
+        const fromShape = this.layer.findOne(`#${fromId}`);
+        const toShape = this.layer.findOne(`#${toId}`);
+        
+        if (fromShape && toShape) {
+          const { from, to } = this.getConnectionPoints(fromShape, toShape);
+          connector.points([from.x, from.y, to.x, to.y]);
+        }
+      }
+    });
+    this.layer.batchDraw();
+  }
+  
+  // 2. COPY/PASTE SHAPES
+  copySelected(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length === 0) {
+      console.log('No shapes selected to copy');
+      return;
+    }
+    
+    this.clipboard = selected.map((node: any) => {
+      return node.toJSON();
+    });
+    
+    console.log('Copied', this.clipboard.length, 'shapes to clipboard');
+  }
+  
+  pasteShapes(): void {
+    if (this.clipboard.length === 0) {
+      console.log('Clipboard is empty');
+      return;
+    }
+    
+    console.log('Pasting', this.clipboard.length, 'shapes from clipboard');
+    
+    const offset = 30; // Offset pasted shapes
+    const pastedNodes: any[] = [];
+    
+    this.clipboard.forEach((nodeJson: string) => {
+      try {
+        const node = Konva.Node.create(nodeJson);
+        
+        // Offset position
+        node.x(node.x() + offset);
+        node.y(node.y() + offset);
+        
+        // Generate new ID
+        node.id(`shape-${Date.now()}-${Math.random()}`);
+        
+        this.layer.add(node);
+        pastedNodes.push(node);
+      } catch (error) {
+        console.error('Failed to paste shape:', error);
+      }
+    });
+    
+    // Select pasted shapes
+    if (pastedNodes.length > 0) {
+      this.transformer.nodes(pastedNodes);
+      pastedNodes.forEach((node: any) => this.addSelectionHighlight(node));
+    }
+    
+    this.layer.batchDraw();
+    this.saveHistory();
+  }
+  
+  // 3. BACKGROUND COLOR FOR SHAPES
+  setBackgroundColor(color: string): void {
+    const selected = this.transformer.nodes();
+    if (selected.length === 0) return;
+    
+    selected.forEach((node: any) => {
+      if (node instanceof Konva.Group) {
+        // For groups, find and color the background rectangle
+        const bgRect = node.findOne('.component-bg') as any;
+        if (bgRect && typeof bgRect.fill === 'function') {
+          bgRect.fill(color);
+        }
+      } else if (typeof node.fill === 'function') {
+        // For basic shapes
+        node.fill(color);
+      }
+    });
+    
+    this.layer.batchDraw();
+    this.saveHistory();
+  }
+  
+  // 4. CURVED CONNECTORS (Enhanced smart connector with curves)
+  createCurvedConnection(fromShape: any, toShape: any): void {
+    const { from, to } = this.getConnectionPoints(fromShape, toShape);
+    
+    // Calculate control points for quadratic curve
+    const midX = (from.x + to.x) / 2;
+    const midY = (from.y + to.y) / 2;
+    
+    // Offset control point perpendicular to line
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const curve = length * 0.15; // Curve amount
+    
+    // Perpendicular offset
+    const offsetX = -dy / length * curve;
+    const offsetY = dx / length * curve;
+    
+    const controlX = midX + offsetX;
+    const controlY = midY + offsetY;
+    
+    // Create curved line using Line with tension
+    const strokeColor = this.strokeColor();
+    const strokeOpacity = this.strokeOpacity() / 100;
+    
+    const line = new Konva.Line({
+      id: `connector-${Date.now()}-${Math.random()}`,
+      points: [from.x, from.y, controlX, controlY, to.x, to.y],
+      stroke: this.hexToRgba(strokeColor, strokeOpacity),
+      strokeWidth: this.strokeWidth(),
+      lineCap: 'round',
+      lineJoin: 'round',
+      tension: 0.5, // Smooth curve
+      bezier: true,
+      draggable: false,
+      listening: true,
+      hitStrokeWidth: 20,
+      name: 'smart-connector curved-connector'
+    });
+    
+    // Store references
+    line.setAttr('fromShape', fromShape.id());
+    line.setAttr('toShape', toShape.id());
+    line.setAttr('isCurved', true);
+    
+    // Add arrow head manually at the end
+    const arrowHead = new Konva.RegularPolygon({
+      x: to.x,
+      y: to.y,
+      sides: 3,
+      radius: 10,
+      fill: this.hexToRgba(strokeColor, strokeOpacity),
+      rotation: Math.atan2(to.y - controlY, to.x - controlX) * 180 / Math.PI + 90,
+      listening: false
+    });
+    
+    // Store arrow head reference in line
+    line.setAttr('arrowHead', arrowHead);
+    
+    // Update arrow head color when line color changes
+    const originalLineStroke = line.stroke.bind(line);
+    line.stroke = function(color?: string) {
+      if (color !== undefined) {
+        arrowHead.fill(color); // Update arrow head to match
+      }
+      return originalLineStroke(color);
+    } as any;
+    
+    // Create draggable control point handle
+    const controlHandle = new Konva.Circle({
+      x: controlX,
+      y: controlY,
+      radius: 8,
+      fill: '#667eea',
+      stroke: 'white',
+      strokeWidth: 2,
+      draggable: true,
+      visible: false, // Hidden by default, shown on hover/select
+      name: 'curve-control-handle'
+    });
+    
+    // Store control point reference
+    line.setAttr('controlHandle', controlHandle);
+    controlHandle.setAttr('curveLine', line);
+    controlHandle.setAttr('arrowHead', arrowHead);
+    
+    const group = new Konva.Group({
+      name: 'curved-connector-group'
+    });
+    group.add(line);
+    group.add(arrowHead);
+    group.add(controlHandle);
+    
+    this.layer.add(group);
+    group.moveToBottom();
+    
+    // Show control handle ONLY when line is clicked/selected
+    line.on('click', (e: any) => {
+      if (this.currentTool() === 'select') {
+        e.cancelBubble = true; // Prevent event from bubbling
+        
+        // Hide all other control handles first
+        this.layer.find('.curve-control-handle').forEach((handle: any) => {
+          handle.visible(false);
+        });
+        
+        // Show this line's control handle
+        controlHandle.visible(true);
+        
+        // Select the line in the transformer for color changes
+        const isShiftKey = e.evt?.shiftKey;
+        
+        if (isShiftKey) {
+          // Multi-select: Add to existing selection
+          const currentNodes = this.transformer.nodes().slice();
+          const index = currentNodes.indexOf(line);
+          
+          if (index === -1) {
+            currentNodes.push(line);
+            this.addSelectionHighlight(line);
+          } else {
+            currentNodes.splice(index, 1);
+            this.removeSelectionHighlight(line);
+          }
+          
+          this.transformer.nodes(currentNodes);
+        } else {
+          // Single select
+          const previousNodes = this.transformer.nodes();
+          previousNodes.forEach((node: any) => {
+            if (node !== line) {
+              this.removeSelectionHighlight(node);
+            }
+          });
+          
+          this.addSelectionHighlight(line);
+          this.transformer.nodes([line]);
+        }
+        
+        this.layer.batchDraw();
+      }
+    });
+    
+    // Hide when clicking elsewhere on canvas
+    this.stage.on('click.curvehandles', (e: any) => {
+      const clickedOnLine = e.target === line;
+      const clickedOnHandle = e.target === controlHandle;
+      
+      if (!clickedOnLine && !clickedOnHandle) {
+        controlHandle.visible(false);
+        this.layer.batchDraw();
+      }
+    });
+    
+    // When dragging control handle, update curve shape
+    controlHandle.on('dragmove', () => {
+      const { from: newFrom, to: newTo } = this.getConnectionPoints(fromShape, toShape);
+      const points = line.points();
+      
+      // Update curve with new control point position
+      line.points([newFrom.x, newFrom.y, controlHandle.x(), controlHandle.y(), newTo.x, newTo.y]);
+      
+      // Update arrow head rotation
+      const controlX = controlHandle.x();
+      const controlY = controlHandle.y();
+      arrowHead.rotation(Math.atan2(newTo.y - controlY, newTo.x - controlX) * 180 / Math.PI + 90);
+      
+      this.layer.batchDraw();
+    });
+    
+    controlHandle.on('dragend', () => {
+      this.saveHistory();
+    });
+    
+    // Setup updates when shapes move
+    const updateCurve = () => {
+      const { from: newFrom, to: newTo } = this.getConnectionPoints(fromShape, toShape);
+      
+      // Calculate new default control point position (maintain offset ratio)
+      const oldPoints = line.points();
+      const oldFrom = { x: oldPoints[0], y: oldPoints[1] };
+      const oldTo = { x: oldPoints[4], y: oldPoints[5] };
+      const oldControl = { x: oldPoints[2], y: oldPoints[3] };
+      
+      // Calculate offset ratio from old line
+      const oldMidX = (oldFrom.x + oldTo.x) / 2;
+      const oldMidY = (oldFrom.y + oldTo.y) / 2;
+      const offsetRatioX = oldControl.x - oldMidX;
+      const offsetRatioY = oldControl.y - oldMidY;
+      
+      // Apply same ratio to new line
+      const newMidX = (newFrom.x + newTo.x) / 2;
+      const newMidY = (newFrom.y + newTo.y) / 2;
+      const newControlX = newMidX + offsetRatioX;
+      const newControlY = newMidY + offsetRatioY;
+      
+      controlHandle.position({ x: newControlX, y: newControlY });
+      line.points([newFrom.x, newFrom.y, newControlX, newControlY, newTo.x, newTo.y]);
+      arrowHead.position({ x: newTo.x, y: newTo.y });
+      arrowHead.rotation(Math.atan2(newTo.y - newControlY, newTo.x - newControlX) * 180 / Math.PI + 90);
+      
+      this.layer.batchDraw();
+    };
+    
+    fromShape.on('dragmove.connector', updateCurve);
+    toShape.on('dragmove.connector', updateCurve);
+    
+    this.addConnectionLabelHandler(line);
+    this.layer.batchDraw();
+    this.saveHistory();
+  }
+  
+  // 5. KEYBOARD SHORTCUTS PANEL
+  toggleShortcutsPanel(): void {
+    this.showShortcutsPanel.update(v => !v);
+  }
+  
+  // 6. CURVED CONNECTORS TOGGLE
+  toggleCurvedConnectors(): void {
+    this.useCurvedConnectors.update(v => !v);
+  }
+  
+  // 8. TEMPLATES SYSTEM
+  templates = [
+    {
+      id: '01-simple-rag-chatbot',
+      name: 'Simple RAG Chatbot',
+      description: 'Basic RAG architecture with vector DB and LLM',
+      thumbnail: '🤖',
+      category: 'AI/ML',
+      file: '/samples/01-simple-rag-chatbot.json'
+    },
+    {
+      id: '02-multi-model-ai-platform',
+      name: 'Multi-Model AI Platform',
+      description: 'Platform supporting multiple AI models',
+      thumbnail: '🧠',
+      category: 'AI/ML',
+      file: '/samples/02-multi-model-ai-platform.json'
+    },
+    {
+      id: '03-cloud-infrastructure',
+      name: 'Cloud Infrastructure',
+      description: 'Standard cloud deployment architecture',
+      thumbnail: '☁️',
+      category: 'Cloud',
+      file: '/samples/03-cloud-infrastructure.json'
+    },
+    {
+      id: '04-enterprise-ai-platform',
+      name: 'Enterprise AI Platform',
+      description: 'Complete enterprise-grade AI system',
+      thumbnail: '🏢',
+      category: 'AI/ML',
+      file: '/samples/04-enterprise-ai-platform.json'
+    },
+    {
+      id: '05-observability-stack',
+      name: 'Observability Stack',
+      description: 'Monitoring and logging infrastructure',
+      thumbnail: '📊',
+      category: 'DevOps',
+      file: '/samples/05-observability-stack.json'
+    },
+    {
+      id: '06-grouped-microservices',
+      name: 'Grouped Microservices',
+      description: 'Microservices architecture with groups',
+      thumbnail: '🔷',
+      category: 'Architecture',
+      file: '/samples/06-grouped-microservices.json'
+    },
+    {
+      id: '07-nested-groups-cloud',
+      name: 'Nested Groups Cloud',
+      description: 'Complex nested group architecture',
+      thumbnail: '📦',
+      category: 'Cloud',
+      file: '/samples/07-nested-groups-cloud.json'
+    },
+    {
+      id: '08-kubernetes-pods-groups',
+      name: 'Kubernetes Pods',
+      description: 'K8s pod organization and groups',
+      thumbnail: '☸️',
+      category: 'DevOps',
+      file: '/samples/08-kubernetes-pods-groups.json'
+    },
+    {
+      id: 'cisco-ai-stack-complete',
+      name: 'Cisco AI Stack',
+      description: 'Complete Cisco AI infrastructure',
+      thumbnail: '🌐',
+      category: 'Enterprise',
+      file: '/samples/cisco-ai-stack-complete.json'
+    },
+    {
+      id: 'complex-enterprise-platform',
+      name: 'Complex Enterprise Platform',
+      description: 'Full-featured enterprise system',
+      thumbnail: '🏗️',
+      category: 'Enterprise',
+      file: '/samples/complex-enterprise-platform.json'
+    }
+  ];
+  
+  toggleTemplatesPanel(): void {
+    this.showTemplatesPanel.update(v => !v);
+    if (this.showTemplatesPanel()) {
+      this.templateSearchQuery = ''; // Reset search when opening
+    }
+  }
+  
+  clearAutoSaveData(): void {
+    const confirmed = confirm('This will clear all auto-saved data. Your current canvas will not be affected, but you will lose any saved work from previous sessions. Continue?');
+    if (confirmed) {
+      localStorage.removeItem('architecture-builder-autosave');
+      localStorage.removeItem('architecture-builder-autosave-timestamp');
+      console.log('✅ Auto-save data cleared successfully');
+      alert('Auto-save data cleared! The app will now auto-save your current work.');
+      // Immediately save current canvas
+      this.autoSaveToLocalStorage();
+    }
+  }
+  
+  // Save current canvas as custom template
+  saveAsMyTemplate(): void {
+    if (!this.isBrowser) return;
+    
+    const templateName = prompt('Enter a name for your template:');
+    if (!templateName || templateName.trim() === '') {
+      return;
+    }
+    
+    const jsonData = this.exportToJSONString();
+    const template = {
+      id: `custom-${Date.now()}`,
+      name: templateName.trim(),
+      description: `Custom template created on ${new Date().toLocaleDateString()}`,
+      thumbnail: '💾',
+      category: 'My Templates',
+      data: jsonData,
+      created: new Date().toISOString()
+    };
+    
+    // Load existing templates
+    const saved = localStorage.getItem('my-templates');
+    const templates = saved ? JSON.parse(saved) : [];
+    
+    // Add new template
+    templates.push(template);
+    
+    // Save to localStorage
+    localStorage.setItem('my-templates', JSON.stringify(templates));
+    
+    // Update the list
+    this.loadMyTemplates();
+    
+    alert(`✅ Template "${templateName}" saved successfully!`);
+    console.log('Template saved:', template);
+  }
+  
+  // Load user's saved templates from localStorage
+  loadMyTemplates(): void {
+    if (!this.isBrowser) {
+      this.myTemplates = [];
+      return;
+    }
+    
+    const saved = localStorage.getItem('my-templates');
+    this.myTemplates = saved ? JSON.parse(saved) : [];
+    console.log('Loaded', this.myTemplates.length, 'custom templates');
+  }
+  
+  // Load a custom template
+  loadMyTemplate(template: any): void {
+    if (confirm(`Load template "${template.name}"? This will replace your current canvas.`)) {
+      this.loadFromJSONString(template.data);
+      this.showTemplatesPanel.set(false);
+      console.log('Loaded custom template:', template.name);
+    }
+  }
+  
+  // Delete a custom template
+  deleteMyTemplate(template: any, event: Event): void {
+    if (!this.isBrowser) return;
+    
+    event.stopPropagation(); // Prevent loading the template
+    
+    if (confirm(`Delete template "${template.name}"?`)) {
+      this.myTemplates = this.myTemplates.filter(t => t.id !== template.id);
+      localStorage.setItem('my-templates', JSON.stringify(this.myTemplates));
+      console.log('Deleted template:', template.name);
+    }
+  }
+  
+  // Toggle between pre-built and my templates
+  toggleMyTemplates(): void {
+    this.showMyTemplates.update(v => !v);
+  }
+  
+  // Create new blank template
+  createNewTemplate(): void {
+    if (confirm('Create a new blank canvas? This will clear your current work. (Your work is auto-saved and can be restored)')) {
+      // Clear the canvas
+      this.layer.destroyChildren();
+      
+      // Re-add transformer
+      this.transformer = new Konva.Transformer({
+        borderStroke: '#3b82f6',
+        borderStrokeWidth: 3,
+        anchorFill: '#3b82f6',
+        anchorStroke: '#ffffff',
+        anchorStrokeWidth: 2,
+        anchorSize: 14,
+        anchorCornerRadius: 3,
+        rotateEnabled: true,
+        enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+        padding: 5,
+        keepRatio: false,
+        centeredScaling: false
+      });
+      this.layer.add(this.transformer);
+      
+      this.layer.batchDraw();
+      this.showTemplatesPanel.set(false);
+      
+      console.log('Created new blank template');
+    }
+  }
+  
+  getFilteredTemplates() {
+    if (!this.templateSearchQuery) {
+      return this.templates;
+    }
+    const query = this.templateSearchQuery.toLowerCase();
+    return this.templates.filter(template => 
+      template.name.toLowerCase().includes(query) ||
+      template.description.toLowerCase().includes(query) ||
+      template.category.toLowerCase().includes(query)
+    );
+  }
+  
+  async loadTemplate(templateFile: string): Promise<void> {
+    try {
+      console.log('Loading template from:', templateFile);
+      const response = await fetch(templateFile);
+      
+      if (!response.ok) {
+        throw new Error(`Template not found: ${response.status} ${response.statusText}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        console.warn('Response content-type:', contentType);
+      }
+      
+      const jsonText = await response.text();
+      console.log('Received response, length:', jsonText.length);
+      
+      this.loadFromJSONString(jsonText);
+      this.showTemplatesPanel.set(false);
+      
+      // Show success message
+      console.log('Template loaded successfully!');
+    } catch (error) {
+      console.error('Error loading template:', error);
+      alert(`Failed to load template: ${templateFile}\n\nPlease restart the dev server if you just updated angular.json`);
+    }
+  }
+  
+  private recreateShapeFromData(shapeData: any): void {
+    let shape: Konva.Shape | Konva.Group | null = null;
+    
+    // Recreate based on type
+    if (shapeData.type === 'Group') {
+      // Component group - recreate using the component system
+      const component: ComponentItem = {
+        id: shapeData.componentName || 'Custom',
+        name: shapeData.componentName || 'Custom Component',
+        category: 'custom',
+        icon: shapeData.componentIcon || '📦',
+        color: shapeData.iconColor || '#6366F1',
+        description: '',
+        faIcon: shapeData.faIcon
+      };
+      
+      // Use the existing addComponentShape method
+      this.addComponentShape({ x: shapeData.x, y: shapeData.y }, component);
+      
+    } else if (shapeData.type === 'Arrow' || shapeData.type === 'Line') {
+      // Recreate connector/arrow
+      shape = new Konva.Arrow({
+        id: shapeData.id,
+        points: shapeData.points,
+        stroke: shapeData.stroke,
+        strokeWidth: shapeData.strokeWidth || 2,
+        fill: shapeData.fill || shapeData.stroke,
+        pointerLength: shapeData.pointerLength || 10,
+        pointerWidth: shapeData.pointerWidth || 10,
+        draggable: true
+      });
+      
+      this.layer.add(shape);
+      
+    } else if (shapeData.type === 'Rect') {
+      shape = new Konva.Rect({
+        id: shapeData.id,
+        x: shapeData.x,
+        y: shapeData.y,
+        width: shapeData.width,
+        height: shapeData.height,
+        fill: shapeData.fill,
+        stroke: shapeData.stroke,
+        strokeWidth: shapeData.strokeWidth || 1,
+        rotation: shapeData.rotation || 0,
+        draggable: true
+      });
+      
+      this.layer.add(shape);
+      
+    } else if (shapeData.type === 'Circle') {
+      shape = new Konva.Circle({
+        id: shapeData.id,
+        x: shapeData.x,
+        y: shapeData.y,
+        radius: shapeData.radius,
+        fill: shapeData.fill,
+        stroke: shapeData.stroke,
+        strokeWidth: shapeData.strokeWidth || 1,
+        rotation: shapeData.rotation || 0,
+        draggable: true
+      });
+      
+      this.layer.add(shape);
+      
+    } else if (shapeData.type === 'Text') {
+      shape = new Konva.Text({
+        id: shapeData.id,
+        x: shapeData.x,
+        y: shapeData.y,
+        text: shapeData.text,
+        fontSize: shapeData.fontSize || 16,
+        fontFamily: shapeData.fontFamily || 'Arial',
+        fill: shapeData.fill || '#000000',
+        draggable: true
+      });
+      
+      this.layer.add(shape);
+    }
+  }
+  
+  loadFromJSONString(jsonText: string): void {
+    try {
+      const data = JSON.parse(jsonText);
+      
+      // Check if this is the old Konva native format (has className: "Layer")
+      if (data.className === 'Layer' && data.children) {
+        // Clear current canvas only if we have data to restore
+        this.layer.destroyChildren();
+        
+        // Old format - use Konva's native import
+        this.layer = Konva.Node.create(data, this.stage.container());
+        this.stage.add(this.layer);
+        
+        // Re-add transformer
+        this.transformer = new Konva.Transformer({
+          borderStroke: '#3b82f6',
+          borderStrokeWidth: 3,
+          anchorFill: '#3b82f6',
+          anchorStroke: '#ffffff',
+          anchorStrokeWidth: 2,
+          anchorSize: 14,
+          anchorCornerRadius: 3,
+          rotateEnabled: true,
+          enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+          padding: 5,
+          keepRatio: false,
+          centeredScaling: false
+        });
+        this.layer.add(this.transformer);
+        
+        this.layer.batchDraw();
+        this.drawInfiniteGrid();
+        this.saveHistory();
+        return;
+      }
+      
+      // New format - custom format with shapes array
+      console.log('Loaded template data:', data);
+      
+      if (data.shapes && Array.isArray(data.shapes) && data.shapes.length > 0) {
+        // Only clear if we have shapes to restore
+        this.layer.destroyChildren();
+        
+        // Re-add transformer
+        this.transformer = new Konva.Transformer({
+          borderStroke: '#3b82f6',
+          borderStrokeWidth: 3,
+          anchorFill: '#3b82f6',
+          anchorStroke: '#ffffff',
+          anchorStrokeWidth: 2,
+          anchorSize: 14,
+          anchorCornerRadius: 3,
+          rotateEnabled: true,
+          enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+          padding: 5,
+          keepRatio: false,
+          centeredScaling: false
+        });
+        this.layer.add(this.transformer);
+        
+        // Import each shape from the custom format
+        for (const shapeData of data.shapes) {
+          this.recreateShapeFromData(shapeData);
+        }
+        
+        // Apply canvas settings if provided
+        if (data.canvas) {
+          if (data.canvas.scale) {
+            this.stage.scale({ x: data.canvas.scale, y: data.canvas.scale });
+          }
+          if (data.canvas.position) {
+            this.stage.position(data.canvas.position);
+          }
+        }
+        
+        // Redraw grid and shapes
+        this.drawInfiniteGrid();
+        this.layer.batchDraw();
+        this.saveHistory();
+        
+        console.log('Successfully loaded', data.shapes.length, 'shapes');
+      }
+    
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+      alert('Invalid template file format.');
+    }
+  }
+  
+  saveAsTemplate(): void {
+    const templateName = prompt('Enter template name:');
+    if (!templateName) return;
+    
+    const jsonData = this.exportToJSONString();
+    
+    // Create downloadable file
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${templateName.toLowerCase().replace(/\s+/g, '-')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  exportToJSONString(): string {
+    // Export current canvas to JSON string with custom format
+    console.log('🔍 Total layer children:', this.layer.children.length);
+    
+    const shapes = this.layer.children.filter((child: any) => 
+      child.getClassName() !== 'Transformer'
+    ).map((shape: any) => {
+      const className = shape.getClassName();
+      console.log('🔍 Processing:', className, 'ID:', shape.id(), 'Name:', shape.name());
+      
+      // Skip shapes without a valid className
+      if (!className || className === 'Shape') {
+        console.log('⚠️ Skipping invalid shape:', className);
+        return null;
+      }
+      
+      const baseData: any = {
+        id: shape.id() || `shape-${Date.now()}-${Math.random()}`,
+        type: className,
+        x: shape.x(),
+        y: shape.y(),
+        rotation: shape.rotation() || 0,
+      };
+      
+      // Add type-specific properties
+      if (className === 'Rect') {
+        baseData.width = shape.width();
+        baseData.height = shape.height();
+        baseData.fill = shape.fill();
+        baseData.stroke = shape.stroke();
+        baseData.strokeWidth = shape.strokeWidth();
+      } else if (className === 'Circle') {
+        baseData.radius = shape.radius();
+        baseData.fill = shape.fill();
+        baseData.stroke = shape.stroke();
+        baseData.strokeWidth = shape.strokeWidth();
+      } else if (className === 'Line' || className === 'Arrow') {
+        baseData.points = shape.points();
+        baseData.stroke = shape.stroke();
+        baseData.strokeWidth = shape.strokeWidth();
+        baseData.fill = shape.fill();
+        if (className === 'Arrow') {
+          baseData.pointerLength = shape.pointerLength();
+          baseData.pointerWidth = shape.pointerWidth();
+        }
+      } else if (className === 'Text') {
+        baseData.text = shape.text();
+        baseData.fontSize = shape.fontSize();
+        baseData.fontFamily = shape.fontFamily();
+        baseData.fill = shape.fill();
+      } else if (className === 'Group') {
+        // Handle component groups
+        console.log('🔍 Group found:', shape.name(), 'hasName:', shape.hasName('component-group'));
+        if (shape.hasName('component-group')) {
+          baseData.componentIcon = shape.getAttr('componentIcon') || '📦';
+          baseData.componentName = shape.getAttr('componentName') || 'Component';
+          baseData.groupType = 'component-group';
+          baseData.faIcon = shape.getAttr('faIcon');
+          baseData.iconColor = shape.getAttr('iconColor');
+          console.log('✅ Component group exported:', baseData.componentName);
+        } else {
+          console.log('⚠️ Group is not a component-group, skipping');
+          return null; // Skip non-component groups
+        }
+      }
+      
+      console.log('✅ Exported shape:', className, baseData.id);
+      return baseData;
+    }).filter((s: any) => s !== null);
+    
+    const exportData = {
+      version: '1.0',
+      created: new Date().toISOString(),
+      canvas: {
+        width: this.stage.width(),
+        height: this.stage.height(),
+        scale: this.stage.scaleX(),
+        position: this.stage.position()
+      },
+      shapes: shapes
+    };
+    
+    console.log('✅ Exported', shapes.length, 'shapes to JSON');
+    
+    return JSON.stringify(exportData, null, 2);
+  }
   
   ngOnDestroy(): void {
     if (this.stage) {
