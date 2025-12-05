@@ -282,7 +282,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - GitHub: [@samba425](https://github.com/samba425)
 - Email: asiva325@gmail.com
 - Medium: [@asiva325](https://medium.com/@asiva325)
-- LinkedIn: [Connect with me](https://www.linkedin.com/in/samba-siva/)
+- LinkedIn: [Connect with me](www.linkedin.com/in/
+asiva325)
 
 ---
 
