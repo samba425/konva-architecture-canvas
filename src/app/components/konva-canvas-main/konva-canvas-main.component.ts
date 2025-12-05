@@ -698,7 +698,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     });
     
     // Mouse move
-    this.stage.on('mousemove touchmove', () => {
+    this.stage.on('mousemove touchmove', (e) => {
       const pos = this.getRelativePointerPosition();
       if (!pos) return;
       
@@ -830,6 +830,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         if (this.currentShape) {
           this.layer.add(this.currentShape);
           this.drawingLayer.destroyChildren();
+          
           this.currentShape = null;
           this.saveHistory();
         }
@@ -837,6 +838,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         if (this.lastLine) {
           this.layer.add(this.lastLine);
           this.drawingLayer.destroyChildren();
+          
           this.lastLine = null;
           this.saveHistory();
         }
@@ -920,6 +922,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const fillOpacity = this.fillOpacity() / 100;
     
     this.currentShape = new Konva.Rect({
+      id: `shape-${Date.now()}-${Math.random()}`,
       x: pos.x,
       y: pos.y,
       width: 0,
@@ -948,6 +951,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const fillOpacity = this.fillOpacity() / 100;
     
     this.currentShape = new Konva.Circle({
+      id: `shape-${Date.now()}-${Math.random()}`,
       x: pos.x,
       y: pos.y,
       radius: 0,
@@ -972,6 +976,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const strokeOpacity = this.strokeOpacity() / 100;
     
     this.currentShape = new Konva.Arrow({
+      id: `shape-${Date.now()}-${Math.random()}`,
       points: [pos.x, pos.y, pos.x, pos.y],
       stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
@@ -994,6 +999,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const strokeOpacity = this.strokeOpacity() / 100;
     
     this.lastLine = new Konva.Line({
+      id: `shape-${Date.now()}-${Math.random()}`,
       stroke: this.hexToRgba(strokeColor, strokeOpacity),
       strokeWidth: this.strokeWidth(),
       globalCompositeOperation: 'source-over',
@@ -1014,6 +1020,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const textColor = this.isDarkTheme() ? '#e2e8f0' : '#1a1a1a';
     
     const text = new Konva.Text({
+      id: `shape-${Date.now()}-${Math.random()}`,
       x: pos.x,
       y: pos.y,
       text: 'Double-click to edit',
@@ -1110,6 +1117,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   private async addComponentShape(pos: { x: number; y: number }, component: ComponentItem): Promise<void> {
     const group = new Konva.Group({
+      id: `shape-${Date.now()}-${Math.random()}`,
       x: pos.x,
       y: pos.y,
       draggable: true,
@@ -1332,6 +1340,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     }
     
     this.layer.add(group);
+    
     this.saveHistory();
   }
   
@@ -2000,6 +2009,65 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
 
     this.layer.batchDraw();
     this.saveHistory();
+  }
+  
+  // Lock/Unlock selected shapes
+  lockSelected(): void {
+    const nodes = this.transformer.nodes();
+    if (nodes.length === 0) return;
+    
+    nodes.forEach((node: any) => {
+      node.draggable(false);
+      node.setAttr('locked', true);
+      
+      // Add visual indicator
+      this.addLockIndicator(node);
+    });
+    
+    this.layer.batchDraw();
+    this.saveHistory();
+  }
+  
+  unlockSelected(): void {
+    const nodes = this.transformer.nodes();
+    if (nodes.length === 0) return;
+    
+    nodes.forEach((node: any) => {
+      node.draggable(true);
+      node.setAttr('locked', false);
+      
+      // Remove lock indicator
+      this.removeLockIndicator(node);
+    });
+    
+    this.layer.batchDraw();
+    this.saveHistory();
+  }
+  
+  private addLockIndicator(shape: any): void {
+    if (shape.findOne('.lock-indicator')) return;
+    
+    const box = shape.getClientRect();
+    const lockIcon = new Konva.Text({
+      x: box.width - 20,
+      y: 5,
+      text: '🔒',
+      fontSize: 14,
+      name: 'lock-indicator',
+      listening: false,
+      fill: '#ef4444'
+    });
+    
+    if (shape instanceof Konva.Group) {
+      shape.add(lockIcon);
+    }
+  }
+  
+  private removeLockIndicator(shape: any): void {
+    const indicator = shape.findOne('.lock-indicator');
+    if (indicator) {
+      indicator.destroy();
+    }
   }
   
   selectAll(): void {
@@ -2715,7 +2783,67 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   exportToPNG(): void {
-    const dataURL = this.stage.toDataURL({ pixelRatio: 2 });
+    // Hide transformer during export to avoid selection boxes
+    const transformerVisible = this.transformer?.visible();
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Clone the entire layer to a temporary stage for export
+    const tempStage = new Konva.Stage({
+      container: document.createElement('div'),
+      width: 10000,
+      height: 10000
+    });
+    
+    const tempLayer = this.layer.clone();
+    tempStage.add(tempLayer);
+    
+    // Get bounding box of all content
+    const box = tempLayer.getClientRect();
+    
+    // Add 200px padding
+    const padding = 200;
+    const finalX = box.x - padding;
+    const finalY = box.y - padding;
+    const finalWidth = box.width + (padding * 2);
+    const finalHeight = box.height + (padding * 2);
+    
+    // Add white background
+    const background = new Konva.Rect({
+      x: finalX,
+      y: finalY,
+      width: finalWidth,
+      height: finalHeight,
+      fill: '#ffffff',
+      listening: false
+    });
+    
+    tempLayer.add(background);
+    background.moveToBottom();
+    tempLayer.batchDraw();
+    
+    // Export from temporary layer
+    const dataURL = tempLayer.toDataURL({ 
+      pixelRatio: 3,
+      mimeType: 'image/png',
+      x: finalX,
+      y: finalY,
+      width: finalWidth,
+      height: finalHeight
+    });
+    
+    // Clean up temporary stage
+    tempStage.destroy();
+    
+    // Restore transformer visibility
+    if (this.transformer && transformerVisible) {
+      this.transformer.visible(true);
+    }
+    
+    this.layer.batchDraw();
+    
     const link = document.createElement('a');
     link.download = `architecture-${Date.now()}.png`;
     link.href = dataURL;
@@ -2725,7 +2853,48 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   exportToSVG(): void {
-    console.log('SVG export - implement with konva-to-svg if needed');
+    // Get the layer's bounding box to determine SVG dimensions
+    const box = this.layer.getClientRect();
+    
+    // Create SVG string manually from layer shapes
+    let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${box.width}" height="${box.height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="layer">
+`;
+
+    // Simple conversion - get all shapes as data URLs and embed them
+    this.layer.children.forEach((child: any) => {
+      if (child.getClassName() === 'Transformer') return;
+      
+      const attrs = child.attrs;
+      const x = attrs.x || 0;
+      const y = attrs.y || 0;
+      
+      // For now, we'll export each shape as an embedded image
+      // This is a simplified approach
+      try {
+        const dataURL = child.toDataURL({ pixelRatio: 2 });
+        const width = child.width() || 100;
+        const height = child.height() || 100;
+        svgContent += `    <image x="${x}" y="${y}" width="${width}" height="${height}" xlink:href="${dataURL}"/>\n`;
+      } catch (error) {
+        console.warn('Could not export shape to SVG:', error);
+      }
+    });
+
+    svgContent += `  </g>
+</svg>`;
+
+    // Download the SVG
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `architecture-${Date.now()}.svg`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
   
   exportToJSON(): void {

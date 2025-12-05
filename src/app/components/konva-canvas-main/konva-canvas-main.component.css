@@ -216,7 +216,7 @@
   border: 2px solid transparent;
   border-radius: 8px;
   color: #94a3b8;
-  font-size: 18px;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -462,8 +462,8 @@
 }
 
 .service-item {
-  padding: 12px;
-  margin: 4px 0;
+  padding: 9px;
+  margin: 2px 0;
   background: #1e293b;
   border: 1px solid #475569;
   border-left: 4px solid;
@@ -1089,8 +1089,8 @@
 /* ============================================ */
 .compact-style-panel {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 100px;
+  right: 130px; /* Partially hidden off-screen, showing ~40px */
   width: 220px;
   background: rgba(30, 30, 30, 0.7);
   backdrop-filter: blur(10px);
