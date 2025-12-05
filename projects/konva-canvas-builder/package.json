@@ -1,7 +1,7 @@
 {
   "name": "konva-architecture-canvas",
-  "version": "1.0.7",
-  "description": "A powerful Angular component for creating interactive architecture diagrams with Konva.js. Features 47+ pre-built components, custom component creator with image upload, nested grouping, color customization, and export/import functionality.",
+  "version": "1.0.8",
+  "description": "🎨 Professional Angular architecture diagram builder with 47+ pre-built components, drag-and-drop interface, nested grouping, custom shapes, and JSON export. Perfect for cloud infrastructure, AI/ML systems, and technical diagrams.",
   "keywords": [
     "angular",
     "konva",
@@ -14,7 +14,21 @@
     "infrastructure",
     "ai-architecture",
     "diagram-builder",
-    "visual-editor"
+    "visual-editor",
+    "cloud-architecture",
+    "system-design",
+    "flowchart",
+    "technical-diagram",
+    "aws",
+    "azure",
+    "gcp",
+    "kubernetes",
+    "microservices",
+    "devops",
+    "llm",
+    "vector-database",
+    "rag",
+    "ai-tools"
   ],
   "author": {
     "name": "Sambasiva Rao",
