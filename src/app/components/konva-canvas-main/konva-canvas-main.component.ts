@@ -5644,6 +5644,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         draggable: true
       });
       
+      // Add double-click event handler for text editing
+      shape.on('dblclick dbltap', () => {
+        this.editText(shape as Konva.Text);
+      });
+      
       this.layer.add(shape);
     }
   }
