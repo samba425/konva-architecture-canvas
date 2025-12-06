@@ -347,12 +347,12 @@
     <div class="right-top-toolbar draggable-panel" #toolbar>
       <div class="panel-drag-handle">⋮⋮</div>
       <!-- Drawing Tools -->
-      <button class="h-tool-btn" [class.active]="currentTool() === 'select'" (click)="setTool('select')" data-tooltip="Select Tool (V) - Select and move shapes" style="background: linear-gradient(135deg, #a8b5ff 0%, #c5b5e6 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'select'" (click)="setTool('select')" data-tooltip="Select Tool (V) - Select and move shapes" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'hand'" (click)="setTool('hand')" data-tooltip="Hand Tool (H) - Pan canvas" style="background: linear-gradient(135deg, #ffc4e1 0%, #ffa7b9 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'hand'" (click)="setTool('hand')" data-tooltip="Hand Tool (H) - Pan canvas" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
           <path d="M14 10V4a2 2 0 0 0-4 0v2"/>
@@ -360,18 +360,18 @@
           <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'connector'" (click)="setTool('connector')" data-tooltip="Connector Tool (K) - Draw connections between shapes" style="background: linear-gradient(135deg, #a5d8ff 0%, #9de7ff 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'connector'" (click)="setTool('connector')" data-tooltip="Connector Tool (K) - Draw connections between shapes" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="useCurvedConnectors()" (click)="toggleCurvedConnectors()" data-tooltip="Toggle Curved/Straight Connectors - Switch between bezier curves and straight lines" style="background: linear-gradient(135deg, #d0f4ea 0%, #fce5e5 100%); color: #333;">
+      <button class="h-tool-btn" [class.active]="useCurvedConnectors()" (click)="toggleCurvedConnectors()" data-tooltip="Toggle Curved/Straight Connectors - Switch between bezier curves and straight lines" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 12c0-4.97 4.03-9 9-9s9 4.03 9 9"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'pen'" (click)="setTool('pen')" data-tooltip="Pen Tool (P) - Freehand drawing" style="background: linear-gradient(135deg, #ffb4c4 0%, #ffe5a0 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'pen'" (click)="setTool('pen')" data-tooltip="Pen Tool (P) - Freehand drawing" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 19l7-7 3 3-7 7-3-3z"/>
           <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
@@ -379,34 +379,34 @@
           <circle cx="11" cy="11" r="2"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'rectangle'" (click)="setTool('rectangle')" data-tooltip="Rectangle Tool (R) - Draw rectangles" style="background: linear-gradient(135deg, #a5ebc1 0%, #b8f3e0 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'rectangle'" (click)="setTool('rectangle')" data-tooltip="Rectangle Tool (R) - Draw rectangles" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'circle'" (click)="setTool('circle')" data-tooltip="Circle Tool (C) - Draw circles" style="background: linear-gradient(135deg, #ffb4c4 0%, #ffe5a0 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'circle'" (click)="setTool('circle')" data-tooltip="Circle Tool (C) - Draw circles" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'arrow'" (click)="setTool('arrow')" data-tooltip="Arrow Tool (A) - Draw directional arrows" style="background: linear-gradient(135deg, #ffd9b3 0%, #e5c4ff 100%); color: white;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'arrow'" (click)="setTool('arrow')" data-tooltip="Arrow Tool (A) - Draw directional arrows" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'line'" (click)="setTool('line')" data-tooltip="Line Tool (L) - Draw straight lines" style="background: linear-gradient(135deg, #d0f4ea 0%, #fce5e5 100%); color: #333;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'line'" (click)="setTool('line')" data-tooltip="Line Tool (L) - Draw straight lines" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="19" x2="19" y2="5"/>
         </svg>
       </button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'text'" (click)="setTool('text')" data-tooltip="Text Tool (T) - Add text labels" style="background: linear-gradient(135deg, #fff5e6 0%, #ffe0cc 100%); color: #333; font-weight: bold; font-size: 18px;">
+      <button class="h-tool-btn" [class.active]="currentTool() === 'text'" (click)="setTool('text')" data-tooltip="Text Tool (T) - Add text labels" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-weight: bold; font-size: 18px;">
         T
       </button>
-      <button class="h-tool-btn" #shapePickerBtn [class.active]="currentTool() === 'shape'" (click)="toggleShapePicker($event)" data-tooltip="More Shapes - Triangle, Diamond, Pentagon, Hexagon, Star" style="background: linear-gradient(135deg, #ffc9d4 0%, #ffe5f0 100%); color: #666; font-size: 20px;">
+      <button class="h-tool-btn" #shapePickerBtn [class.active]="currentTool() === 'shape'" (click)="toggleShapePicker($event)" data-tooltip="More Shapes - Triangle, Diamond, Pentagon, Hexagon, Star" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; font-size: 20px;">
         ◇
       </button>
-      <button class="h-tool-btn" (click)="triggerImageUpload()" data-tooltip="Upload Image - Add images to canvas" style="background: linear-gradient(135deg, #c4e7ff 0%, #b3d4ff 100%); color: white;">
+      <button class="h-tool-btn" (click)="triggerImageUpload()" data-tooltip="Upload Image - Add images to canvas" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
           <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -417,26 +417,26 @@
       <div class="h-divider"></div>
       
       <!-- Actions -->
-      <button class="h-tool-btn" (click)="generateAILayout()" data-tooltip="AI Layout Generator - Automatically arrange architecture" style="background: linear-gradient(135deg, #ffe8a3 0%, #ffd699 100%); color: #666; font-size: 18px;">✨</button>
-      <button class="h-tool-btn" (click)="lockSelected()" data-tooltip="Lock Selected - Prevent editing" style="background: linear-gradient(135deg, #f5c4cc 0%, #ffe5ea 100%); color: white;">
+      <button class="h-tool-btn" (click)="generateAILayout()" data-tooltip="AI Layout Generator - Automatically arrange architecture" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: white; font-size: 18px;">✨</button>
+      <button class="h-tool-btn" (click)="lockSelected()" data-tooltip="Lock Selected - Prevent editing" style="background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="5" y="11" width="14" height="10" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="unlockSelected()" data-tooltip="Unlock Selected - Allow editing" style="background: linear-gradient(135deg, #dce6f2 0%, #e8f0f7 100%); color: #666;">
+      <button class="h-tool-btn" (click)="unlockSelected()" data-tooltip="Unlock Selected - Allow editing" style="background: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="5" y="11" width="14" height="10" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="createGroup()" data-tooltip="Group Selected (⌘G / Ctrl+G) - Combine shapes into a group" style="background: linear-gradient(135deg, #e3d4f4 0%, #fff9e6 100%); color: #666; font-size: 18px;">📦</button>
-      <button class="h-tool-btn" (click)="clearCanvas()" data-tooltip="Clear Canvas - Delete all shapes" style="background: linear-gradient(135deg, #ffb3ba 0%, #ffa3aa 100%); color: white; font-size: 18px;">🗑️</button>
+      <button class="h-tool-btn" (click)="createGroup()" data-tooltip="Group Selected (⌘G / Ctrl+G) - Combine shapes into a group" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); color: white; font-size: 18px;">📦</button>
+      <button class="h-tool-btn" (click)="clearCanvas()" data-tooltip="Clear Canvas - Delete all shapes" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; font-size: 18px;">🗑️</button>
       
       <div class="h-divider"></div>
       
       <!-- Zoom Controls -->
-      <button class="h-tool-btn zoom-btn" (click)="zoomIn()" data-tooltip="Zoom In (+) - Increase zoom level" style="background: linear-gradient(135deg, #c5f5d4 0%, #d0f5e0 100%); color: #666;">
+      <button class="h-tool-btn zoom-btn" (click)="zoomIn()" data-tooltip="Zoom In (+) - Increase zoom level" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.35-4.35"/>
@@ -444,15 +444,15 @@
           <line x1="8" y1="11" x2="14" y2="11"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="resetZoom()" data-tooltip="Reset Zoom (0) - Return to 100%" style="background: linear-gradient(135deg, #d5c4f2 0%, #fad4eb 100%); color: white; font-weight: 600;">100%</button>
-      <button class="h-tool-btn zoom-btn" (click)="zoomOut()" data-tooltip="Zoom Out (-) - Decrease zoom level" style="background: linear-gradient(135deg, #ffe0cd 0%, #f0c4f5 100%); color: white;">
+      <button class="h-tool-btn" (click)="resetZoom()" data-tooltip="Reset Zoom (0) - Return to 100%" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; font-weight: 600;">100%</button>
+      <button class="h-tool-btn zoom-btn" (click)="zoomOut()" data-tooltip="Zoom Out (-) - Decrease zoom level" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.35-4.35"/>
           <line x1="8" y1="11" x2="14" y2="11"/>
         </svg>
       </button>
-      <button class="h-tool-btn zoom-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit - Fit all shapes in view" style="background: linear-gradient(135deg, #ffb4c4 0%, #ffe5a0 100%); color: white;">
+      <button class="h-tool-btn zoom-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit - Fit all shapes in view" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
         </svg>
@@ -461,38 +461,38 @@
       <div class="h-divider"></div>
       
       <!-- Grid Toggle -->
-      <button class="h-tool-btn" (click)="toggleGrid()" [attr.data-tooltip]="showGrid() ? 'Hide Grid - Remove background grid' : 'Show Grid - Display background grid'" style="background: linear-gradient(135deg, #e6f5dc 0%, #d9f0cb 100%); color: #555; font-weight: bold; font-size: 18px;">
+      <button class="h-tool-btn" (click)="toggleGrid()" [attr.data-tooltip]="showGrid() ? 'Hide Grid - Remove background grid' : 'Show Grid - Display background grid'" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); color: #1a1a1a; font-weight: bold; font-size: 18px;">
         {{ showGrid() ? '▦' : '▢' }}
       </button>
       
       <!-- Theme Toggle -->
-      <button class="h-tool-btn" (click)="toggleTheme()" [attr.data-tooltip]="isDarkTheme() ? 'Switch to Light Theme' : 'Switch to Dark Theme'" style="background: linear-gradient(135deg, #fff8e6 0%, #ffeacc 100%); color: #555; font-size: 20px;">
+      <button class="h-tool-btn" (click)="toggleTheme()" [attr.data-tooltip]="isDarkTheme() ? 'Switch to Light Theme' : 'Switch to Dark Theme'" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-size: 20px;">
         {{ isDarkTheme() ? '☀️' : '🌙' }}
       </button>
       
       <div class="h-divider"></div>
       
       <!-- Export/Import -->
-      <button class="h-tool-btn" (click)="exportToPNG()" data-tooltip="Export as PNG - Download canvas as image" style="background: linear-gradient(135deg, #a8b5ff 0%, #c5b5e6 100%); color: white;">
+      <button class="h-tool-btn" (click)="exportToPNG()" data-tooltip="Export as PNG - Download canvas as image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic" style="background: linear-gradient(135deg, #ffc4e1 0%, #ffa7b9 100%); color: white;">
+      <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup" style="background: linear-gradient(135deg, #a5d8ff 0%, #9de7ff 100%); color: white;">
+      <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
           <polyline points="17 21 17 13 7 13 7 21"/>
           <polyline points="7 3 7 8 15 8"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="importFromJSON()" data-tooltip="Load from JSON - Import saved diagram" style="background: linear-gradient(135deg, #a5ebc1 0%, #b8f3e0 100%); color: white;">
+      <button class="h-tool-btn" (click)="importFromJSON()" data-tooltip="Load from JSON - Import saved diagram" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
@@ -504,12 +504,12 @@
       <div class="h-divider"></div>
       
       <!-- NEW FEATURES -->
-      <button class="h-tool-btn" (click)="createNewTemplate()" data-tooltip="New Canvas - Create blank canvas" style="background: linear-gradient(135deg, #fff8e6 0%, #ffeacc 100%); color: #555; font-size: 20px;">📄</button>
-      <button class="h-tool-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit (Fit all shapes in view)" style="background: linear-gradient(135deg, #d0f4ea 0%, #fce5e5 100%); color: #555; font-size: 20px;">�</button>
+      <button class="h-tool-btn" (click)="createNewTemplate()" data-tooltip="New Canvas - Create blank canvas" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-size: 20px;">📄</button>
+      <button class="h-tool-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit (Fit all shapes in view)" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a; font-size: 20px;">📐</button>
       
       <!-- Auto Layout with Dropdown -->
       <div style="position: relative; display: inline-block;">
-        <button class="h-tool-btn" [class.active]="showLayoutMenu()" (click)="toggleLayoutMenu()" data-tooltip="Smart Auto-Layout - Arrange shapes automatically" style="background: linear-gradient(135deg, #ffe8a3 0%, #ffd699 100%); color: #666; font-size: 20px;">
+        <button class="h-tool-btn" [class.active]="showLayoutMenu()" (click)="toggleLayoutMenu()" data-tooltip="Smart Auto-Layout - Arrange shapes automatically" style="background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%); color: white; font-size: 20px;">
           🎯
         </button>
         
@@ -583,10 +583,10 @@
         }
       </div>
       
-      <button class="h-tool-btn" [class.active]="showTemplatesPanel()" (click)="toggleTemplatesPanel()" data-tooltip="Templates Gallery (📋) - Load pre-built architecture diagrams" style="background: linear-gradient(135deg, #ffb4c4 0%, #ffe5a0 100%); color: white; font-size: 20px;">📋</button>
-      <button class="h-tool-btn" (click)="saveAsTemplate()" data-tooltip="Save as Template (💾) - Export current canvas as reusable template" style="background: linear-gradient(135deg, #c4e7ff 0%, #b3d4ff 100%); color: white; font-size: 20px;">💾</button>
-      <button class="h-tool-btn" (click)="toggleShortcutsPanel()" data-tooltip="Keyboard Shortcuts (⌨️) - View all keyboard shortcuts (Press ?)" style="background: linear-gradient(135deg, #e3d4f4 0%, #fff9e6 100%); color: #555; font-size: 20px;">⌨️</button>
-      <button class="h-tool-btn" (click)="clearAutoSaveData()" data-tooltip="Clear Auto-Save (🗑️) - Reset auto-save data and start fresh" style="background: linear-gradient(135deg, #ffb3ba 0%, #ffa3aa 100%); color: white; font-size: 20px;">🔄</button>
+      <button class="h-tool-btn" [class.active]="showTemplatesPanel()" (click)="toggleTemplatesPanel()" data-tooltip="Templates Gallery (📋) - Load pre-built architecture diagrams" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; font-size: 20px;">📋</button>
+      <button class="h-tool-btn" (click)="saveAsTemplate()" data-tooltip="Save as Template (💾) - Export current canvas as reusable template" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: white; font-size: 20px;">💾</button>
+      <button class="h-tool-btn" (click)="toggleShortcutsPanel()" data-tooltip="Keyboard Shortcuts (⌨️) - View all keyboard shortcuts (Press ?)" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); color: #1a1a1a; font-size: 20px;">⌨️</button>
+      <button class="h-tool-btn" (click)="clearAutoSaveData()" data-tooltip="Clear Auto-Save (🗑️) - Reset auto-save data and start fresh" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; font-size: 20px;">🔄</button>
     </div>
     
     <!-- Hidden file input for image upload -->
@@ -917,468 +917,4 @@
     </div>
   </div>
 </div>
-      
-      <div class="h-divider"></div>
-      
-      <!-- Zoom Controls -->
-      <button class="h-tool-btn zoom-btn" (click)="zoomIn()" data-tooltip="Zoom In (+) - Increase zoom level" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="m21 21-4.35-4.35"/>
-          <line x1="11" y1="8" x2="11" y2="14"/>
-          <line x1="8" y1="11" x2="14" y2="11"/>
-        </svg>
-      </button>
-      <button class="h-tool-btn" (click)="resetZoom()" data-tooltip="Reset Zoom (0) - Return to 100%" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; font-weight: 600;">100%</button>
-      <button class="h-tool-btn zoom-btn" (click)="zoomOut()" data-tooltip="Zoom Out (-) - Decrease zoom level" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="m21 21-4.35-4.35"/>
-          <line x1="8" y1="11" x2="14" y2="11"/>
-        </svg>
-      </button>
-      <button class="h-tool-btn zoom-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit - Fit all shapes in view" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-        </svg>
-      </button>
-      
-      <div class="h-divider"></div>
-      
-      <!-- Grid Toggle -->
-      <button class="h-tool-btn" (click)="toggleGrid()" [attr.data-tooltip]="showGrid() ? 'Hide Grid - Remove background grid' : 'Show Grid - Display background grid'" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); color: #1a1a1a; font-weight: bold; font-size: 18px;">
-        {{ showGrid() ? '▦' : '▢' }}
-      </button>
-      
-      <!-- Theme Toggle -->
-      <button class="h-tool-btn" (click)="toggleTheme()" [attr.data-tooltip]="isDarkTheme() ? 'Switch to Light Theme' : 'Switch to Dark Theme'" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-size: 20px;">
-        {{ isDarkTheme() ? '☀️' : '🌙' }}
-      </button>
-      
-      <div class="h-divider"></div>
-      
-      <!-- Export/Import -->
-      <button class="h-tool-btn" (click)="exportToPNG()" data-tooltip="Export as PNG - Download canvas as image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-      </button>
-      <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-      </button>
-      <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-          <polyline points="17 21 17 13 7 13 7 21"/>
-          <polyline points="7 3 7 8 15 8"/>
-        </svg>
-      </button>
-      <button class="h-tool-btn" (click)="importFromJSON()" data-tooltip="Load from JSON - Import saved diagram" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="12" y1="18" x2="12" y2="12"/>
-          <polyline points="9 15 12 18 15 15"/>
-        </svg>
-      </button>
-      
-      <div class="h-divider"></div>
-      
-      <!-- NEW FEATURES -->
-      <button class="h-tool-btn" (click)="createNewTemplate()" data-tooltip="New Canvas - Create blank canvas" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-size: 20px;">📄</button>
-      <button class="h-tool-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit (Fit all shapes in view)" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a; font-size: 20px;">📐</button>
-      
-      <!-- Auto Layout with Dropdown -->
-      <div style="position: relative; display: inline-block;">
-        <button class="h-tool-btn" [class.active]="showLayoutMenu()" (click)="toggleLayoutMenu()" data-tooltip="Smart Auto-Layout - Arrange shapes automatically" style="background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%); color: white; font-size: 20px;">
-          🎯
-        </button>
-        
-        @if (showLayoutMenu()) {
-          <div class="layout-dropdown" style="position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; padding: 8px;">
-            <div style="padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Layout Algorithms</div>
-            
-            <button (click)="applyAutoLayout('grid')" class="layout-option">
-              <div class="layout-icon">📊</div>
-              <div>
-                <div class="layout-name">Grid Layout</div>
-                <div class="layout-desc">Organize in uniform grid</div>
-              </div>
-            </button>
-            
-            <button (click)="applyAutoLayout('hierarchical')" class="layout-option">
-              <div class="layout-icon">📈</div>
-              <div>
-                <div class="layout-name">Hierarchical</div>
-                <div class="layout-desc">Top-down tier structure</div>
-              </div>
-            </button>
-            
-            <button (click)="applyAutoLayout('circular')" class="layout-option">
-              <div class="layout-icon">⭕</div>
-              <div>
-                <div class="layout-name">Circular</div>
-                <div class="layout-desc">Arrange in circle</div>
-              </div>
-            </button>
-            
-            <button (click)="applyAutoLayout('force')" class="layout-option">
-              <div class="layout-icon">🌌</div>
-              <div>
-                <div class="layout-name">Force-Directed</div>
-                <div class="layout-desc">Physics-based spacing</div>
-              </div>
-            </button>
-            
-            <button (click)="applyAutoLayout('horizontal')" class="layout-option">
-              <div class="layout-icon">↔️</div>
-              <div>
-                <div class="layout-name">Horizontal Flow</div>
-                <div class="layout-desc">Left to right arrangement</div>
-              </div>
-            </button>
-            
-            <button (click)="applyAutoLayout('vertical')" class="layout-option">
-              <div class="layout-icon">↕️</div>
-              <div>
-                <div class="layout-name">Vertical Flow</div>
-                <div class="layout-desc">Top to bottom arrangement</div>
-              </div>
-            </button>
-            
-            <div style="border-top: 1px solid var(--border-color); margin: 8px 0; padding-top: 8px;">
-              <div style="padding: 4px 12px; font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Alignment Tools</div>
-              
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;">
-                <button (click)="alignLeft()" class="align-btn" data-tooltip="Align Left">⬅️</button>
-                <button (click)="alignCenterHorizontal()" class="align-btn" data-tooltip="Center Horizontal">↔️</button>
-                <button (click)="alignRight()" class="align-btn" data-tooltip="Align Right">➡️</button>
-                <button (click)="alignTop()" class="align-btn" data-tooltip="Align Top">⬆️</button>
-                <button (click)="alignCenterVertical()" class="align-btn" data-tooltip="Center Vertical">↕️</button>
-                <button (click)="alignBottom()" class="align-btn" data-tooltip="Align Bottom">⬇️</button>
-                <button (click)="distributeHorizontally()" class="align-btn" style="grid-column: span 3;" data-tooltip="Distribute Horizontally">⟷</button>
-                <button (click)="distributeVertically()" class="align-btn" style="grid-column: span 3;" data-tooltip="Distribute Vertically">⇅</button>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-      
-      <button class="h-tool-btn" [class.active]="showTemplatesPanel()" (click)="toggleTemplatesPanel()" data-tooltip="Templates Gallery (📋) - Load pre-built architecture diagrams" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; font-size: 20px;">📋</button>
-      <button class="h-tool-btn" (click)="saveAsTemplate()" data-tooltip="Save as Template (💾) - Export current canvas as reusable template" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: white; font-size: 20px;">💾</button>
-      <button class="h-tool-btn" (click)="toggleShortcutsPanel()" data-tooltip="Keyboard Shortcuts (⌨️) - View all keyboard shortcuts (Press ?)" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); color: #1a1a1a; font-size: 20px;">⌨️</button>
-      <button class="h-tool-btn" (click)="clearAutoSaveData()" data-tooltip="Clear Auto-Save (🗑️) - Reset auto-save data and start fresh" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; font-size: 20px;">🔄</button>
-    </div>
-    
-    <!-- Hidden file input for image upload -->
-    <input 
-      type="file" 
-      #imageUpload 
-      accept="image/*" 
-      (change)="onImageUpload($event)" 
-      style="display: none;"
-    />
-    
 
-<!-- Custom Component Creator Modal -->
-<div *ngIf="showCustomComponentModal()" class="modal-overlay" (click)="closeCustomComponentModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>Create Custom Component</h2>
-      <button class="modal-close-btn" (click)="closeCustomComponentModal()">×</button>
-    </div>
-    
-    <div class="modal-body">
-      <!-- Component Name -->
-      <div class="form-group">
-        <label for="component-name">Component Name *</label>
-        <input 
-          type="text" 
-          id="component-name"
-          class="form-control"
-          placeholder="e.g., My Custom Service"
-          [ngModel]="customComponentName()"
-          (ngModelChange)="customComponentName.set($event)"
-        />
-      </div>
-      
-      <!-- Component Description -->
-      <div class="form-group">
-        <label for="component-description">Description</label>
-        <textarea 
-          id="component-description"
-          class="form-control"
-          placeholder="Brief description of the component"
-          rows="3"
-          [ngModel]="customComponentDescription()"
-          (ngModelChange)="customComponentDescription.set($event)"
-        ></textarea>
-      </div>
-      
-      <!-- Color and Icon Row -->
-      <div class="form-row">
-        <!-- Color Picker -->
-        <div class="form-group" style="flex: 1;">
-          <label for="component-color">Color</label>
-          <input 
-            type="color" 
-            id="component-color"
-            class="form-control color-picker"
-            [ngModel]="customComponentColor()"
-            (ngModelChange)="customComponentColor.set($event)"
-          />
-        </div>
-        
-        <!-- Icon/Emoji -->
-        <div class="form-group" style="flex: 1;">
-          <label for="component-icon">Icon/Emoji</label>
-          <input 
-            type="text" 
-            id="component-icon"
-            class="form-control"
-            placeholder="📦"
-            maxlength="4"
-            [ngModel]="customComponentIcon()"
-            (ngModelChange)="customComponentIcon.set($event)"
-          />
-        </div>
-      </div>
-      
-      <!-- Image Upload -->
-      <div class="form-group">
-        <label for="component-image">Upload Icon/Image (Optional)</label>
-        <input 
-          type="file" 
-          id="component-image"
-          class="form-control file-input"
-          accept="image/*"
-          (change)="onCustomComponentImageUpload($event)"
-        />
-        <small class="form-hint">SVG, PNG, or JPG. Will replace emoji/icon if uploaded.</small>
-      </div>
-      
-      <!-- Image Preview -->
-      <div *ngIf="customComponentImageUrl()" class="image-preview">
-        <label>Preview:</label>
-        <img [src]="customComponentImageUrl()" alt="Component preview" />
-      </div>
-    </div>
-    
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeCustomComponentModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="submitCustomComponent()">Add Component</button>
-    </div>
-  </div>
-</div>
-
-<!-- Keyboard Shortcuts Help Panel -->
-<div *ngIf="showShortcutsPanel()" class="shortcuts-overlay" (click)="toggleShortcutsPanel()">
-  <div class="shortcuts-panel" (click)="$event.stopPropagation()">
-    <div class="shortcuts-header">
-      <h3>⌨️ Keyboard Shortcuts</h3>
-      <button class="close-btn" (click)="toggleShortcutsPanel()">✕</button>
-    </div>
-    
-    <div class="shortcuts-content">
-      <div class="shortcuts-section">
-        <h4>Tools & Actions</h4>
-        <div class="shortcut-row">
-          <span class="shortcut-key">V</span>
-          <span class="shortcut-desc">Select Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">Esc</span>
-          <span class="shortcut-desc">Return to Select Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">R</span>
-          <span class="shortcut-desc">Rectangle Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">C</span>
-          <span class="shortcut-desc">Circle Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">A</span>
-          <span class="shortcut-desc">Arrow Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">L</span>
-          <span class="shortcut-desc">Line Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">T</span>
-          <span class="shortcut-desc">Text Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">K</span>
-          <span class="shortcut-desc">Smart Connector Tool</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">G</span>
-          <span class="shortcut-desc">Group Selected</span>
-        </div>
-      </div>
-
-      <div class="shortcuts-section">
-        <h4>Edit Operations</h4>
-        <div class="shortcut-row">
-          <span class="shortcut-key">⌘/Ctrl + C</span>
-          <span class="shortcut-desc">Copy Selected</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">⌘/Ctrl + V</span>
-          <span class="shortcut-desc">Paste</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">⌘/Ctrl + D</span>
-          <span class="shortcut-desc">Duplicate Selected</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">⌘/Ctrl + Z</span>
-          <span class="shortcut-desc">Undo</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">⌘/Ctrl + Shift + Z</span>
-          <span class="shortcut-desc">Redo</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">Delete / Backspace</span>
-          <span class="shortcut-desc">Delete Selected</span>
-        </div>
-      </div>
-
-      <div class="shortcuts-section">
-        <h4>Canvas Controls</h4>
-        <div class="shortcut-row">
-          <span class="shortcut-key">Space + Drag</span>
-          <span class="shortcut-desc">Pan Canvas</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">⌘/Ctrl + Scroll</span>
-          <span class="shortcut-desc">Zoom In/Out</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">Shift + Drag</span>
-          <span class="shortcut-desc">Multi-Select</span>
-        </div>
-        <div class="shortcut-row">
-          <span class="shortcut-key">Double Click</span>
-          <span class="shortcut-desc">Edit Text/Label</span>
-        </div>
-      </div>
-
-      <div class="shortcuts-section">
-        <h4>Help</h4>
-        <div class="shortcut-row">
-          <span class="shortcut-key">?</span>
-          <span class="shortcut-desc">Show/Hide This Panel</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<!-- Templates Gallery Panel -->
-<div *ngIf="showTemplatesPanel()" class="templates-overlay" (click)="toggleTemplatesPanel()">
-  <div class="templates-panel" (click)="$event.stopPropagation()">
-    <div class="templates-header">
-      <h3>📋 Templates Gallery</h3>
-      <button class="close-btn" (click)="toggleTemplatesPanel()">✕</button>
-    </div>
-    
-    <!-- Tab Buttons -->
-    <div class="templates-tabs">
-      <button 
-        class="tab-btn" 
-        [class.active]="!showMyTemplates()"
-        (click)="showMyTemplates.set(false)"
-      >
-        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-        <span>Pre-built Templates</span>
-      </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="showMyTemplates()"
-        (click)="showMyTemplates.set(true)"
-      >
-        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-        </svg>
-        <span>My Templates</span>
-        <span class="tab-count">{{ myTemplates.length }}</span>
-      </button>
-    </div>
-    
-    <!-- Save Current Button -->
-    <div class="template-actions" *ngIf="showMyTemplates()">
-      <button class="save-template-btn" (click)="saveAsMyTemplate()">
-        ➕ Save Current Canvas as Template
-      </button>
-    </div>
-    
-    <div class="templates-search" *ngIf="!showMyTemplates()">
-      <input 
-        type="text" 
-        [(ngModel)]="templateSearchQuery"
-        placeholder="🔍 Search templates..."
-        class="template-search-input"
-      />
-    </div>
-    
-    <div class="templates-content">
-      <!-- Pre-built Templates List -->
-      <div class="templates-list" *ngIf="!showMyTemplates()">
-        <div *ngFor="let template of getFilteredTemplates()" 
-             class="template-item"
-             (click)="loadTemplate(template.file)">
-          <div class="template-icon">{{ template.thumbnail }}</div>
-          <div class="template-details">
-            <h4>{{ template.name }}</h4>
-            <p>{{ template.description }}</p>
-          </div>
-          <span class="template-badge">{{ template.category }}</span>
-        </div>
-        
-        <div *ngIf="getFilteredTemplates().length === 0" class="no-results">
-          <p>No templates found</p>
-          <p class="hint">Try a different search term</p>
-        </div>
-      </div>
-      
-      <!-- My Templates List -->
-      <div class="templates-list" *ngIf="showMyTemplates()">
-        <div *ngFor="let template of myTemplates" 
-             class="template-item my-template-item"
-             (click)="loadMyTemplate(template)">
-          <div class="template-icon">{{ template.thumbnail }}</div>
-          <div class="template-details">
-            <h4>{{ template.name }}</h4>
-            <p>{{ template.description }}</p>
-          </div>
-          <button class="delete-template-btn" (click)="deleteMyTemplate(template, $event)" title="Delete Template">
-            🗑️
-          </button>
-        </div>
-        
-        <div *ngIf="myTemplates.length === 0" class="no-results">
-          <p>No custom templates yet</p>
-          <p class="hint">Click "Save Current Canvas as Template" to create your first template</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="templates-footer">
-      <p class="templates-hint">💡 Your work is auto-saved and will restore on refresh</p>
-    </div>
-  </div>
-</div>
