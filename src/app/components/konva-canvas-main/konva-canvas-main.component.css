@@ -322,12 +322,34 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-/* Active buttons with custom gradients - make them more prominent */
+/* Active buttons with custom gradients - SUPER VISIBLE with glowing ring */
 .h-tool-btn[style*="background"].active {
-  filter: brightness(1.3) !important;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 4px 16px rgba(102, 126, 234, 0.6) !important;
-  transform: scale(1.05);
-  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  filter: brightness(1.4) drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) !important;
+  box-shadow: 
+    0 0 0 4px rgba(255, 215, 0, 0.9),
+    0 0 0 6px rgba(255, 255, 255, 0.6),
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 4px 20px rgba(102, 126, 234, 0.7) !important;
+  transform: scale(1.08);
+  border: 3px solid #FFD700 !important;
+  animation: activeToolPulse 2s ease-in-out infinite;
+}
+
+@keyframes activeToolPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 4px rgba(255, 215, 0, 0.9),
+      0 0 0 6px rgba(255, 255, 255, 0.6),
+      0 0 20px rgba(255, 215, 0, 0.8),
+      0 4px 20px rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 4px rgba(255, 215, 0, 1),
+      0 0 0 7px rgba(255, 255, 255, 0.8),
+      0 0 30px rgba(255, 215, 0, 1),
+      0 4px 25px rgba(102, 126, 234, 0.9);
+  }
 }
 
 .h-divider {
