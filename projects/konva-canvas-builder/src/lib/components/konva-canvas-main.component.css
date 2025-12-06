@@ -304,6 +304,14 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+/* Active buttons with custom gradients - make them more prominent */
+.h-tool-btn[style*="background"].active {
+  filter: brightness(1.3) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 4px 16px rgba(102, 126, 234, 0.6) !important;
+  transform: scale(1.05);
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+}
+
 .h-divider {
   width: 1px;
   height: 32px;
