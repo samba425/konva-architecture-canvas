@@ -493,23 +493,16 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.drawingLayer = new Konva.Layer();
     this.stage.add(this.drawingLayer);
     
-    // Create transformer for shape manipulation with enhanced visibility
-    this.transformer = new Konva.Transformer({
-      borderStroke: '#3b82f6',
-      borderStrokeWidth: 3,
-      anchorFill: '#3b82f6',
-      anchorStroke: '#ffffff',
-      anchorStrokeWidth: 2,
-      anchorSize: 14,
-      anchorCornerRadius: 3,
-      rotateEnabled: true,
-      enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-      padding: 5,
-      // Add visual emphasis
-      keepRatio: false,
-      centeredScaling: false
-    });
+    // Create transformer with auto-save support
+    this.createTransformer();
     this.layer.add(this.transformer);
+    
+    // Auto-save after any shape is dragged
+    this.layer.on('dragend', (e) => {
+      if (!this.isRestoring && e.target !== this.stage) {
+        this.autoSaveToLocalStorage();
+      }
+    });
     
     // Add infinite grid background
     this.drawInfiniteGrid();
@@ -558,6 +551,42 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // this.saveHistory(); // Removed to prevent overwriting auto-save data on init
     
     console.log('✅ Konva stage initialized');
+  }
+  
+  /**
+   * Create transformer with auto-save event listener
+   * This ensures all transformer instances trigger auto-save after transform
+   */
+  private createTransformer(): void {
+    // Remove old transformer from layer if it exists
+    if (this.transformer) {
+      this.transformer.destroy();
+    }
+    
+    // Create new transformer for shape manipulation with enhanced visibility
+    this.transformer = new Konva.Transformer({
+      borderStroke: '#3b82f6',
+      borderStrokeWidth: 3,
+      anchorFill: '#3b82f6',
+      anchorStroke: '#ffffff',
+      anchorStrokeWidth: 2,
+      anchorSize: 14,
+      anchorCornerRadius: 3,
+      rotateEnabled: true,
+      enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
+      padding: 5,
+      keepRatio: false,
+      centeredScaling: false
+    });
+    
+    // Auto-save after transform (resize/rotate)
+    this.transformer.on('transformend', () => {
+      console.log('🔄 Transform ended, isRestoring:', this.isRestoring);
+      if (!this.isRestoring) {
+        console.log('💾 Auto-saving after transform...');
+        this.autoSaveToLocalStorage();
+      }
+    });
   }
   
   private drawInfiniteGrid(): void {
@@ -3935,21 +3964,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             this.layer = Konva.Node.create(data, this.stage.container());
             this.stage.add(this.layer);
             
-            // Re-add transformer with enhanced visibility
-            this.transformer = new Konva.Transformer({
-              borderStroke: '#3b82f6',
-              borderStrokeWidth: 3,
-              anchorFill: '#3b82f6',
-              anchorStroke: '#ffffff',
-              anchorStrokeWidth: 2,
-              anchorSize: 14,
-              anchorCornerRadius: 3,
-              rotateEnabled: true,
-              enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-              padding: 5,
-              keepRatio: false,
-              centeredScaling: false
-            });
+            // Re-add transformer with auto-save support
+            this.createTransformer();
             this.layer.add(this.transformer);
             
             this.layer.batchDraw();
@@ -4330,21 +4346,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           // Redraw grid after import
           this.drawInfiniteGrid();
           
-          // Re-add transformer with enhanced visibility
-          this.transformer = new Konva.Transformer({
-            borderStroke: '#3b82f6',
-            borderStrokeWidth: 3,
-            anchorFill: '#3b82f6',
-            anchorStroke: '#ffffff',
-            anchorStrokeWidth: 2,
-            anchorSize: 14,
-            anchorCornerRadius: 3,
-            rotateEnabled: true,
-            enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-            padding: 5,
-            keepRatio: false,
-            centeredScaling: false
-          });
+          // Re-add transformer with auto-save support
+          this.createTransformer();
           this.layer.add(this.transformer);
           
           this.layer.batchDraw();
@@ -4721,20 +4724,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   clearCanvas(): void {
     if (confirm('Are you sure you want to clear the canvas?')) {
       this.layer.destroyChildren();
-      this.transformer = new Konva.Transformer({
-        borderStroke: '#3b82f6',
-        borderStrokeWidth: 3,
-        anchorFill: '#3b82f6',
-        anchorStroke: '#ffffff',
-        anchorStrokeWidth: 2,
-        anchorSize: 14,
-        anchorCornerRadius: 3,
-        rotateEnabled: true,
-        enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-        padding: 5,
-        keepRatio: false,
-        centeredScaling: false
-      });
+      this.createTransformer();
       this.layer.add(this.transformer);
       this.saveHistory();
     }
@@ -5838,21 +5828,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       // Clear the canvas
       this.layer.destroyChildren();
       
-      // Re-add transformer
-      this.transformer = new Konva.Transformer({
-        borderStroke: '#3b82f6',
-        borderStrokeWidth: 3,
-        anchorFill: '#3b82f6',
-        anchorStroke: '#ffffff',
-        anchorStrokeWidth: 2,
-        anchorSize: 14,
-        anchorCornerRadius: 3,
-        rotateEnabled: true,
-        enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-        padding: 5,
-        keepRatio: false,
-        centeredScaling: false
-      });
+      // Re-add transformer with auto-save support
+      this.createTransformer();
       this.layer.add(this.transformer);
       
       this.layer.batchDraw();
@@ -5921,6 +5898,21 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       // Use the existing addComponentShape method
       this.addComponentShape({ x: shapeData.x, y: shapeData.y }, component);
       
+      // Find the newly created group and apply scale/rotation
+      const newGroup = this.layer.findOne(`#${shapeData.id}`) || 
+                       this.layer.children.filter((child: any) => 
+                         child.getClassName() === 'Group' && 
+                         child.hasName('component-group')
+                       ).pop();
+      
+      if (newGroup) {
+        shape = newGroup as Konva.Group;
+        // Apply saved scale and rotation
+        if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+        if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+        if (shapeData.rotation) shape.rotation(shapeData.rotation);
+      }
+      
     } else if (shapeData.type === 'Arrow' || shapeData.type === 'Line') {
       // Recreate connector/arrow
       shape = new Konva.Arrow({
@@ -5931,7 +5923,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         fill: shapeData.fill || shapeData.stroke,
         pointerLength: shapeData.pointerLength || 10,
         pointerWidth: shapeData.pointerWidth || 10,
-        draggable: true
+        draggable: true,
+        scaleX: shapeData.scaleX || 1,
+        scaleY: shapeData.scaleY || 1,
+        rotation: shapeData.rotation || 0
       });
       
       this.layer.add(shape);
@@ -5947,6 +5942,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         stroke: shapeData.stroke,
         strokeWidth: shapeData.strokeWidth || 1,
         rotation: shapeData.rotation || 0,
+        scaleX: shapeData.scaleX || 1,
+        scaleY: shapeData.scaleY || 1,
         draggable: true
       });
       
@@ -5962,6 +5959,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         stroke: shapeData.stroke,
         strokeWidth: shapeData.strokeWidth || 1,
         rotation: shapeData.rotation || 0,
+        scaleX: shapeData.scaleX || 1,
+        scaleY: shapeData.scaleY || 1,
         draggable: true
       });
       
@@ -5976,6 +5975,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         fontSize: shapeData.fontSize || 16,
         fontFamily: shapeData.fontFamily || 'Arial',
         fill: shapeData.fill || '#000000',
+        scaleX: shapeData.scaleX || 1,
+        scaleY: shapeData.scaleY || 1,
         draggable: true
       });
       
@@ -6001,21 +6002,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         this.layer = Konva.Node.create(data, this.stage.container());
         this.stage.add(this.layer);
         
-        // Re-add transformer
-        this.transformer = new Konva.Transformer({
-          borderStroke: '#3b82f6',
-          borderStrokeWidth: 3,
-          anchorFill: '#3b82f6',
-          anchorStroke: '#ffffff',
-          anchorStrokeWidth: 2,
-          anchorSize: 14,
-          anchorCornerRadius: 3,
-          rotateEnabled: true,
-          enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-          padding: 5,
-          keepRatio: false,
-          centeredScaling: false
-        });
+        // Re-add transformer with auto-save support
+        this.createTransformer();
         this.layer.add(this.transformer);
         
         this.layer.batchDraw();
@@ -6031,21 +6019,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         // Only clear if we have shapes to restore
         this.layer.destroyChildren();
         
-        // Re-add transformer
-        this.transformer = new Konva.Transformer({
-          borderStroke: '#3b82f6',
-          borderStrokeWidth: 3,
-          anchorFill: '#3b82f6',
-          anchorStroke: '#ffffff',
-          anchorStrokeWidth: 2,
-          anchorSize: 14,
-          anchorCornerRadius: 3,
-          rotateEnabled: true,
-          enabledAnchors: ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right'],
-          padding: 5,
-          keepRatio: false,
-          centeredScaling: false
-        });
+        // Re-add transformer with auto-save support
+        this.createTransformer();
         this.layer.add(this.transformer);
         
         // Import each shape from the custom format
@@ -6115,6 +6090,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         x: shape.x(),
         y: shape.y(),
         rotation: shape.rotation() || 0,
+        scaleX: shape.scaleX() || 1,
+        scaleY: shape.scaleY() || 1,
       };
       
       // Add type-specific properties
