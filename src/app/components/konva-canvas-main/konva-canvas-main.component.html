@@ -84,16 +84,6 @@
       >
       </div>
       
-      <!-- Mini-Map Navigator -->
-      <div class="minimap-container" *ngIf="showMinimap()">
-        <div class="minimap-header">
-          <span>Map</span>
-          <button class="minimap-close" (click)="toggleMinimap()">×</button>
-        </div>
-        <canvas #minimapCanvas class="minimap-canvas"></canvas>
-        <div class="minimap-viewport"></div>
-      </div>
-      
       <!-- Compact TLDraw-Style Right Panel (Draggable Card) -->
       <div class="compact-style-panel draggable-panel" #stylePanel>
         <div class="panel-drag-handle">⋮⋮</div>
@@ -416,7 +406,7 @@
       <button class="h-tool-btn" #shapePickerBtn [class.active]="currentTool() === 'shape'" (click)="toggleShapePicker($event)" data-tooltip="More Shapes - Triangle, Diamond, Pentagon, Hexagon, Star" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; font-size: 20px;">
         ◇
       </button>
-      <button class="h-tool-btn" (click)="triggerImageUpload()" data-tooltip="Upload Image - Add images to canvas">
+      <button class="h-tool-btn" (click)="triggerImageUpload()" data-tooltip="Upload Image - Add images to canvas" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
           <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -427,26 +417,26 @@
       <div class="h-divider"></div>
       
       <!-- Actions -->
-      <button class="h-tool-btn" (click)="generateAILayout()" data-tooltip="AI Layout Generator - Automatically arrange architecture">✨</button>
-      <button class="h-tool-btn" (click)="lockSelected()" data-tooltip="Lock Selected - Prevent editing">
+      <button class="h-tool-btn" (click)="generateAILayout()" data-tooltip="AI Layout Generator - Automatically arrange architecture" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: white; font-size: 18px;">✨</button>
+      <button class="h-tool-btn" (click)="lockSelected()" data-tooltip="Lock Selected - Prevent editing" style="background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="5" y="11" width="14" height="10" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="unlockSelected()" data-tooltip="Unlock Selected - Allow editing">
+      <button class="h-tool-btn" (click)="unlockSelected()" data-tooltip="Unlock Selected - Allow editing" style="background: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="5" y="11" width="14" height="10" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="createGroup()" data-tooltip="Group Selected (⌘G / Ctrl+G) - Combine shapes into a group">📦</button>
-      <button class="h-tool-btn" (click)="clearCanvas()" data-tooltip="Clear Canvas - Delete all shapes">🗑️</button>
+      <button class="h-tool-btn" (click)="createGroup()" data-tooltip="Group Selected (⌘G / Ctrl+G) - Combine shapes into a group" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); color: white; font-size: 18px;">📦</button>
+      <button class="h-tool-btn" (click)="clearCanvas()" data-tooltip="Clear Canvas - Delete all shapes" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; font-size: 18px;">🗑️</button>
       
       <div class="h-divider"></div>
       
       <!-- Zoom Controls -->
-      <button class="h-tool-btn zoom-btn" (click)="zoomIn()" data-tooltip="Zoom In (+) - Increase zoom level">
+      <button class="h-tool-btn zoom-btn" (click)="zoomIn()" data-tooltip="Zoom In (+) - Increase zoom level" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.35-4.35"/>
@@ -454,15 +444,15 @@
           <line x1="8" y1="11" x2="14" y2="11"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="resetZoom()" data-tooltip="Reset Zoom (0) - Return to 100%">100%</button>
-      <button class="h-tool-btn zoom-btn" (click)="zoomOut()" data-tooltip="Zoom Out (-) - Decrease zoom level">
+      <button class="h-tool-btn" (click)="resetZoom()" data-tooltip="Reset Zoom (0) - Return to 100%" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; font-weight: 600;">100%</button>
+      <button class="h-tool-btn zoom-btn" (click)="zoomOut()" data-tooltip="Zoom Out (-) - Decrease zoom level" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.35-4.35"/>
           <line x1="8" y1="11" x2="14" y2="11"/>
         </svg>
       </button>
-      <button class="h-tool-btn zoom-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit - Fit all shapes in view">
+      <button class="h-tool-btn zoom-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit - Fit all shapes in view" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
         </svg>
@@ -471,46 +461,38 @@
       <div class="h-divider"></div>
       
       <!-- Grid Toggle -->
-      <button class="h-tool-btn" (click)="toggleGrid()" [attr.data-tooltip]="showGrid() ? 'Hide Grid - Remove background grid' : 'Show Grid - Display background grid'">
+      <button class="h-tool-btn" (click)="toggleGrid()" [attr.data-tooltip]="showGrid() ? 'Hide Grid - Remove background grid' : 'Show Grid - Display background grid'" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); color: #1a1a1a; font-weight: bold; font-size: 18px;">
         {{ showGrid() ? '▦' : '▢' }}
       </button>
       
-      <!-- Mini-map Toggle -->
-      <button class="h-tool-btn" [class.active]="showMinimap()" (click)="toggleMinimap()" data-tooltip="Mini-Map Navigator - Overview of canvas">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-      </button>
-      
       <!-- Theme Toggle -->
-      <button class="h-tool-btn" (click)="toggleTheme()" [attr.data-tooltip]="isDarkTheme() ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+      <button class="h-tool-btn" (click)="toggleTheme()" [attr.data-tooltip]="isDarkTheme() ? 'Switch to Light Theme' : 'Switch to Dark Theme'" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-size: 20px;">
         {{ isDarkTheme() ? '☀️' : '🌙' }}
       </button>
       
       <div class="h-divider"></div>
       
       <!-- Export/Import -->
-      <button class="h-tool-btn" (click)="exportToPNG()" data-tooltip="Export as PNG - Download canvas as image">
+      <button class="h-tool-btn" (click)="exportToPNG()" data-tooltip="Export as PNG - Download canvas as image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic">
+      <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup">
+      <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
           <polyline points="17 21 17 13 7 13 7 21"/>
           <polyline points="7 3 7 8 15 8"/>
         </svg>
       </button>
-      <button class="h-tool-btn" (click)="importFromJSON()" data-tooltip="Load from JSON - Import saved diagram">
+      <button class="h-tool-btn" (click)="importFromJSON()" data-tooltip="Load from JSON - Import saved diagram" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
@@ -522,12 +504,12 @@
       <div class="h-divider"></div>
       
       <!-- NEW FEATURES -->
-      <button class="h-tool-btn" (click)="createNewTemplate()" data-tooltip="New Canvas - Create blank canvas">📄</button>
-      <button class="h-tool-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit (Fit all shapes in view)">📐</button>
+      <button class="h-tool-btn" (click)="createNewTemplate()" data-tooltip="New Canvas - Create blank canvas" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-size: 20px;">📄</button>
+      <button class="h-tool-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit (Fit all shapes in view)" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a; font-size: 20px;">📐</button>
       
       <!-- Auto Layout with Dropdown -->
       <div style="position: relative; display: inline-block;">
-        <button class="h-tool-btn" [class.active]="showLayoutMenu()" (click)="toggleLayoutMenu()" data-tooltip="Smart Auto-Layout - Arrange shapes automatically" style="font-size: 20px;">
+        <button class="h-tool-btn" [class.active]="showLayoutMenu()" (click)="toggleLayoutMenu()" data-tooltip="Smart Auto-Layout - Arrange shapes automatically" style="background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%); color: white; font-size: 20px;">
           🎯
         </button>
         
@@ -601,10 +583,10 @@
         }
       </div>
       
-      <button class="h-tool-btn" [class.active]="showTemplatesPanel()" (click)="toggleTemplatesPanel()" data-tooltip="Templates Gallery (📋) - Load pre-built architecture diagrams">📋</button>
-      <button class="h-tool-btn" (click)="saveAsTemplate()" data-tooltip="Save as Template (💾) - Export current canvas as reusable template">💾</button>
-      <button class="h-tool-btn" (click)="toggleShortcutsPanel()" data-tooltip="Keyboard Shortcuts (⌨️) - View all keyboard shortcuts (Press ?)">⌨️</button>
-      <button class="h-tool-btn" (click)="clearAutoSaveData()" data-tooltip="Clear Auto-Save (🗑️) - Reset auto-save data and start fresh" style="color: #ef4444;">🔄</button>
+      <button class="h-tool-btn" [class.active]="showTemplatesPanel()" (click)="toggleTemplatesPanel()" data-tooltip="Templates Gallery (📋) - Load pre-built architecture diagrams" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; font-size: 20px;">📋</button>
+      <button class="h-tool-btn" (click)="saveAsTemplate()" data-tooltip="Save as Template (💾) - Export current canvas as reusable template" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: white; font-size: 20px;">💾</button>
+      <button class="h-tool-btn" (click)="toggleShortcutsPanel()" data-tooltip="Keyboard Shortcuts (⌨️) - View all keyboard shortcuts (Press ?)" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); color: #1a1a1a; font-size: 20px;">⌨️</button>
+      <button class="h-tool-btn" (click)="clearAutoSaveData()" data-tooltip="Clear Auto-Save (🗑️) - Reset auto-save data and start fresh" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; font-size: 20px;">🔄</button>
     </div>
     
     <!-- Hidden file input for image upload -->
