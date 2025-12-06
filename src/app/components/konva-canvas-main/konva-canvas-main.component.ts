@@ -49,6 +49,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('toolbar', { static: false }) toolbarRef!: ElementRef<HTMLDivElement>;
   @ViewChild('stylePanel', { static: false}) stylePanelRef!: ElementRef<HTMLDivElement>;
   @ViewChild('imageUpload', { static: false }) imageUploadRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('minimapCanvas') minimapCanvas!: ElementRef<HTMLCanvasElement>;
   
   private stage!: Konva.Stage;
   private layer!: Konva.Layer;
@@ -111,6 +112,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   currentTool = signal<Tool>('select');
   isDarkTheme = signal(false); // Default to light theme (white)
   showGrid = signal(false); // Default to no grid
+  showMinimap = signal(true); // Default to show minimap
   
   // Style properties
   currentColor = signal('#3b82f6');
@@ -546,6 +548,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       
       this.stage.position(newPos);
       this.drawInfiniteGrid();
+      this.updateMinimap();
     });
     
     // Setup event handlers
@@ -749,6 +752,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         
         this.lastPointerPosition = screenPos;
         this.drawInfiniteGrid(); // Update grid during panning, not just at end
+        this.updateMinimap(); // Update minimap during panning
         return;
       }
       
@@ -2032,6 +2036,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     if (!this.isRestoring) {
       this.autoSaveToLocalStorage();
     }
+    
+    // Update minimap when canvas changes
+    this.updateMinimap();
   }
   
   // Auto-save current canvas to localStorage
@@ -2890,6 +2897,102 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   toggleGrid(): void {
     this.showGrid.update(v => !v);
     this.drawInfiniteGrid();
+  }
+  
+  toggleMinimap(): void {
+    this.showMinimap.update(v => !v);
+    if (this.showMinimap()) {
+      // Wait for the canvas element to be rendered
+      setTimeout(() => this.updateMinimap(), 50);
+    }
+  }
+  
+  updateMinimap(): void {
+    if (!this.showMinimap() || !this.minimapCanvas || !this.stage) {
+      return;
+    }
+    
+    const canvas = this.minimapCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const minimapWidth = 200;
+    const minimapHeight = 150;
+    canvas.width = minimapWidth;
+    canvas.height = minimapHeight;
+    
+    // Clear minimap
+    ctx.fillStyle = this.isDarkTheme() ? '#1a1a1a' : '#ffffff';
+    ctx.fillRect(0, 0, minimapWidth, minimapHeight);
+    
+    // Get all shapes in the main layer
+    const shapes = this.layer.getChildren();
+    if (shapes.length === 0) return;
+    
+    // Calculate bounds of all shapes
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    shapes.forEach((shape: any) => {
+      if (shape === this.transformer || shape === this.selectionRectangle) return;
+      const box = shape.getClientRect();
+      minX = Math.min(minX, box.x);
+      minY = Math.min(minY, box.y);
+      maxX = Math.max(maxX, box.x + box.width);
+      maxY = Math.max(maxY, box.y + box.height);
+    });
+    
+    if (minX === Infinity) return;
+    
+    // Add padding
+    const padding = 20;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+    
+    // Calculate scale to fit all content in minimap
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+    const scale = Math.min(minimapWidth / contentWidth, minimapHeight / contentHeight) * 0.9;
+    
+    // Center the content
+    const offsetX = (minimapWidth - contentWidth * scale) / 2 - minX * scale;
+    const offsetY = (minimapHeight - contentHeight * scale) / 2 - minY * scale;
+    
+    // Draw all shapes
+    ctx.save();
+    shapes.forEach((shape: any) => {
+      if (shape === this.transformer || shape === this.selectionRectangle) return;
+      
+      const box = shape.getClientRect();
+      ctx.fillStyle = shape.fill?.() || shape.stroke?.() || '#3b82f6';
+      ctx.globalAlpha = 0.6;
+      
+      ctx.fillRect(
+        box.x * scale + offsetX,
+        box.y * scale + offsetY,
+        box.width * scale,
+        box.height * scale
+      );
+    });
+    ctx.restore();
+    
+    // Draw viewport rectangle
+    const stageBox = {
+      x: -this.stage.x() / this.stage.scaleX(),
+      y: -this.stage.y() / this.stage.scaleY(),
+      width: this.stage.width() / this.stage.scaleX(),
+      height: this.stage.height() / this.stage.scaleY()
+    };
+    
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 1;
+    ctx.strokeRect(
+      stageBox.x * scale + offsetX,
+      stageBox.y * scale + offsetY,
+      stageBox.width * scale,
+      stageBox.height * scale
+    );
   }
   
   // Color mode methods

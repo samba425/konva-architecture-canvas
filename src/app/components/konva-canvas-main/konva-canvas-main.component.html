@@ -84,6 +84,16 @@
       >
       </div>
       
+      <!-- Mini-Map Navigator -->
+      <div class="minimap-container" *ngIf="showMinimap()">
+        <div class="minimap-header">
+          <span>Map</span>
+          <button class="minimap-close" (click)="toggleMinimap()">×</button>
+        </div>
+        <canvas #minimapCanvas class="minimap-canvas"></canvas>
+        <div class="minimap-viewport"></div>
+      </div>
+      
       <!-- Compact TLDraw-Style Right Panel (Draggable Card) -->
       <div class="compact-style-panel draggable-panel" #stylePanel>
         <div class="panel-drag-handle">⋮⋮</div>
@@ -347,17 +357,65 @@
     <div class="right-top-toolbar draggable-panel" #toolbar>
       <div class="panel-drag-handle">⋮⋮</div>
       <!-- Drawing Tools -->
-      <button class="h-tool-btn" [class.active]="currentTool() === 'select'" (click)="setTool('select')" data-tooltip="Select Tool (V) - Select and move shapes">↖️</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'hand'" (click)="setTool('hand')" data-tooltip="Hand Tool (H) - Pan canvas">✋</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'connector'" (click)="setTool('connector')" data-tooltip="Connector Tool (K) - Draw connections between shapes">🔗</button>
-      <button class="h-tool-btn" [class.active]="useCurvedConnectors()" (click)="toggleCurvedConnectors()" data-tooltip="Toggle Curved/Straight Connectors - Switch between bezier curves and straight lines">〰️</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'pen'" (click)="setTool('pen')" data-tooltip="Pen Tool (P) - Freehand drawing">✏️</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'rectangle'" (click)="setTool('rectangle')" data-tooltip="Rectangle Tool (R) - Draw rectangles">▭</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'circle'" (click)="setTool('circle')" data-tooltip="Circle Tool (C) - Draw circles">○</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'arrow'" (click)="setTool('arrow')" data-tooltip="Arrow Tool (A) - Draw directional arrows">→</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'line'" (click)="setTool('line')" data-tooltip="Line Tool (L) - Draw straight lines">─</button>
-      <button class="h-tool-btn" [class.active]="currentTool() === 'text'" (click)="setTool('text')" data-tooltip="Text Tool (T) - Add text labels">T</button>
-      <button class="h-tool-btn" #shapePickerBtn [class.active]="currentTool() === 'shape'" (click)="toggleShapePicker($event)" data-tooltip="More Shapes - Triangle, Diamond, Pentagon, Hexagon, Star">◇</button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'select'" (click)="setTool('select')" data-tooltip="Select Tool (V) - Select and move shapes" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'hand'" (click)="setTool('hand')" data-tooltip="Hand Tool (H) - Pan canvas" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
+          <path d="M14 10V4a2 2 0 0 0-4 0v2"/>
+          <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'connector'" (click)="setTool('connector')" data-tooltip="Connector Tool (K) - Draw connections between shapes" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="useCurvedConnectors()" (click)="toggleCurvedConnectors()" data-tooltip="Toggle Curved/Straight Connectors - Switch between bezier curves and straight lines" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12c0-4.97 4.03-9 9-9s9 4.03 9 9"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'pen'" (click)="setTool('pen')" data-tooltip="Pen Tool (P) - Freehand drawing" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+          <path d="M2 2l7.586 7.586"/>
+          <circle cx="11" cy="11" r="2"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'rectangle'" (click)="setTool('rectangle')" data-tooltip="Rectangle Tool (R) - Draw rectangles" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'circle'" (click)="setTool('circle')" data-tooltip="Circle Tool (C) - Draw circles" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'arrow'" (click)="setTool('arrow')" data-tooltip="Arrow Tool (A) - Draw directional arrows" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); color: white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'line'" (click)="setTool('line')" data-tooltip="Line Tool (L) - Draw straight lines" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1a1a1a;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="19" x2="19" y2="5"/>
+        </svg>
+      </button>
+      <button class="h-tool-btn" [class.active]="currentTool() === 'text'" (click)="setTool('text')" data-tooltip="Text Tool (T) - Add text labels" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1a1a1a; font-weight: bold; font-size: 18px;">
+        T
+      </button>
+      <button class="h-tool-btn" #shapePickerBtn [class.active]="currentTool() === 'shape'" (click)="toggleShapePicker($event)" data-tooltip="More Shapes - Triangle, Diamond, Pentagon, Hexagon, Star" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; font-size: 20px;">
+        ◇
+      </button>
       <button class="h-tool-btn" (click)="triggerImageUpload()" data-tooltip="Upload Image - Add images to canvas">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -415,6 +473,14 @@
       <!-- Grid Toggle -->
       <button class="h-tool-btn" (click)="toggleGrid()" [attr.data-tooltip]="showGrid() ? 'Hide Grid - Remove background grid' : 'Show Grid - Display background grid'">
         {{ showGrid() ? '▦' : '▢' }}
+      </button>
+      
+      <!-- Mini-map Toggle -->
+      <button class="h-tool-btn" [class.active]="showMinimap()" (click)="toggleMinimap()" data-tooltip="Mini-Map Navigator - Overview of canvas">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
       </button>
       
       <!-- Theme Toggle -->

@@ -229,6 +229,11 @@
   z-index: 1;
 }
 
+/* Allow inline styles to override background */
+.h-tool-btn[style*="background"] {
+  border: none;
+}
+
 /* Disable native browser tooltips */
 .h-tool-btn[data-tooltip] {
   position: relative;
@@ -292,9 +297,22 @@
 }
 
 .h-tool-btn:hover {
-  background: #1a2842;
   border-color: #475569;
   color: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Buttons with gradient backgrounds should brighten on hover */
+.h-tool-btn[style*="background"]:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Buttons without gradients get default hover background */
+.h-tool-btn:not([style*="background"]):hover {
+  background: #1a2842;
 }
 
 .h-tool-btn.active {
@@ -302,6 +320,12 @@
   border-color: #667eea;
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Active buttons with custom gradients keep their gradient */
+.h-tool-btn[style*="background"].active {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
 }
 
 .h-divider {
@@ -2968,3 +2992,123 @@ textarea.form-control {
   background: rgba(102, 126, 234, 0.15);
   border-color: rgba(102, 126, 234, 0.3);
 }
+
+/* ===============================================
+   Mini-Map Navigator Styles
+   =============================================== */
+
+.minimap-container {
+  position: absolute;
+  bottom: 20px;
+  left: 280px;
+  width: 200px;
+  background: rgba(26, 26, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  animation: minimapFadeIn 0.3s ease-out;
+}
+
+@keyframes minimapFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.minimap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.minimap-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.minimap-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.minimap-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.minimap-canvas-wrapper {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.minimap-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.minimap-viewport {
+  position: absolute;
+  border: 2px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), 0 0 12px rgba(59, 130, 246, 0.4);
+  transition: all 0.1s ease-out;
+}
+
+/* Light theme minimap overrides */
+.konva-container.light-theme .minimap-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.konva-container.light-theme .minimap-header {
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.konva-container.light-theme .minimap-title {
+  color: #475569;
+}
+
+.konva-container.light-theme .minimap-close {
+  color: #94a3b8;
+}
+
+.konva-container.light-theme .minimap-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+}
+
+.konva-container.light-theme .minimap-canvas-wrapper {
+  background: rgba(0, 0, 0, 0.05);
+}
+
