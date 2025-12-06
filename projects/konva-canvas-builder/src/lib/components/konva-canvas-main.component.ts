@@ -2833,7 +2833,58 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       if (canvasWrapper instanceof HTMLElement) {
         canvasWrapper.style.backgroundColor = bgColor;
       }
+      
+      // Update text colors on canvas for visibility
+      this.updateTextColorsForTheme(isDark);
     }
+  }
+  
+  // Update all text colors when theme changes
+  private updateTextColorsForTheme(isDark: boolean): void {
+    if (!this.layer) return;
+    
+    // Find all text elements on canvas
+    const textShapes = this.layer.find('Text');
+    
+    textShapes.forEach((textNode: any) => {
+      // Only auto-update if text is using default colors (black or white)
+      const currentFill = textNode.fill();
+      
+      // If text is black (#000000) or very dark, change to white in dark mode
+      if (!isDark && (currentFill === '#ffffff' || currentFill === 'white')) {
+        textNode.fill('#000000');
+      } 
+      // If text is white (#ffffff) or very light, change to black in light mode
+      else if (isDark && (currentFill === '#000000' || currentFill === 'black')) {
+        textNode.fill('#ffffff');
+      }
+      // Also handle very dark colors in dark mode
+      else if (isDark) {
+        const rgb = this.hexToRgb(currentFill);
+        if (rgb && (rgb.r < 50 && rgb.g < 50 && rgb.b < 50)) {
+          // Very dark color in dark mode - change to white
+          textNode.fill('#ffffff');
+        }
+      }
+      // Handle very light colors in light mode
+      else if (!isDark) {
+        const rgb = this.hexToRgb(currentFill);
+        if (rgb && (rgb.r > 200 && rgb.g > 200 && rgb.b > 200)) {
+          // Very light color in light mode - change to black
+          textNode.fill('#000000');
+        }
+      }
+    });
+  }
+  
+  // Helper to convert hex to RGB
+  private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
   }
   
   toggleGrid(): void {
@@ -4712,6 +4763,289 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     alert('AI Layout generation coming soon!');
   }
   
+  // Smart Auto-Layout Feature
+  showLayoutMenu = signal(false);
+  
+  toggleLayoutMenu(): void {
+    this.showLayoutMenu.set(!this.showLayoutMenu());
+  }
+  
+  applyAutoLayout(layoutType: 'grid' | 'hierarchical' | 'circular' | 'force' | 'horizontal' | 'vertical'): void {
+    const shapes = this.layer.find('.component, .shape').filter((node: any) => 
+      !node.parent || node.parent === this.layer
+    );
+    
+    if (shapes.length === 0) {
+      alert('No shapes to layout');
+      return;
+    }
+    
+    switch (layoutType) {
+      case 'grid':
+        this.applyGridLayout(shapes);
+        break;
+      case 'hierarchical':
+        this.applyHierarchicalLayout(shapes);
+        break;
+      case 'circular':
+        this.applyCircularLayout(shapes);
+        break;
+      case 'force':
+        this.applyForceDirectedLayout(shapes);
+        break;
+      case 'horizontal':
+        this.applyHorizontalLayout(shapes);
+        break;
+      case 'vertical':
+        this.applyVerticalLayout(shapes);
+        break;
+    }
+    
+    this.showLayoutMenu.set(false);
+    this.saveHistory();
+  }
+  
+  private applyGridLayout(shapes: any[]): void {
+    const cols = Math.ceil(Math.sqrt(shapes.length));
+    const spacing = 150;
+    const startX = 100;
+    const startY = 100;
+    
+    shapes.forEach((shape, index) => {
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      
+      shape.position({
+        x: startX + col * spacing,
+        y: startY + row * spacing
+      });
+    });
+  }
+  
+  private applyHierarchicalLayout(shapes: any[]): void {
+    // Group shapes by their y-position to determine existing tiers
+    const tiers: any[][] = [];
+    const tierThreshold = 100; // Group shapes within 100px vertically
+    
+    // Sort by current Y position
+    const sortedShapes = [...shapes].sort((a, b) => a.y() - b.y());
+    
+    sortedShapes.forEach(shape => {
+      let addedToTier = false;
+      
+      for (const tier of tiers) {
+        if (Math.abs(tier[0].y() - shape.y()) < tierThreshold) {
+          tier.push(shape);
+          addedToTier = true;
+          break;
+        }
+      }
+      
+      if (!addedToTier) {
+        tiers.push([shape]);
+      }
+    });
+    
+    // Layout each tier
+    const tierSpacing = 200;
+    const startY = 100;
+    
+    tiers.forEach((tier, tierIndex) => {
+      const nodeSpacing = 150;
+      const tierWidth = (tier.length - 1) * nodeSpacing;
+      const startX = (this.stage.width() - tierWidth) / 2;
+      
+      tier.forEach((shape, nodeIndex) => {
+        shape.position({
+          x: startX + nodeIndex * nodeSpacing,
+          y: startY + tierIndex * tierSpacing
+        });
+      });
+    });
+  }
+  
+  private applyCircularLayout(shapes: any[]): void {
+    const centerX = this.stage.width() / 2;
+    const centerY = this.stage.height() / 2;
+    const radius = Math.min(this.stage.width(), this.stage.height()) / 3;
+    const angleStep = (2 * Math.PI) / shapes.length;
+    
+    shapes.forEach((shape, index) => {
+      const angle = index * angleStep - Math.PI / 2; // Start from top
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      
+      shape.position({ x, y });
+    });
+  }
+  
+  private applyForceDirectedLayout(shapes: any[]): void {
+    // Simple force-directed layout simulation
+    const centerX = this.stage.width() / 2;
+    const centerY = this.stage.height() / 2;
+    const iterations = 50;
+    const repulsionStrength = 3000;
+    const attractionStrength = 0.01;
+    const damping = 0.5;
+    
+    // Initialize velocities
+    const velocities = shapes.map(() => ({ x: 0, y: 0 }));
+    
+    for (let iter = 0; iter < iterations; iter++) {
+      // Calculate forces
+      const forces = shapes.map(() => ({ x: 0, y: 0 }));
+      
+      // Repulsion between nodes
+      for (let i = 0; i < shapes.length; i++) {
+        for (let j = i + 1; j < shapes.length; j++) {
+          const dx = shapes[j].x() - shapes[i].x();
+          const dy = shapes[j].y() - shapes[i].y();
+          const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = repulsionStrength / (distance * distance);
+          
+          forces[i].x -= force * dx / distance;
+          forces[i].y -= force * dy / distance;
+          forces[j].x += force * dx / distance;
+          forces[j].y += force * dy / distance;
+        }
+        
+        // Attraction to center
+        const dx = centerX - shapes[i].x();
+        const dy = centerY - shapes[i].y();
+        forces[i].x += dx * attractionStrength;
+        forces[i].y += dy * attractionStrength;
+      }
+      
+      // Update positions
+      shapes.forEach((shape, i) => {
+        velocities[i].x = (velocities[i].x + forces[i].x) * damping;
+        velocities[i].y = (velocities[i].y + forces[i].y) * damping;
+        
+        shape.position({
+          x: shape.x() + velocities[i].x,
+          y: shape.y() + velocities[i].y
+        });
+      });
+    }
+  }
+  
+  private applyHorizontalLayout(shapes: any[]): void {
+    const spacing = 150;
+    const startX = 100;
+    const centerY = this.stage.height() / 2;
+    
+    shapes.forEach((shape, index) => {
+      shape.position({
+        x: startX + index * spacing,
+        y: centerY
+      });
+    });
+  }
+  
+  private applyVerticalLayout(shapes: any[]): void {
+    const spacing = 150;
+    const centerX = this.stage.width() / 2;
+    const startY = 100;
+    
+    shapes.forEach((shape, index) => {
+      shape.position({
+        x: centerX,
+        y: startY + index * spacing
+      });
+    });
+  }
+  
+  // Alignment tools
+  alignLeft(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 2) return;
+    
+    const leftMost = Math.min(...selected.map((n: any) => n.x()));
+    selected.forEach((node: any) => node.x(leftMost));
+    this.saveHistory();
+  }
+  
+  alignRight(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 2) return;
+    
+    const rightMost = Math.max(...selected.map((n: any) => n.x() + n.width()));
+    selected.forEach((node: any) => node.x(rightMost - node.width()));
+    this.saveHistory();
+  }
+  
+  alignTop(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 2) return;
+    
+    const topMost = Math.min(...selected.map((n: any) => n.y()));
+    selected.forEach((node: any) => node.y(topMost));
+    this.saveHistory();
+  }
+  
+  alignBottom(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 2) return;
+    
+    const bottomMost = Math.max(...selected.map((n: any) => n.y() + n.height()));
+    selected.forEach((node: any) => node.y(bottomMost - node.height()));
+    this.saveHistory();
+  }
+  
+  alignCenterHorizontal(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 2) return;
+    
+    const centerX = selected.reduce((sum: number, n: any) => sum + n.x() + n.width() / 2, 0) / selected.length;
+    selected.forEach((node: any) => node.x(centerX - node.width() / 2));
+    this.saveHistory();
+  }
+  
+  alignCenterVertical(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 2) return;
+    
+    const centerY = selected.reduce((sum: number, n: any) => sum + n.y() + n.height() / 2, 0) / selected.length;
+    selected.forEach((node: any) => node.y(centerY - node.height() / 2));
+    this.saveHistory();
+  }
+  
+  distributeHorizontally(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 3) return;
+    
+    const sorted = selected.sort((a: any, b: any) => a.x() - b.x());
+    const leftMost = sorted[0].x();
+    const rightMost = sorted[sorted.length - 1].x() + sorted[sorted.length - 1].width();
+    const totalWidth = rightMost - leftMost;
+    const spacing = totalWidth / (sorted.length - 1);
+    
+    sorted.forEach((node: any, index: number) => {
+      if (index > 0 && index < sorted.length - 1) {
+        node.x(leftMost + index * spacing);
+      }
+    });
+    this.saveHistory();
+  }
+  
+  distributeVertically(): void {
+    const selected = this.transformer.nodes();
+    if (selected.length < 3) return;
+    
+    const sorted = selected.sort((a: any, b: any) => a.y() - b.y());
+    const topMost = sorted[0].y();
+    const bottomMost = sorted[sorted.length - 1].y() + sorted[sorted.length - 1].height();
+    const totalHeight = bottomMost - topMost;
+    const spacing = totalHeight / (sorted.length - 1);
+    
+    sorted.forEach((node: any, index: number) => {
+      if (index > 0 && index < sorted.length - 1) {
+        node.y(topMost + index * spacing);
+      }
+    });
+    this.saveHistory();
+  }
+  
   // Image Upload Methods
   triggerImageUpload(): void {
     if (this.imageUploadRef?.nativeElement) {
@@ -5642,6 +5976,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         fontFamily: shapeData.fontFamily || 'Arial',
         fill: shapeData.fill || '#000000',
         draggable: true
+      });
+      
+      // Add double-click event handler for text editing
+      shape.on('dblclick dbltap', () => {
+        this.editText(shape as Konva.Text);
       });
       
       this.layer.add(shape);

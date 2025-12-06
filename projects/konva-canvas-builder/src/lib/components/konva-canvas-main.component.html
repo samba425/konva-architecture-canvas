@@ -458,7 +458,83 @@
       <!-- NEW FEATURES -->
       <button class="h-tool-btn" (click)="createNewTemplate()" data-tooltip="New Canvas - Create blank canvas">📄</button>
       <button class="h-tool-btn" (click)="zoomToFit()" data-tooltip="Zoom to Fit (Fit all shapes in view)">📐</button>
-      <button class="h-tool-btn" (click)="autoLayout()" data-tooltip="Auto Layout - Arrange all shapes in organized grid">🎯</button>
+      
+      <!-- Auto Layout with Dropdown -->
+      <div style="position: relative; display: inline-block;">
+        <button class="h-tool-btn" [class.active]="showLayoutMenu()" (click)="toggleLayoutMenu()" data-tooltip="Smart Auto-Layout - Arrange shapes automatically" style="font-size: 20px;">
+          🎯
+        </button>
+        
+        @if (showLayoutMenu()) {
+          <div class="layout-dropdown" style="position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; padding: 8px;">
+            <div style="padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Layout Algorithms</div>
+            
+            <button (click)="applyAutoLayout('grid')" class="layout-option">
+              <div class="layout-icon">📊</div>
+              <div>
+                <div class="layout-name">Grid Layout</div>
+                <div class="layout-desc">Organize in uniform grid</div>
+              </div>
+            </button>
+            
+            <button (click)="applyAutoLayout('hierarchical')" class="layout-option">
+              <div class="layout-icon">📈</div>
+              <div>
+                <div class="layout-name">Hierarchical</div>
+                <div class="layout-desc">Top-down tier structure</div>
+              </div>
+            </button>
+            
+            <button (click)="applyAutoLayout('circular')" class="layout-option">
+              <div class="layout-icon">⭕</div>
+              <div>
+                <div class="layout-name">Circular</div>
+                <div class="layout-desc">Arrange in circle</div>
+              </div>
+            </button>
+            
+            <button (click)="applyAutoLayout('force')" class="layout-option">
+              <div class="layout-icon">🌌</div>
+              <div>
+                <div class="layout-name">Force-Directed</div>
+                <div class="layout-desc">Physics-based spacing</div>
+              </div>
+            </button>
+            
+            <button (click)="applyAutoLayout('horizontal')" class="layout-option">
+              <div class="layout-icon">↔️</div>
+              <div>
+                <div class="layout-name">Horizontal Flow</div>
+                <div class="layout-desc">Left to right arrangement</div>
+              </div>
+            </button>
+            
+            <button (click)="applyAutoLayout('vertical')" class="layout-option">
+              <div class="layout-icon">↕️</div>
+              <div>
+                <div class="layout-name">Vertical Flow</div>
+                <div class="layout-desc">Top to bottom arrangement</div>
+              </div>
+            </button>
+            
+            <div style="border-top: 1px solid var(--border-color); margin: 8px 0; padding-top: 8px;">
+              <div style="padding: 4px 12px; font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Alignment Tools</div>
+              
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;">
+                <button (click)="alignLeft()" class="align-btn" data-tooltip="Align Left">⬅️</button>
+                <button (click)="alignCenterHorizontal()" class="align-btn" data-tooltip="Center Horizontal">↔️</button>
+                <button (click)="alignRight()" class="align-btn" data-tooltip="Align Right">➡️</button>
+                <button (click)="alignTop()" class="align-btn" data-tooltip="Align Top">⬆️</button>
+                <button (click)="alignCenterVertical()" class="align-btn" data-tooltip="Center Vertical">↕️</button>
+                <button (click)="alignBottom()" class="align-btn" data-tooltip="Align Bottom">⬇️</button>
+                <button (click)="distributeHorizontally()" class="align-btn" style="grid-column: span 3;" data-tooltip="Distribute Horizontally">⟷</button>
+                <button (click)="distributeVertically()" class="align-btn" style="grid-column: span 3;" data-tooltip="Distribute Vertically">⇅</button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      
       <button class="h-tool-btn" [class.active]="showTemplatesPanel()" (click)="toggleTemplatesPanel()" data-tooltip="Templates Gallery (📋) - Load pre-built architecture diagrams">📋</button>
       <button class="h-tool-btn" (click)="saveAsTemplate()" data-tooltip="Save as Template (💾) - Export current canvas as reusable template">💾</button>
       <button class="h-tool-btn" (click)="toggleShortcutsPanel()" data-tooltip="Keyboard Shortcuts (⌨️) - View all keyboard shortcuts (Press ?)">⌨️</button>
