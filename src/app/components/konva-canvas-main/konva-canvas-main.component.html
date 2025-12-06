@@ -1083,24 +1083,6 @@
       style="display: none;"
     />
     
-    <!-- Shape Picker Popup (Inline, not modal) -->
-    <div class="shape-picker-backdrop" *ngIf="showShapePicker()" (click)="toggleShapePicker()"></div>
-    <div class="shape-picker-popup" *ngIf="showShapePicker()" 
-         [style.top]="shapePickerPosition.top" 
-         [style.right]="shapePickerPosition.right">
-      <div class="shape-picker-grid-compact">
-        <button
-          *ngFor="let shape of shapeTemplates"
-          class="shape-btn-compact"
-          [class.active]="selectedShape() === shape.id"
-          (click)="selectShapeTemplate(shape.id)"
-          [title]="shape.name"
-        >
-          <span class="shape-icon-compact">{{ shape.icon }}</span>
-        </button>
-      </div>
-    </div>
-    
 
 <!-- Custom Component Creator Modal -->
 <div *ngIf="showCustomComponentModal()" class="modal-overlay" (click)="closeCustomComponentModal()">
