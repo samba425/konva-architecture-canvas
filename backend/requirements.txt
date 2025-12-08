@@ -1,0 +1,28 @@
+# FastAPI and ASGI server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database
+motor
+pymongo
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+
+# Validation and Settings
+pydantic
+pydantic-settings
+email-validator
+
+# Utilities
+python-dotenv
+
+# LLM Integration
+litellm
+openai
+httpx
+aiohttp
+tiktoken

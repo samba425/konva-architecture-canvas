@@ -164,32 +164,83 @@ The `/samples` folder includes:
 
 ## 🔧 Development
 
+### Project Structure
+
+```
+Architecture-Builder/
+├── frontend/                    # Angular UI
+│   ├── src/
+│   ├── angular.json
+│   ├── package.json
+│   └── Dockerfile
+├── backend/                     # FastAPI Backend
+│   ├── app/
+│   │   ├── models/              # MongoDB models
+│   │   ├── schemas/             # API schemas
+│   │   ├── routers/             # API endpoints
+│   │   ├── services/            # Business logic
+│   │   └── utils/               # JWT, security
+│   ├── requirements.txt
+│   └── Dockerfile
+├── samples/                     # Sample diagrams
+├── docker-compose.yml           # Full stack deployment
+└── README.md
+```
+
 ### Prerequisites
 
 - Node.js >= 18.x
 - npm >= 10.x
 - Angular CLI 21.x
+- Python >= 3.12 (for backend)
+- MongoDB >= 7.0
+- Docker & Docker Compose (recommended)
 
-### Setup
+### Quick Start with Docker
 
 ```bash
 # Clone repository
 git clone https://github.com/samba425/konva-architecture-canvas.git
 cd konva-architecture-canvas
 
-# Install dependencies
-npm install
+# Start all services (MongoDB, Backend, Frontend)
+docker-compose up -d
 
-# Start development server
+# Seed the database with initial data
+docker-compose exec backend python seed_database.py
+```
+
+Services will be available at:
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+
+### Manual Setup (Frontend)
+
+```bash
+cd frontend
+npm install
 npm start
 ```
 
-Application runs at: **http://localhost:4200**
+### Manual Setup (Backend)
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Start MongoDB first, then:
+python seed_database.py  # Seed initial data
+uvicorn app.main:app --reload --port 8000
+```
 
 ### Build
 
 ```bash
-# Build for production
+# Build frontend for production
+cd frontend
 npm run build
 
 # Build library
@@ -199,6 +250,17 @@ npm run build:lib
 cd dist/konva-canvas-builder
 npm publish
 ```
+
+### API Endpoints
+
+The backend provides the following APIs:
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/v1/auth/*` | Authentication (register, login, password reset) |
+| `/api/v1/categories/*` | Component categories CRUD |
+| `/api/v1/components/*` | Components CRUD |
+| `/api/v1/diagrams/*` | User diagrams CRUD (protected) |
 
 ---
 
