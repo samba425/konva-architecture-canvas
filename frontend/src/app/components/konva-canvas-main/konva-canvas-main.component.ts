@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import Konva from 'konva';
 import { COMPONENTS, COMPONENT_CATEGORIES, ComponentDefinition } from '../../data/components-config';
 // @ts-ignore
-import GIF from 'gif.js';
+// import GIF from 'gif.js'; // COMMENTED: GIF feature not yet ready
 
 export interface ComponentCategory {
   id: string;
@@ -110,16 +110,21 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   showExportDialog = signal(false);
   exportBackgroundColor = signal<string>('transparent'); // transparent, white, black, custom
   exportCustomColor = signal<string>('#ffffff');
+  exportPadding = signal<number>(200); // Padding around content
+  exportScale = signal<number>(3); // Export quality (1-5x)
+  exportPreviewUrl = signal<string>(''); // Preview image data URL
+  exportCropMode = signal<boolean>(false); // Enable crop mode
+  private exportBoundingBox: any = null; // Store bounding box for export
   
-  // GIF Recording state
-  private gifRecorder: any = null; // GIF.js instance
-  isRecordingGif = signal(false); // Make public for template access
-  private gifFrames: ImageData[] = [];
-  private gifRecordingInterval: any = null;
-  private gifStartTime = 0;
-  private lastFrameHash: string = ''; // To detect actual changes
-  gifFrameRate = signal<number>(5); // Adjustable frame rate (1-30 FPS)
-  gifRecordMode = signal<'auto' | 'manual' | 'sequence'>('auto'); // auto = on change, manual = timed, sequence = step-by-step
+  // GIF Recording state - COMMENTED: Feature not yet ready
+  // private gifRecorder: any = null; // GIF.js instance
+  // isRecordingGif = signal(false); // Make public for template access
+  // private gifFrames: ImageData[] = [];
+  // private gifRecordingInterval: any = null;
+  // private gifStartTime = 0;
+  // private lastFrameHash: string = ''; // To detect actual changes
+  // gifFrameRate = signal<number>(5); // Adjustable frame rate (1-30 FPS)
+  // gifRecordMode = signal<'auto' | 'manual' | 'sequence'>('auto'); // auto = on change, manual = timed, sequence = step-by-step
   
   // Sequence Animation state
   showAnimationPanel = signal(false);
@@ -3600,8 +3605,103 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   exportToPNG(): void {
-    // Show export dialog instead of directly exporting
+    // Show export dialog and generate preview
     this.showExportDialog.set(true);
+    this.generatePreview();
+  }
+  
+  closeExportDialog(): void {
+    // Close dialog and clean up
+    this.showExportDialog.set(false);
+    this.exportPreviewUrl.set('');
+    this.exportCropMode.set(false);
+    this.exportBoundingBox = null;
+    this.removeCropBox(); // Remove crop box from canvas
+  }
+  
+  generatePreview(): void {
+    // Hide transformer during preview generation
+    const transformerVisible = this.transformer?.visible();
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Clone the layer for preview
+    const tempStage = new Konva.Stage({
+      container: document.createElement('div'),
+      width: 10000,
+      height: 10000
+    });
+    
+    const tempLayer = this.layer.clone();
+    tempStage.add(tempLayer);
+    
+    // Get bounding box
+    const box = tempLayer.getClientRect();
+    const padding = this.exportPadding();
+    const scale = this.exportScale();
+    
+    // Apply crop if enabled
+    let finalX = box.x - padding;
+    let finalY = box.y - padding;
+    let finalWidth = box.width + (padding * 2);
+    let finalHeight = box.height + (padding * 2);
+    
+    if (this.exportCropMode() && this.exportBoundingBox) {
+      finalX = this.exportBoundingBox.x;
+      finalY = this.exportBoundingBox.y;
+      finalWidth = this.exportBoundingBox.width;
+      finalHeight = this.exportBoundingBox.height;
+    }
+    
+    // Add background
+    const bgColor = this.exportBackgroundColor();
+    const customColor = this.exportCustomColor();
+    let backgroundColor: string | null = null;
+    
+    if (bgColor === 'white') {
+      backgroundColor = '#ffffff';
+    } else if (bgColor === 'black') {
+      backgroundColor = '#000000';
+    } else if (bgColor === 'custom') {
+      backgroundColor = customColor;
+    }
+    
+    if (backgroundColor) {
+      const background = new Konva.Rect({
+        x: finalX,
+        y: finalY,
+        width: finalWidth,
+        height: finalHeight,
+        fill: backgroundColor,
+        listening: false
+      });
+      
+      tempLayer.add(background);
+      background.moveToBottom();
+    }
+    
+    tempLayer.batchDraw();
+    
+    // Generate preview
+    const dataURL = tempLayer.toDataURL({
+      pixelRatio: scale,
+      mimeType: 'image/png',
+      x: finalX,
+      y: finalY,
+      width: finalWidth,
+      height: finalHeight
+    });
+    
+    this.exportPreviewUrl.set(dataURL);
+    
+    // Restore transformer
+    if (this.transformer && transformerVisible) {
+      this.transformer.visible(true);
+    }
+    
+    tempStage.destroy();
   }
   
   confirmExportPNG(): void {
@@ -3621,6 +3721,125 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     this.performExport(backgroundColor);
     this.showExportDialog.set(false);
+    
+    // Reset preview and remove crop box
+    this.exportPreviewUrl.set('');
+    this.exportCropMode.set(false);
+    this.exportBoundingBox = null;
+    this.removeCropBox(); // Clean up crop box from canvas
+  }
+  
+  updateExportSettings(): void {
+    // Regenerate preview when settings change
+    this.generatePreview();
+  }
+  
+  toggleCropMode(): void {
+    const wasCropEnabled = this.exportCropMode();
+    this.exportCropMode.set(!wasCropEnabled);
+    
+    if (!this.exportCropMode()) {
+      // Disable crop mode - remove crop box
+      this.exportBoundingBox = null;
+      this.removeCropBox();
+    } else {
+      // Enable crop mode - show interactive crop box
+      const box = this.layer.getClientRect();
+      const padding = this.exportPadding();
+      this.exportBoundingBox = {
+        x: box.x - padding,
+        y: box.y - padding,
+        width: box.width + (padding * 2),
+        height: box.height + (padding * 2)
+      };
+      this.showCropBox();
+    }
+    this.generatePreview();
+  }
+  
+  // Show interactive crop box on canvas
+  private showCropBox(): void {
+    if (!this.exportBoundingBox) return;
+    
+    // Remove existing crop box if any
+    this.removeCropBox();
+    
+    // Create crop rectangle
+    const cropRect = new Konva.Rect({
+      name: 'crop-box',
+      x: this.exportBoundingBox.x,
+      y: this.exportBoundingBox.y,
+      width: this.exportBoundingBox.width,
+      height: this.exportBoundingBox.height,
+      stroke: '#3b82f6',
+      strokeWidth: 3,
+      dash: [10, 5],
+      fill: 'rgba(59, 130, 246, 0.1)',
+      draggable: true,
+      listening: true
+    });
+    
+    // Create transformer for crop box
+    const cropTransformer = new Konva.Transformer({
+      name: 'crop-transformer',
+      nodes: [cropRect],
+      borderStroke: '#3b82f6',
+      borderStrokeWidth: 2,
+      anchorFill: '#3b82f6',
+      anchorStroke: '#ffffff',
+      anchorStrokeWidth: 2,
+      anchorSize: 12,
+      anchorCornerRadius: 2,
+      keepRatio: false,
+      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right'],
+      rotateEnabled: false
+    });
+    
+    // Update bounding box on drag
+    cropRect.on('dragmove', () => {
+      this.exportBoundingBox = {
+        x: cropRect.x(),
+        y: cropRect.y(),
+        width: cropRect.width() * cropRect.scaleX(),
+        height: cropRect.height() * cropRect.scaleY()
+      };
+      this.generatePreview();
+    });
+    
+    // Update bounding box on transform
+    cropTransformer.on('transformend', () => {
+      // Reset scale and update dimensions
+      const newWidth = cropRect.width() * cropRect.scaleX();
+      const newHeight = cropRect.height() * cropRect.scaleY();
+      
+      cropRect.width(newWidth);
+      cropRect.height(newHeight);
+      cropRect.scaleX(1);
+      cropRect.scaleY(1);
+      
+      this.exportBoundingBox = {
+        x: cropRect.x(),
+        y: cropRect.y(),
+        width: newWidth,
+        height: newHeight
+      };
+      this.generatePreview();
+    });
+    
+    this.layer.add(cropRect);
+    this.layer.add(cropTransformer);
+    this.layer.batchDraw();
+  }
+  
+  // Remove crop box from canvas
+  private removeCropBox(): void {
+    const cropBox = this.layer.findOne('.crop-box');
+    const cropTransformer = this.layer.findOne('.crop-transformer');
+    
+    if (cropBox) cropBox.destroy();
+    if (cropTransformer) cropTransformer.destroy();
+    
+    this.layer.batchDraw();
   }
   
   private performExport(backgroundColor: string | null): void {
@@ -3644,12 +3863,22 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // Get bounding box of all content
     const box = tempLayer.getClientRect();
     
-    // Add 200px padding
-    const padding = 200;
-    const finalX = box.x - padding;
-    const finalY = box.y - padding;
-    const finalWidth = box.width + (padding * 2);
-    const finalHeight = box.height + (padding * 2);
+    // Use export settings
+    const padding = this.exportPadding();
+    const scale = this.exportScale();
+    
+    // Apply crop if enabled
+    let finalX = box.x - padding;
+    let finalY = box.y - padding;
+    let finalWidth = box.width + (padding * 2);
+    let finalHeight = box.height + (padding * 2);
+    
+    if (this.exportCropMode() && this.exportBoundingBox) {
+      finalX = this.exportBoundingBox.x;
+      finalY = this.exportBoundingBox.y;
+      finalWidth = this.exportBoundingBox.width;
+      finalHeight = this.exportBoundingBox.height;
+    }
     
     // Add background if specified
     if (backgroundColor) {
@@ -3668,9 +3897,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     tempLayer.batchDraw();
     
-    // Export from temporary layer
+    // Export from temporary layer using configured scale
     const dataURL = tempLayer.toDataURL({ 
-      pixelRatio: 3,
+      pixelRatio: scale,
       mimeType: 'image/png',
       x: finalX,
       y: finalY,
@@ -3741,6 +3970,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     URL.revokeObjectURL(url);
   }
   
+  // COMMENTED: GIF Export feature not yet ready - requires gif.js dependency
+  /*
   // Export current canvas view as static GIF (same as PNG but GIF format)
   exportToGIF(): void {
     // Hide transformer during export
@@ -4119,6 +4350,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       alert('Failed to create GIF. Check console for details.');
     }
   }
+  */
+  // END OF COMMENTED GIF FEATURES
   
   exportToJSON(): void {
     // Create simple, readable JSON structure
@@ -6739,6 +6972,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     console.log('🎬 Recording sequence as GIF...');
     
+    // COMMENTED: GIF Recording - feature not yet ready
+    /*
     // Start GIF recording
     this.gifRecordMode.set('sequence');
     this.isRecordingGif.set(true);
@@ -6782,6 +7017,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         this.createAnimatedGIF();
       }
     }, this.sequencePlaySpeed());
+    */
+    alert('GIF recording feature is not yet available. This feature is under development.');
   }
   
   ngOnDestroy(): void {

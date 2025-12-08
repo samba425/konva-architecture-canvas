@@ -1,25 +1,80 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# =============================================================================
+# Frontend (Angular/Node.js)
+# =============================================================================
+
 # Compiled output
 /dist
 /tmp
 /out-tsc
 /bazel-out
+frontend/dist
+frontend/.angular
 
 # Node
-/node_modules
+node_modules/
 npm-debug.log
 yarn-error.log
+package-lock.json.bak
 
-# IDEs and editors
+# =============================================================================
+# Backend (Python/FastAPI)
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# PyCharm
+.idea/
+
+# =============================================================================
+# Environment & Configuration
+# =============================================================================
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# =============================================================================
+# IDEs and Editors
+# =============================================================================
+
 .idea/
 .project
 .classpath
 .c9/
 *.launch
 .settings/
-.DS_Store
-Thumbs.db
 *.sublime-workspace
 
 # Visual Studio Code
@@ -30,7 +85,17 @@ Thumbs.db
 !.vscode/extensions.json
 .history/*
 
+# =============================================================================
+# System Files
+# =============================================================================
+
+.DS_Store
+Thumbs.db
+
+# =============================================================================
 # Miscellaneous
+# =============================================================================
+
 /.angular/cache
 .sass-cache/
 /connect.lock
@@ -40,12 +105,19 @@ testem.log
 /typings
 __screenshots__/
 
-# System files
-.DS_Store
-Thumbs.db
-.vscode/extensions.json
-.vscode/launch.json
-.vscode/tasks.json
-backup/*
-backup1/
+# Backup folders
+backup/
+backup*/
 src1/
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.nyc_output/
+.pytest_cache/
+
+# Docker
+docker-compose.override.yml
