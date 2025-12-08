@@ -3610,6 +3610,15 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.generatePreview();
   }
   
+  closeExportDialog(): void {
+    // Close dialog and clean up
+    this.showExportDialog.set(false);
+    this.exportPreviewUrl.set('');
+    this.exportCropMode.set(false);
+    this.exportBoundingBox = null;
+    this.removeCropBox(); // Remove crop box from canvas
+  }
+  
   generatePreview(): void {
     // Hide transformer during preview generation
     const transformerVisible = this.transformer?.visible();
@@ -3713,10 +3722,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.performExport(backgroundColor);
     this.showExportDialog.set(false);
     
-    // Reset preview
+    // Reset preview and remove crop box
     this.exportPreviewUrl.set('');
     this.exportCropMode.set(false);
     this.exportBoundingBox = null;
+    this.removeCropBox(); // Clean up crop box from canvas
   }
   
   updateExportSettings(): void {
@@ -3725,11 +3735,15 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   toggleCropMode(): void {
-    this.exportCropMode.set(!this.exportCropMode());
+    const wasCropEnabled = this.exportCropMode();
+    this.exportCropMode.set(!wasCropEnabled);
+    
     if (!this.exportCropMode()) {
+      // Disable crop mode - remove crop box
       this.exportBoundingBox = null;
+      this.removeCropBox();
     } else {
-      // Initialize crop box to current content bounds
+      // Enable crop mode - show interactive crop box
       const box = this.layer.getClientRect();
       const padding = this.exportPadding();
       this.exportBoundingBox = {
@@ -3738,8 +3752,94 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         width: box.width + (padding * 2),
         height: box.height + (padding * 2)
       };
+      this.showCropBox();
     }
     this.generatePreview();
+  }
+  
+  // Show interactive crop box on canvas
+  private showCropBox(): void {
+    if (!this.exportBoundingBox) return;
+    
+    // Remove existing crop box if any
+    this.removeCropBox();
+    
+    // Create crop rectangle
+    const cropRect = new Konva.Rect({
+      name: 'crop-box',
+      x: this.exportBoundingBox.x,
+      y: this.exportBoundingBox.y,
+      width: this.exportBoundingBox.width,
+      height: this.exportBoundingBox.height,
+      stroke: '#3b82f6',
+      strokeWidth: 3,
+      dash: [10, 5],
+      fill: 'rgba(59, 130, 246, 0.1)',
+      draggable: true,
+      listening: true
+    });
+    
+    // Create transformer for crop box
+    const cropTransformer = new Konva.Transformer({
+      name: 'crop-transformer',
+      nodes: [cropRect],
+      borderStroke: '#3b82f6',
+      borderStrokeWidth: 2,
+      anchorFill: '#3b82f6',
+      anchorStroke: '#ffffff',
+      anchorStrokeWidth: 2,
+      anchorSize: 12,
+      anchorCornerRadius: 2,
+      keepRatio: false,
+      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right'],
+      rotateEnabled: false
+    });
+    
+    // Update bounding box on drag
+    cropRect.on('dragmove', () => {
+      this.exportBoundingBox = {
+        x: cropRect.x(),
+        y: cropRect.y(),
+        width: cropRect.width() * cropRect.scaleX(),
+        height: cropRect.height() * cropRect.scaleY()
+      };
+      this.generatePreview();
+    });
+    
+    // Update bounding box on transform
+    cropTransformer.on('transformend', () => {
+      // Reset scale and update dimensions
+      const newWidth = cropRect.width() * cropRect.scaleX();
+      const newHeight = cropRect.height() * cropRect.scaleY();
+      
+      cropRect.width(newWidth);
+      cropRect.height(newHeight);
+      cropRect.scaleX(1);
+      cropRect.scaleY(1);
+      
+      this.exportBoundingBox = {
+        x: cropRect.x(),
+        y: cropRect.y(),
+        width: newWidth,
+        height: newHeight
+      };
+      this.generatePreview();
+    });
+    
+    this.layer.add(cropRect);
+    this.layer.add(cropTransformer);
+    this.layer.batchDraw();
+  }
+  
+  // Remove crop box from canvas
+  private removeCropBox(): void {
+    const cropBox = this.layer.findOne('.crop-box');
+    const cropTransformer = this.layer.findOne('.crop-transformer');
+    
+    if (cropBox) cropBox.destroy();
+    if (cropTransformer) cropTransformer.destroy();
+    
+    this.layer.batchDraw();
   }
   
   private performExport(backgroundColor: string | null): void {

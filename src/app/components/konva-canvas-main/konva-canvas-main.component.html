@@ -523,10 +523,12 @@
       }
       -->
       
-      <!-- Animation Sequence -->
+      <!-- Animation Sequence - COMMENTED: Uses GIF recording feature -->
+      <!--
       <button class="h-tool-btn" (click)="toggleAnimationPanel()" data-tooltip="Animation Sequence - Create step-by-step animations" [style.background]="showAnimationPanel() ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'" style="color: white;">
         🎭
       </button>
+      -->
       
       <div class="h-divider"></div>
       
@@ -1028,11 +1030,11 @@
 
 <!-- Export PNG Dialog -->
 @if (showExportDialog()) {
-  <div class="modal-overlay" (click)="showExportDialog.set(false)">
+  <div class="modal-overlay" (click)="closeExportDialog()">
     <div class="export-dialog export-dialog-enhanced" (click)="$event.stopPropagation()">
       <div class="dialog-header">
         <h3>📥 Export as PNG</h3>
-        <button class="close-btn" (click)="showExportDialog.set(false)">✕</button>
+        <button class="close-btn" (click)="closeExportDialog()">✕</button>
       </div>
       
       <div class="dialog-body">
@@ -1156,14 +1158,14 @@
               <span>{{ exportCropMode() ? 'Disable Crop' : 'Enable Crop' }}</span>
             </button>
             @if (exportCropMode()) {
-              <p class="crop-hint">💡 Crop is set to content bounds with current padding</p>
+              <p class="crop-hint">💡 Drag and resize the blue box on canvas to adjust crop area</p>
             }
           </div>
         </div>
       </div>
       
       <div class="dialog-footer">
-        <button class="btn-secondary" (click)="showExportDialog.set(false)">
+        <button class="btn-secondary" (click)="closeExportDialog()">
           Cancel
         </button>
         <button class="btn-primary" (click)="confirmExportPNG()">
