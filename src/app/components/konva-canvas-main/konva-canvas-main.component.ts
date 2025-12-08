@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import Konva from 'konva';
 import { COMPONENTS, COMPONENT_CATEGORIES, ComponentDefinition } from '../../data/components-config';
 // @ts-ignore
-import GIF from 'gif.js';
+// import GIF from 'gif.js'; // COMMENTED: GIF feature not yet ready
 
 export interface ComponentCategory {
   id: string;
@@ -116,15 +116,15 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   exportCropMode = signal<boolean>(false); // Enable crop mode
   private exportBoundingBox: any = null; // Store bounding box for export
   
-  // GIF Recording state
-  private gifRecorder: any = null; // GIF.js instance
-  isRecordingGif = signal(false); // Make public for template access
-  private gifFrames: ImageData[] = [];
-  private gifRecordingInterval: any = null;
-  private gifStartTime = 0;
-  private lastFrameHash: string = ''; // To detect actual changes
-  gifFrameRate = signal<number>(5); // Adjustable frame rate (1-30 FPS)
-  gifRecordMode = signal<'auto' | 'manual' | 'sequence'>('auto'); // auto = on change, manual = timed, sequence = step-by-step
+  // GIF Recording state - COMMENTED: Feature not yet ready
+  // private gifRecorder: any = null; // GIF.js instance
+  // isRecordingGif = signal(false); // Make public for template access
+  // private gifFrames: ImageData[] = [];
+  // private gifRecordingInterval: any = null;
+  // private gifStartTime = 0;
+  // private lastFrameHash: string = ''; // To detect actual changes
+  // gifFrameRate = signal<number>(5); // Adjustable frame rate (1-30 FPS)
+  // gifRecordMode = signal<'auto' | 'manual' | 'sequence'>('auto'); // auto = on change, manual = timed, sequence = step-by-step
   
   // Sequence Animation state
   showAnimationPanel = signal(false);
@@ -3870,6 +3870,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     URL.revokeObjectURL(url);
   }
   
+  // COMMENTED: GIF Export feature not yet ready - requires gif.js dependency
+  /*
   // Export current canvas view as static GIF (same as PNG but GIF format)
   exportToGIF(): void {
     // Hide transformer during export
@@ -4248,6 +4250,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       alert('Failed to create GIF. Check console for details.');
     }
   }
+  */
+  // END OF COMMENTED GIF FEATURES
   
   exportToJSON(): void {
     // Create simple, readable JSON structure
@@ -6868,6 +6872,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     console.log('🎬 Recording sequence as GIF...');
     
+    // COMMENTED: GIF Recording - feature not yet ready
+    /*
     // Start GIF recording
     this.gifRecordMode.set('sequence');
     this.isRecordingGif.set(true);
@@ -6911,6 +6917,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         this.createAnimatedGIF();
       }
     }, this.sequencePlaySpeed());
+    */
+    alert('GIF recording feature is not yet available. This feature is under development.');
   }
   
   ngOnDestroy(): void {
