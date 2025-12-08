@@ -923,65 +923,137 @@
 <- Fix tool click highlighting on colorful gradient Export PNG Dialog -->
 @if (showExportDialog()) {
   <div class="modal-overlay" (click)="showExportDialog.set(false)">
-    <div class="export-dialog" (click)="$event.stopPropagation()">
+    <div class="export-dialog export-dialog-enhanced" (click)="$event.stopPropagation()">
       <div class="dialog-header">
         <h3>📥 Export as PNG</h3>
         <button class="close-btn" (click)="showExportDialog.set(false)">✕</button>
       </div>
       
       <div class="dialog-body">
-        <label class="dialog-label">Background Color:</label>
-        
-        <div class="bg-options">
-          <button 
-            class="bg-option" 
-            [class.selected]="exportBackgroundColor() === 'transparent'"
-            (click)="exportBackgroundColor.set('transparent')"
-          >
-            <div class="bg-preview transparent-bg"></div>
-            <span>Transparent</span>
-          </button>
-          
-          <button 
-            class="bg-option" 
-            [class.selected]="exportBackgroundColor() === 'white'"
-            (click)="exportBackgroundColor.set('white')"
-          >
-            <div class="bg-preview" style="background: white;"></div>
-            <span>White</span>
-          </button>
-          
-          <button 
-            class="bg-option" 
-            [class.selected]="exportBackgroundColor() === 'black'"
-            (click)="exportBackgroundColor.set('black')"
-          >
-            <div class="bg-preview" style="background: black;"></div>
-            <span>Black</span>
-          </button>
-          
-          <button 
-            class="bg-option" 
-            [class.selected]="exportBackgroundColor() === 'custom'"
-            (click)="exportBackgroundColor.set('custom')"
-          >
-            <div class="bg-preview" [style.background]="exportCustomColor()"></div>
-            <span>Custom</span>
-          </button>
-        </div>
-        
-        @if (exportBackgroundColor() === 'custom') {
-          <div class="custom-color-picker">
-            <label>Custom Color:</label>
-            <input 
-              type="color" 
-              [value]="exportCustomColor()" 
-              (input)="exportCustomColor.set($any($event.target).value)"
-              class="color-input"
-            />
-            <span class="color-value">{{ exportCustomColor() }}</span>
+        <!-- Preview Section -->
+        @if (exportPreviewUrl()) {
+          <div class="export-preview-section">
+            <label class="dialog-label">Preview:</label>
+            <div class="preview-container">
+              <img [src]="exportPreviewUrl()" alt="Export Preview" class="export-preview-img" />
+              @if (exportCropMode()) {
+                <div class="crop-indicator">✂️ Crop Mode Active</div>
+              }
+            </div>
           </div>
         }
+        
+        <!-- Export Settings -->
+        <div class="export-settings">
+          <!-- Background Color -->
+          <label class="dialog-label">Background Color:</label>
+          
+          <div class="bg-options">
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'transparent'"
+              (click)="exportBackgroundColor.set('transparent'); updateExportSettings()"
+            >
+              <div class="bg-preview transparent-bg"></div>
+              <span>Transparent</span>
+            </button>
+            
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'white'"
+              (click)="exportBackgroundColor.set('white'); updateExportSettings()"
+            >
+              <div class="bg-preview" style="background: white;"></div>
+              <span>White</span>
+            </button>
+            
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'black'"
+              (click)="exportBackgroundColor.set('black'); updateExportSettings()"
+            >
+              <div class="bg-preview" style="background: black;"></div>
+              <span>Black</span>
+            </button>
+            
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'custom'"
+              (click)="exportBackgroundColor.set('custom'); updateExportSettings()"
+            >
+              <div class="bg-preview" [style.background]="exportCustomColor()"></div>
+              <span>Custom</span>
+            </button>
+          </div>
+          
+          @if (exportBackgroundColor() === 'custom') {
+            <div class="custom-color-picker">
+              <label>Custom Color:</label>
+              <input 
+                type="color" 
+                [value]="exportCustomColor()" 
+                (input)="exportCustomColor.set($any($event.target).value); updateExportSettings()"
+                class="color-input"
+              />
+              <span class="color-value">{{ exportCustomColor() }}</span>
+            </div>
+          }
+          
+          <!-- Size/Scale Control -->
+          <div class="export-control">
+            <label class="dialog-label">
+              Quality (Scale): <strong>{{ exportScale() }}x</strong>
+            </label>
+            <input 
+              type="range" 
+              min="1" 
+              max="5" 
+              step="0.5"
+              [value]="exportScale()" 
+              (input)="exportScale.set(+$any($event.target).value); updateExportSettings()"
+              class="slider"
+            />
+            <div class="slider-labels">
+              <span>1x (Low)</span>
+              <span>5x (High)</span>
+            </div>
+          </div>
+          
+          <!-- Padding Control -->
+          <div class="export-control">
+            <label class="dialog-label">
+              Padding: <strong>{{ exportPadding() }}px</strong>
+            </label>
+            <input 
+              type="range" 
+              min="0" 
+              max="500" 
+              step="50"
+              [value]="exportPadding()" 
+              (input)="exportPadding.set(+$any($event.target).value); updateExportSettings()"
+              class="slider"
+            />
+            <div class="slider-labels">
+              <span>0px</span>
+              <span>500px</span>
+            </div>
+          </div>
+          
+          <!-- Crop Toggle -->
+          <div class="export-control">
+            <button 
+              class="btn-crop-toggle" 
+              [class.active]="exportCropMode()"
+              (click)="toggleCropMode()"
+            >
+              <span class="icon">{{ exportCropMode() ? '✂️' : '🖼️' }}</span>
+              <span>{{ exportCropMode() ? 'Disable Crop' : 'Enable Crop' }}</span>
+            </button>
+            @if (exportCropMode()) {
+              <p class="crop-hint">💡 Crop is set to content bounds with current padding</p>
+            }
+          </div>
+        </div>
       </div>
       
       <div class="dialog-footer">
