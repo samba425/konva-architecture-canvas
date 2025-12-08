@@ -3,6 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Konva from 'konva';
 import { COMPONENTS, COMPONENT_CATEGORIES, ComponentDefinition } from '../../data/components-config';
+// @ts-ignore
+import GIF from 'gif.js';
 
 export interface ComponentCategory {
   id: string;
@@ -103,6 +105,28 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // Auto-save flag
   private isRestoring = false;
+  
+  // Export PNG options
+  showExportDialog = signal(false);
+  exportBackgroundColor = signal<string>('transparent'); // transparent, white, black, custom
+  exportCustomColor = signal<string>('#ffffff');
+  
+  // GIF Recording state
+  private gifRecorder: any = null; // GIF.js instance
+  isRecordingGif = signal(false); // Make public for template access
+  private gifFrames: ImageData[] = [];
+  private gifRecordingInterval: any = null;
+  private gifStartTime = 0;
+  private lastFrameHash: string = ''; // To detect actual changes
+  gifFrameRate = signal<number>(5); // Adjustable frame rate (1-30 FPS)
+  gifRecordMode = signal<'auto' | 'manual' | 'sequence'>('auto'); // auto = on change, manual = timed, sequence = step-by-step
+  
+  // Sequence Animation state
+  showAnimationPanel = signal(false);
+  animationSequence: Array<{ id: string; name: string; visible: boolean; order: number }> = [];
+  currentAnimationStep = signal(0);
+  isPlayingSequence = signal(false);
+  sequencePlaySpeed = signal(1000); // ms between steps
   
   // Signals for UI state
   sidebarOpen = signal(true);
@@ -351,9 +375,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           category: comp.category,
           description: comp.description,
           color: comp.color,
-          provider: comp.provider,
-          definition: comp.definition,
-          learnMoreLink: comp.learnMoreLink
+          provider: comp.provider
         });
       }
     });
@@ -3578,6 +3600,30 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   exportToPNG(): void {
+    // Show export dialog instead of directly exporting
+    this.showExportDialog.set(true);
+  }
+  
+  confirmExportPNG(): void {
+    const bgColor = this.exportBackgroundColor();
+    const customColor = this.exportCustomColor();
+    
+    // Determine background color
+    let backgroundColor: string | null = null;
+    if (bgColor === 'white') {
+      backgroundColor = '#ffffff';
+    } else if (bgColor === 'black') {
+      backgroundColor = '#000000';
+    } else if (bgColor === 'custom') {
+      backgroundColor = customColor;
+    }
+    // transparent = null (no background)
+    
+    this.performExport(backgroundColor);
+    this.showExportDialog.set(false);
+  }
+  
+  private performExport(backgroundColor: string | null): void {
     // Hide transformer during export to avoid selection boxes
     const transformerVisible = this.transformer?.visible();
     if (this.transformer) {
@@ -3605,18 +3651,21 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const finalWidth = box.width + (padding * 2);
     const finalHeight = box.height + (padding * 2);
     
-    // Add white background
-    const background = new Konva.Rect({
-      x: finalX,
-      y: finalY,
-      width: finalWidth,
-      height: finalHeight,
-      fill: '#ffffff',
-      listening: false
-    });
+    // Add background if specified
+    if (backgroundColor) {
+      const background = new Konva.Rect({
+        x: finalX,
+        y: finalY,
+        width: finalWidth,
+        height: finalHeight,
+        fill: backgroundColor,
+        listening: false
+      });
+      
+      tempLayer.add(background);
+      background.moveToBottom();
+    }
     
-    tempLayer.add(background);
-    background.moveToBottom();
     tempLayer.batchDraw();
     
     // Export from temporary layer
@@ -3690,6 +3739,385 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+  
+  // Export current canvas view as static GIF (same as PNG but GIF format)
+  exportToGIF(): void {
+    // Hide transformer during export
+    const transformerVisible = this.transformer?.visible();
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Clone the layer for export
+    const tempStage = new Konva.Stage({
+      container: document.createElement('div'),
+      width: 10000,
+      height: 10000
+    });
+    
+    const tempLayer = this.layer.clone();
+    tempStage.add(tempLayer);
+    
+    // Get bounding box of all content
+    const box = tempLayer.getClientRect();
+    
+    // Add 200px padding
+    const padding = 200;
+    const finalX = box.x - padding;
+    const finalY = box.y - padding;
+    const finalWidth = box.width + (padding * 2);
+    const finalHeight = box.height + (padding * 2);
+    
+    // Add white background
+    const background = new Konva.Rect({
+      x: finalX,
+      y: finalY,
+      width: finalWidth,
+      height: finalHeight,
+      fill: '#ffffff',
+      listening: false
+    });
+    
+    tempLayer.add(background);
+    background.moveToBottom();
+    tempLayer.batchDraw();
+    
+    // Get canvas from temporary stage
+    const canvas = tempLayer.getCanvas()._canvas;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      tempStage.destroy();
+      if (this.transformer && transformerVisible) {
+        this.transformer.visible(true);
+      }
+      return;
+    }
+    
+    // Create a properly sized canvas for export
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = finalWidth;
+    exportCanvas.height = finalHeight;
+    const exportCtx = exportCanvas.getContext('2d');
+    
+    if (!exportCtx) {
+      console.error('Failed to get export canvas context');
+      tempStage.destroy();
+      if (this.transformer && transformerVisible) {
+        this.transformer.visible(true);
+      }
+      return;
+    }
+    
+    // Draw the content to export canvas
+    exportCtx.drawImage(canvas, finalX, finalY, finalWidth, finalHeight, 0, 0, finalWidth, finalHeight);
+    
+    // Clean up temporary stage
+    tempStage.destroy();
+    
+    // Restore transformer visibility
+    if (this.transformer && transformerVisible) {
+      this.transformer.visible(true);
+    }
+    
+    this.layer.batchDraw();
+    
+    // Create GIF from single frame
+    console.log('🎨 Creating static GIF...');
+    
+    const gif = new GIF({
+      workers: 2,
+      quality: 10,
+      workerScript: '/gif.worker.js',
+      width: finalWidth,
+      height: finalHeight
+    });
+    
+    // Add single frame
+    gif.addFrame(exportCanvas, { delay: 100 });
+    
+    gif.on('finished', (blob: Blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `architecture-${Date.now()}.gif`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      console.log('✅ Static GIF exported successfully!');
+    });
+    
+    gif.render();
+  }
+  
+  // Start recording animated GIF
+  startRecordingGIF(mode: 'auto' | 'manual' = 'auto'): void {
+    if (this.isRecordingGif()) {
+      console.warn('Already recording GIF');
+      return;
+    }
+    
+    this.gifRecordMode.set(mode);
+    console.log(`🎬 Starting GIF recording in ${mode} mode...`);
+    this.isRecordingGif.set(true);
+    this.gifFrames = [];
+    this.gifStartTime = Date.now();
+    this.lastFrameHash = '';
+    
+    // Hide transformer during recording
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Capture initial frame
+    this.captureGIFFrame();
+    
+    if (mode === 'manual') {
+      // Manual mode: Capture at fixed frame rate (adjustable)
+      const interval = 1000 / this.gifFrameRate();
+      this.gifRecordingInterval = setInterval(() => {
+        this.captureGIFFrame();
+      }, interval);
+      console.log(`🔴 Recording at ${this.gifFrameRate()} FPS... Click "Stop Recording" to finish`);
+    } else {
+      // Auto mode: Capture only when canvas changes (event-driven)
+      console.log('🔴 Recording on change... Click "Stop Recording" to finish');
+      this.setupChangeDetection();
+    }
+  }
+  
+  // Setup event listeners to detect canvas changes
+  private setupChangeDetection(): void {
+    if (!this.stage) return;
+    
+    // Capture frame on any shape transformation
+    const captureOnChange = () => {
+      if (this.isRecordingGif()) {
+        this.captureGIFFrameIfChanged();
+      }
+    };
+    
+    // Listen to stage events
+    this.stage.on('dragmove.gifrecord', captureOnChange);
+    this.stage.on('transform.gifrecord', captureOnChange);
+    this.stage.on('dragend.gifrecord', captureOnChange);
+    this.stage.on('transformend.gifrecord', captureOnChange);
+    
+    // Also capture periodically to catch any missed changes (every 500ms)
+    this.gifRecordingInterval = setInterval(() => {
+      if (this.isRecordingGif()) {
+        this.captureGIFFrameIfChanged();
+      }
+    }, 500);
+  }
+  
+  // Remove change detection listeners
+  private removeChangeDetection(): void {
+    if (!this.stage) return;
+    
+    this.stage.off('dragmove.gifrecord');
+    this.stage.off('transform.gifrecord');
+    this.stage.off('dragend.gifrecord');
+    this.stage.off('transformend.gifrecord');
+  }
+  
+  // Capture a single frame for GIF
+  private captureGIFFrame(): void {
+    if (!this.layer) return;
+    
+    // Get the canvas content
+    const canvas = this.layer.getCanvas()._canvas;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) return;
+    
+    // Get bounding box of all content
+    const box = this.layer.getClientRect();
+    const padding = 50;
+    
+    const captureX = Math.max(0, box.x - padding);
+    const captureY = Math.max(0, box.y - padding);
+    const captureWidth = Math.min(canvas.width - captureX, box.width + (padding * 2));
+    const captureHeight = Math.min(canvas.height - captureY, box.height + (padding * 2));
+    
+    // Create a canvas for this frame
+    const frameCanvas = document.createElement('canvas');
+    frameCanvas.width = Math.floor(captureWidth);
+    frameCanvas.height = Math.floor(captureHeight);
+    const frameCtx = frameCanvas.getContext('2d');
+    
+    if (!frameCtx) return;
+    
+    // Draw white background
+    frameCtx.fillStyle = '#ffffff';
+    frameCtx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+    
+    // Draw the captured content
+    frameCtx.drawImage(
+      canvas,
+      Math.floor(captureX),
+      Math.floor(captureY),
+      Math.floor(captureWidth),
+      Math.floor(captureHeight),
+      0,
+      0,
+      Math.floor(captureWidth),
+      Math.floor(captureHeight)
+    );
+    
+    // Get image data and store
+    const imageData = frameCtx.getImageData(0, 0, frameCanvas.width, frameCanvas.height);
+    this.gifFrames.push(imageData);
+    
+    console.log(`📸 Captured frame ${this.gifFrames.length}`);
+  }
+  
+  // Capture frame only if canvas has changed (smart recording)
+  private captureGIFFrameIfChanged(): void {
+    if (!this.layer) return;
+    
+    // Get quick hash of current canvas state
+    const currentHash = this.getCanvasHash();
+    
+    // Only capture if different from last frame
+    if (currentHash !== this.lastFrameHash) {
+      this.captureGIFFrame();
+      this.lastFrameHash = currentHash;
+    }
+  }
+  
+  // Generate a simple hash of canvas state for change detection
+  private getCanvasHash(): string {
+    if (!this.layer) return '';
+    
+    // Create hash from positions and properties of all shapes
+    const shapes = this.layer.children.filter((child: any) => 
+      child.getClassName() !== 'Transformer'
+    );
+    
+    return shapes.map((shape: any) => {
+      return `${shape.id()}_${Math.round(shape.x())}_${Math.round(shape.y())}_${shape.rotation()}`;
+    }).join('|');
+  }
+  
+  // Stop recording and create GIF
+  stopRecordingGIF(): void {
+    if (!this.isRecordingGif()) {
+      console.warn('Not currently recording');
+      return;
+    }
+    
+    console.log('🛑 Stopping GIF recording...');
+    
+    // Stop capturing frames
+    if (this.gifRecordingInterval) {
+      clearInterval(this.gifRecordingInterval);
+      this.gifRecordingInterval = null;
+    }
+    
+    // Remove change detection listeners
+    this.removeChangeDetection();
+    
+    this.isRecordingGif.set(false);
+    
+    // Restore transformer
+    if (this.transformer) {
+      this.transformer.visible(true);
+    }
+    
+    if (this.gifFrames.length === 0) {
+      alert('No frames captured. Try making some changes to your diagram while recording.');
+      return;
+    }
+    
+    const recordingDuration = Date.now() - this.gifStartTime;
+    console.log(`📊 Recorded ${this.gifFrames.length} frames over ${(recordingDuration/1000).toFixed(1)}s`);
+    
+    // Create GIF from captured frames
+    this.createAnimatedGIF();
+  }
+  
+  // Create animated GIF from captured frames
+  private createAnimatedGIF(): void {
+    if (this.gifFrames.length === 0) {
+      console.error('No frames to create GIF');
+      return;
+    }
+    
+    console.log('🎨 Creating animated GIF from', this.gifFrames.length, 'frames...');
+    
+    const firstFrame = this.gifFrames[0];
+    
+    const gif = new GIF({
+      workers: 2,
+      quality: 10,
+      workerScript: '/gif.worker.js',
+      width: firstFrame.width,
+      height: firstFrame.height,
+      repeat: 0 // Loop forever
+    });
+    
+    // Calculate delay based on mode
+    const mode = this.gifRecordMode();
+    let frameDelay: number;
+    
+    if (mode === 'auto') {
+      // Auto mode: Use longer delay (500ms) for smooth transitions
+      frameDelay = 500;
+      console.log(`📊 Using 500ms delay (2 FPS) for smooth auto-captured frames`);
+    } else {
+      // Manual mode: Use actual frame rate
+      frameDelay = Math.round(1000 / this.gifFrameRate());
+      console.log(`📊 Using ${frameDelay}ms delay (${this.gifFrameRate()} FPS)`);
+    }
+    
+    // Add all frames
+    this.gifFrames.forEach((frameData, index) => {
+      // Create canvas from ImageData
+      const canvas = document.createElement('canvas');
+      canvas.width = frameData.width;
+      canvas.height = frameData.height;
+      const ctx = canvas.getContext('2d');
+      
+      if (ctx) {
+        ctx.putImageData(frameData, 0, 0);
+        gif.addFrame(canvas, { delay: frameDelay, copy: true });
+      }
+    });
+    
+    gif.on('progress', (progress: number) => {
+      console.log(`⏳ Rendering GIF: ${Math.round(progress * 100)}%`);
+    });
+    
+    gif.on('finished', (blob: Blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `architecture-animated-${Date.now()}.gif`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      const fileSize = (blob.size / 1024).toFixed(1);
+      console.log(`✅ Animated GIF created: ${this.gifFrames.length} frames, ${fileSize} KB`);
+      alert(`Animated GIF created!\n\nFrames: ${this.gifFrames.length}\nSize: ${fileSize} KB\nMode: ${mode}`);
+      
+      // Clear frames
+      this.gifFrames = [];
+    });
+    
+    try {
+      gif.render();
+    } catch (error) {
+      console.error('❌ GIF creation failed:', error);
+      alert('Failed to create GIF. Check console for details.');
+    }
   }
   
   exportToJSON(): void {
@@ -6155,6 +6583,205 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     console.log('✅ Exported', shapes.length, 'shapes to JSON');
     
     return JSON.stringify(exportData, null, 2);
+  }
+  
+  // ==================== SEQUENCE ANIMATION METHODS ====================
+  
+  // Toggle animation panel
+  toggleAnimationPanel(): void {
+    this.showAnimationPanel.set(!this.showAnimationPanel());
+    if (this.showAnimationPanel()) {
+      this.refreshAnimationSequence();
+    }
+  }
+  
+  // Build animation sequence from current shapes
+  refreshAnimationSequence(): void {
+    if (!this.layer) return;
+    
+    this.animationSequence = [];
+    
+    // Get all groups (components) from the layer
+    const shapes = this.layer.children.filter((child: any) => {
+      const className = child.getClassName();
+      return className === 'Group' && child.hasName('component-group');
+    });
+    
+    shapes.forEach((shape: any, index: number) => {
+      const componentName = shape.getAttr('componentName') || `Component ${index + 1}`;
+      const existingOrder = shape.getAttr('animationOrder');
+      
+      this.animationSequence.push({
+        id: shape.id(),
+        name: componentName,
+        visible: shape.visible(),
+        order: existingOrder !== undefined ? existingOrder : index
+      });
+    });
+    
+    // Sort by order
+    this.animationSequence.sort((a, b) => a.order - b.order);
+    
+    console.log('📋 Animation sequence:', this.animationSequence);
+  }
+  
+  // Reorder animation step
+  moveAnimationStep(index: number, direction: 'up' | 'down'): void {
+    if (direction === 'up' && index > 0) {
+      [this.animationSequence[index], this.animationSequence[index - 1]] = 
+      [this.animationSequence[index - 1], this.animationSequence[index]];
+    } else if (direction === 'down' && index < this.animationSequence.length - 1) {
+      [this.animationSequence[index], this.animationSequence[index + 1]] = 
+      [this.animationSequence[index + 1], this.animationSequence[index]];
+    }
+    
+    // Update orders
+    this.animationSequence.forEach((item, idx) => {
+      item.order = idx;
+      const shape = this.layer.findOne(`#${item.id}`);
+      if (shape) {
+        shape.setAttr('animationOrder', idx);
+      }
+    });
+  }
+  
+  // Hide all components in sequence
+  hideAllSequence(): void {
+    this.animationSequence.forEach(item => {
+      const shape = this.layer.findOne(`#${item.id}`);
+      if (shape) {
+        shape.visible(false);
+        item.visible = false;
+      }
+    });
+    this.layer.batchDraw();
+    this.currentAnimationStep.set(0);
+  }
+  
+  // Show all components in sequence
+  showAllSequence(): void {
+    this.animationSequence.forEach(item => {
+      const shape = this.layer.findOne(`#${item.id}`);
+      if (shape) {
+        shape.visible(true);
+        item.visible = true;
+      }
+    });
+    this.layer.batchDraw();
+    this.currentAnimationStep.set(this.animationSequence.length);
+  }
+  
+  // Show next component in sequence
+  showNextInSequence(): void {
+    const currentStep = this.currentAnimationStep();
+    if (currentStep >= this.animationSequence.length) return;
+    
+    const item = this.animationSequence[currentStep];
+    const shape = this.layer.findOne(`#${item.id}`);
+    if (shape) {
+      shape.visible(true);
+      item.visible = true;
+      this.layer.batchDraw();
+      this.currentAnimationStep.set(currentStep + 1);
+      
+      console.log(`✅ Step ${currentStep + 1}: Showed ${item.name}`);
+    }
+  }
+  
+  // Show previous component in sequence
+  showPreviousInSequence(): void {
+    const currentStep = this.currentAnimationStep();
+    if (currentStep <= 0) return;
+    
+    const item = this.animationSequence[currentStep - 1];
+    const shape = this.layer.findOne(`#${item.id}`);
+    if (shape) {
+      shape.visible(false);
+      item.visible = false;
+      this.layer.batchDraw();
+      this.currentAnimationStep.set(currentStep - 1);
+      
+      console.log(`⏪ Step ${currentStep}: Hid ${item.name}`);
+    }
+  }
+  
+  // Play sequence animation automatically
+  playSequenceAnimation(): void {
+    if (this.isPlayingSequence()) return;
+    
+    this.isPlayingSequence.set(true);
+    this.hideAllSequence();
+    
+    let step = 0;
+    const interval = setInterval(() => {
+      if (step < this.animationSequence.length) {
+        this.showNextInSequence();
+        step++;
+      } else {
+        clearInterval(interval);
+        this.isPlayingSequence.set(false);
+        console.log('✅ Sequence animation complete!');
+      }
+    }, this.sequencePlaySpeed());
+  }
+  
+  // Stop sequence animation
+  stopSequenceAnimation(): void {
+    this.isPlayingSequence.set(false);
+  }
+  
+  // Record sequence as GIF
+  recordSequenceAsGIF(): void {
+    if (this.animationSequence.length === 0) {
+      alert('No animation sequence defined. Add components and create a sequence first.');
+      return;
+    }
+    
+    console.log('🎬 Recording sequence as GIF...');
+    
+    // Start GIF recording
+    this.gifRecordMode.set('sequence');
+    this.isRecordingGif.set(true);
+    this.gifFrames = [];
+    
+    // Hide transformer
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Hide all and capture initial frame
+    this.hideAllSequence();
+    this.captureGIFFrame();
+    
+    // Show each component and capture frame
+    let step = 0;
+    const captureInterval = setInterval(() => {
+      if (step < this.animationSequence.length) {
+        this.showNextInSequence();
+        
+        // Wait a bit for render, then capture
+        setTimeout(() => {
+          this.captureGIFFrame();
+        }, 100);
+        
+        step++;
+      } else {
+        clearInterval(captureInterval);
+        
+        // Restore transformer
+        if (this.transformer) {
+          this.transformer.visible(true);
+        }
+        
+        this.isRecordingGif.set(false);
+        
+        console.log(`📊 Sequence recorded: ${this.gifFrames.length} frames`);
+        
+        // Create GIF
+        this.createAnimatedGIF();
+      }
+    }, this.sequencePlaySpeed());
   }
   
   ngOnDestroy(): void {

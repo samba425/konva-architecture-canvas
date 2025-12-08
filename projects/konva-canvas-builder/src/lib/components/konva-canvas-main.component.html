@@ -480,11 +480,13 @@
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
       </button>
+      <!-- SVG export temporarily disabled - not fully implemented
       <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
         </svg>
       </button>
+      -->
       <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -918,3 +920,78 @@
   </div>
 </div>
 
+<- Fix tool click highlighting on colorful gradient Export PNG Dialog -->
+@if (showExportDialog()) {
+  <div class="modal-overlay" (click)="showExportDialog.set(false)">
+    <div class="export-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3>📥 Export as PNG</h3>
+        <button class="close-btn" (click)="showExportDialog.set(false)">✕</button>
+      </div>
+      
+      <div class="dialog-body">
+        <label class="dialog-label">Background Color:</label>
+        
+        <div class="bg-options">
+          <button 
+            class="bg-option" 
+            [class.selected]="exportBackgroundColor() === 'transparent'"
+            (click)="exportBackgroundColor.set('transparent')"
+          >
+            <div class="bg-preview transparent-bg"></div>
+            <span>Transparent</span>
+          </button>
+          
+          <button 
+            class="bg-option" 
+            [class.selected]="exportBackgroundColor() === 'white'"
+            (click)="exportBackgroundColor.set('white')"
+          >
+            <div class="bg-preview" style="background: white;"></div>
+            <span>White</span>
+          </button>
+          
+          <button 
+            class="bg-option" 
+            [class.selected]="exportBackgroundColor() === 'black'"
+            (click)="exportBackgroundColor.set('black')"
+          >
+            <div class="bg-preview" style="background: black;"></div>
+            <span>Black</span>
+          </button>
+          
+          <button 
+            class="bg-option" 
+            [class.selected]="exportBackgroundColor() === 'custom'"
+            (click)="exportBackgroundColor.set('custom')"
+          >
+            <div class="bg-preview" [style.background]="exportCustomColor()"></div>
+            <span>Custom</span>
+          </button>
+        </div>
+        
+        @if (exportBackgroundColor() === 'custom') {
+          <div class="custom-color-picker">
+            <label>Custom Color:</label>
+            <input 
+              type="color" 
+              [value]="exportCustomColor()" 
+              (input)="exportCustomColor.set($any($event.target).value)"
+              class="color-input"
+            />
+            <span class="color-value">{{ exportCustomColor() }}</span>
+          </div>
+        }
+      </div>
+      
+      <div class="dialog-footer">
+        <button class="btn-secondary" (click)="showExportDialog.set(false)">
+          Cancel
+        </button>
+        <button class="btn-primary" (click)="confirmExportPNG()">
+          ⬇️ Download PNG
+        </button>
+      </div>
+    </div>
+  </div>
+}

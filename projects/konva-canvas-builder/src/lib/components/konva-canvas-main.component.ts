@@ -104,6 +104,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   // Auto-save flag
   private isRestoring = false;
   
+  // Export PNG options
+  showExportDialog = signal(false);
+  exportBackgroundColor = signal<string>('transparent'); // transparent, white, black, custom
+  exportCustomColor = signal<string>('#ffffff');
+  
   // Signals for UI state
   sidebarOpen = signal(true);
   selectedCategory = signal<string>('ai-models');
@@ -3576,6 +3581,30 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   exportToPNG(): void {
+    // Show export dialog instead of directly exporting
+    this.showExportDialog.set(true);
+  }
+  
+  confirmExportPNG(): void {
+    const bgColor = this.exportBackgroundColor();
+    const customColor = this.exportCustomColor();
+    
+    // Determine background color
+    let backgroundColor: string | null = null;
+    if (bgColor === 'white') {
+      backgroundColor = '#ffffff';
+    } else if (bgColor === 'black') {
+      backgroundColor = '#000000';
+    } else if (bgColor === 'custom') {
+      backgroundColor = customColor;
+    }
+    // transparent = null (no background)
+    
+    this.performExport(backgroundColor);
+    this.showExportDialog.set(false);
+  }
+  
+  private performExport(backgroundColor: string | null): void {
     // Hide transformer during export to avoid selection boxes
     const transformerVisible = this.transformer?.visible();
     if (this.transformer) {
@@ -3603,18 +3632,21 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     const finalWidth = box.width + (padding * 2);
     const finalHeight = box.height + (padding * 2);
     
-    // Add white background
-    const background = new Konva.Rect({
-      x: finalX,
-      y: finalY,
-      width: finalWidth,
-      height: finalHeight,
-      fill: '#ffffff',
-      listening: false
-    });
+    // Add background if specified
+    if (backgroundColor) {
+      const background = new Konva.Rect({
+        x: finalX,
+        y: finalY,
+        width: finalWidth,
+        height: finalHeight,
+        fill: backgroundColor,
+        listening: false
+      });
+      
+      tempLayer.add(background);
+      background.moveToBottom();
+    }
     
-    tempLayer.add(background);
-    background.moveToBottom();
     tempLayer.batchDraw();
     
     // Export from temporary layer
