@@ -24,7 +24,6 @@
   with an intuitive drag-and-drop interface powered by Angular and Konva.js
 </p>
 
-<img src="https://via.placeholder.com/800x400/1a1a2e/00ff00?text=Demo+Screenshot" alt="Architecture Canvas Demo" width="800"/>
 
 </div>
 
