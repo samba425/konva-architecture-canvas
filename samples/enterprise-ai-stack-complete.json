@@ -17,7 +17,7 @@
       "x": 262.52179924258786,
       "y": 48.601637327788694,
       "rotation": 0,
-      "text": "Cisco & Partner Combined AI Stack",
+      "text": "Enterprise Test & Partner Partner Combined AI Stack Partner Combined AI Stack",
       "fontSize": 28,
       "fontFamily": "Arial",
       "fill": "rgba(251, 113, 133, 0.3)",
@@ -324,7 +324,7 @@
       "y": 540.5898396139703,
       "rotation": 0,
       "componentIcon": "🔀",
-      "componentName": "Cisco Nexus",
+      "componentName": "Network Nexus",
       "groupType": "component-group",
       "faIcon": "fas fa-network-wired",
       "iconColor": "#049FD9"
@@ -348,7 +348,7 @@
       "y": 585.2949198069849,
       "rotation": 0,
       "componentIcon": "🖥️",
-      "componentName": "Cisco UCS",
+      "componentName": "Enterprise UCS",
       "groupType": "component-group",
       "faIcon": "fas fa-server",
       "iconColor": "#049FD9"
