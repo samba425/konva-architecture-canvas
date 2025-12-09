@@ -3,6 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Konva from 'konva';
 import { COMPONENTS, COMPONENT_CATEGORIES, ComponentDefinition } from '../../data/components-config';
+// @ts-ignore
+// import GIF from 'gif.js'; // COMMENTED: GIF feature not yet ready
 
 export interface ComponentCategory {
   id: string;
@@ -104,6 +106,33 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   // Auto-save flag
   private isRestoring = false;
   
+  // Export PNG options
+  showExportDialog = signal(false);
+  exportBackgroundColor = signal<string>('transparent'); // transparent, white, black, custom
+  exportCustomColor = signal<string>('#ffffff');
+  exportPadding = signal<number>(200); // Padding around content
+  exportScale = signal<number>(3); // Export quality (1-5x)
+  exportPreviewUrl = signal<string>(''); // Preview image data URL
+  exportCropMode = signal<boolean>(false); // Enable crop mode
+  private exportBoundingBox: any = null; // Store bounding box for export
+  
+  // GIF Recording state - COMMENTED: Feature not yet ready
+  // private gifRecorder: any = null; // GIF.js instance
+  // isRecordingGif = signal(false); // Make public for template access
+  // private gifFrames: ImageData[] = [];
+  // private gifRecordingInterval: any = null;
+  // private gifStartTime = 0;
+  // private lastFrameHash: string = ''; // To detect actual changes
+  // gifFrameRate = signal<number>(5); // Adjustable frame rate (1-30 FPS)
+  // gifRecordMode = signal<'auto' | 'manual' | 'sequence'>('auto'); // auto = on change, manual = timed, sequence = step-by-step
+  
+  // Sequence Animation state
+  showAnimationPanel = signal(false);
+  animationSequence: Array<{ id: string; name: string; visible: boolean; order: number }> = [];
+  currentAnimationStep = signal(0);
+  isPlayingSequence = signal(false);
+  sequencePlaySpeed = signal(1000); // ms between steps
+  
   // Signals for UI state
   sidebarOpen = signal(true);
   selectedCategory = signal<string>('ai-models');
@@ -176,6 +205,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   customComponentDescription = signal('');
   customComponentColor = signal('#3b82f6');
   customComponentIcon = signal('');
+  customComponentCategory = signal('Custom'); // Default category
   customComponentImageFile: File | null = null;
   customComponentImageUrl = signal('');
   
@@ -351,9 +381,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
           category: comp.category,
           description: comp.description,
           color: comp.color,
-          provider: comp.provider,
-          definition: comp.definition,
-          learnMoreLink: comp.learnMoreLink
+          provider: comp.provider
         });
       }
     });
@@ -497,9 +525,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.createTransformer();
     this.layer.add(this.transformer);
     
-    // Auto-save after any shape is dragged
+    // Auto-save and save history after any shape is dragged
     this.layer.on('dragend', (e) => {
       if (!this.isRestoring && e.target !== this.stage) {
+        this.saveHistory();
         this.autoSaveToLocalStorage();
       }
     });
@@ -579,11 +608,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       centeredScaling: false
     });
     
-    // Auto-save after transform (resize/rotate)
+    // Auto-save and save history after transform (resize/rotate)
     this.transformer.on('transformend', () => {
       console.log('🔄 Transform ended, isRestoring:', this.isRestoring);
       if (!this.isRestoring) {
         console.log('💾 Auto-saving after transform...');
+        this.saveHistory();
         this.autoSaveToLocalStorage();
       }
     });
@@ -1882,6 +1912,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // Check if this is a custom component with uploaded image
     const customImageUrl = (component as any).imageUrl;
     if (customImageUrl) {
+      // Store the image URL as componentIcon attribute for export/import
+      group.setAttr('componentIcon', customImageUrl);
+      
       // Handle custom uploaded image
       try {
         const imageObj = new Image();
@@ -2047,6 +2080,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // History management
   private saveHistory(): void {
+    if (this.isRestoring) {
+      console.log('⏸️ Skipping saveHistory (isRestoring=true)');
+      return;
+    }
+    
     // Export all shapes with custom logic to preserve icons and attributes
     const shapes = this.layer.children.filter((child: any) => 
       child.getClassName() !== 'Transformer' && !child.hasName('selection-box')
@@ -2056,6 +2094,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.history = this.history.slice(0, this.historyStep + 1);
     this.history.push(json);
     this.historyStep++;
+    
+    // Log shape types for debugging
+    const shapeTypes = shapes.map((s: any) => {
+      if (s.className === 'Group') return `Group(${s.name || s.id})`;
+      if (s.className === 'Arrow') return `Arrow(${s.name || 'connector'})`;
+      return s.className;
+    });
+    console.log(`💾 History saved: step ${this.historyStep}/${this.history.length}, shapes: [${shapeTypes.join(', ')}]`);
     
     // Auto-save to localStorage (but not during restore)
     if (!this.isRestoring) {
@@ -2105,16 +2151,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         // Force redraw
         this.layer.batchDraw();
         
-        // Clear flag after restore
-        this.isRestoring = false;
+        // Clear flag after a delay to ensure all async operations complete
+        setTimeout(() => {
+          this.isRestoring = false;
+          // Save initial history state after restore
+          this.saveHistory();
+          console.log('✅ Canvas restored successfully');
+        }, 1000);
         
-        console.log('✅ Canvas restored successfully');
       } else {
         console.log('ℹ️ No auto-save data found');
+        // Save initial empty state
+        this.saveHistory();
       }
     } catch (error) {
       console.error('❌ Failed to restore from auto-save:', error);
       this.isRestoring = false;
+      // Save initial state even on error
+      this.saveHistory();
     }
   }
   
@@ -2293,20 +2347,35 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   undo(): void {
-    if (this.historyStep === 0) return;
+    if (this.historyStep === 0) {
+      console.log('⚠️ Cannot undo: already at first state');
+      return;
+    }
+    
+    console.log(`🔙 Undo: step ${this.historyStep} → ${this.historyStep - 1} (total: ${this.history.length})`);
+    
+    // Set flag to prevent saving history during undo
+    this.isRestoring = true;
+    
     this.historyStep--;
     const json = this.history[this.historyStep];
     
-    // Clear current layer (but keep transformer)
-    this.layer.children.forEach((child: any) => {
-      if (child !== this.transformer) {
-        child.destroy();
-      }
+    // Clear current layer (but keep transformer) - collect first, then destroy
+    const childrenToDestroy = this.layer.children.filter((child: any) => 
+      child !== this.transformer && !child.hasName('selection-box')
+    );
+    childrenToDestroy.forEach((child: any) => {
+      // Remove all event listeners before destroying
+      child.off('dragmove');
+      child.off('dragend');
+      child.off('transformend');
+      child.destroy();
     });
     
     // Restore shapes from history
     try {
       const data = JSON.parse(json);
+      console.log(`📦 Restoring ${data.shapes?.length || 0} shapes from history`);
       if (data.shapes) {
         data.shapes.forEach((shapeData: any) => {
           this.restoreShapeFromHistory(shapeData);
@@ -2317,23 +2386,44 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     }
     
     this.layer.batchDraw();
+    
+    // Increase timeout to ensure all async image loading completes
+    setTimeout(() => {
+      this.isRestoring = false;
+      console.log('✅ Undo complete');
+    }, 1000); // Increased from 500ms to 1000ms
   }
   
   redo(): void {
-    if (this.historyStep === this.history.length - 1) return;
+    if (this.historyStep === this.history.length - 1) {
+      console.log('⚠️ Cannot redo: already at latest state');
+      return;
+    }
+    
+    console.log(`🔜 Redo: step ${this.historyStep} → ${this.historyStep + 1} (total: ${this.history.length})`);
+    
+    // Set flag to prevent saving history during redo
+    this.isRestoring = true;
+    
     this.historyStep++;
     const json = this.history[this.historyStep];
     
-    // Clear current layer (but keep transformer)
-    this.layer.children.forEach((child: any) => {
-      if (child !== this.transformer) {
-        child.destroy();
-      }
+    // Clear current layer (but keep transformer) - collect first, then destroy
+    const childrenToDestroy = this.layer.children.filter((child: any) => 
+      child !== this.transformer && !child.hasName('selection-box')
+    );
+    childrenToDestroy.forEach((child: any) => {
+      // Remove all event listeners before destroying
+      child.off('dragmove');
+      child.off('dragend');
+      child.off('transformend');
+      child.destroy();
     });
     
     // Restore shapes from history
     try {
       const data = JSON.parse(json);
+      console.log(`📦 Restoring ${data.shapes?.length || 0} shapes from history`);
       if (data.shapes) {
         data.shapes.forEach((shapeData: any) => {
           this.restoreShapeFromHistory(shapeData);
@@ -2344,6 +2434,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     }
     
     this.layer.batchDraw();
+    
+    // Increase timeout to ensure all async image loading completes
+    setTimeout(() => {
+      this.isRestoring = false;
+      console.log('✅ Redo complete');
+    }, 1000); // Increased from 500ms to 1000ms
   }
   
   // Restore a shape from history data
@@ -2374,8 +2470,47 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
       if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
       
-      // Load icon async
-      if (shapeData.faIcon) {
+      // Check if componentIcon is a data URL (custom uploaded image)
+      const isDataURL = shapeData.componentIcon && shapeData.componentIcon.startsWith('data:image');
+      
+      // Load icon async - prioritize custom image over Font Awesome icon
+      if (isDataURL) {
+        // Custom uploaded image
+        const imageObj = new Image();
+        imageObj.onload = () => {
+          shape.destroyChildren();
+          
+          const icon = new Konva.Image({
+            x: 16,
+            y: 0,
+            image: imageObj,
+            width: 48,
+            height: 48
+          });
+          
+          const name = new Konva.Text({
+            x: 0,
+            y: 55,
+            text: shapeData.componentName || 'Component',
+            fontSize: 14,
+            fontStyle: 'bold',
+            align: 'center',
+            fill: shapeData.textColor || '#1a1a1a',
+            width: 80
+          });
+          
+          shape.add(icon, name);
+          // Re-apply scale after children are added
+          if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+          if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+          // Only redraw if not restoring (undo/redo will handle batch draw)
+          if (!this.isRestoring) {
+            this.layer.batchDraw();
+          }
+        };
+        imageObj.src = shapeData.componentIcon;
+      } else if (shapeData.faIcon) {
+        // Font Awesome icon
         this.generateIconDataURL(shapeData.faIcon, shapeData.iconColor || '#3b82f6').then(iconDataURL => {
           const imageObj = new Image();
           imageObj.onload = () => {
@@ -2404,7 +2539,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             // Re-apply scale after children are added
             if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
             if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
-            this.layer.batchDraw();
+            // Only redraw if not restoring (undo/redo will handle batch draw)
+            if (!this.isRestoring) {
+              this.layer.batchDraw();
+            }
           };
           imageObj.src = iconDataURL;
         });
@@ -3578,6 +3716,244 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   exportToPNG(): void {
+    // Show export dialog and generate preview
+    this.showExportDialog.set(true);
+    this.generatePreview();
+  }
+  
+  closeExportDialog(): void {
+    // Close dialog and clean up
+    this.showExportDialog.set(false);
+    this.exportPreviewUrl.set('');
+    this.exportCropMode.set(false);
+    this.exportBoundingBox = null;
+    this.removeCropBox(); // Remove crop box from canvas
+  }
+  
+  generatePreview(): void {
+    // Hide transformer during preview generation
+    const transformerVisible = this.transformer?.visible();
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Clone the layer for preview
+    const tempStage = new Konva.Stage({
+      container: document.createElement('div'),
+      width: 10000,
+      height: 10000
+    });
+    
+    const tempLayer = this.layer.clone();
+    tempStage.add(tempLayer);
+    
+    // Get bounding box
+    const box = tempLayer.getClientRect();
+    const padding = this.exportPadding();
+    const scale = this.exportScale();
+    
+    // Apply crop if enabled
+    let finalX = box.x - padding;
+    let finalY = box.y - padding;
+    let finalWidth = box.width + (padding * 2);
+    let finalHeight = box.height + (padding * 2);
+    
+    if (this.exportCropMode() && this.exportBoundingBox) {
+      finalX = this.exportBoundingBox.x;
+      finalY = this.exportBoundingBox.y;
+      finalWidth = this.exportBoundingBox.width;
+      finalHeight = this.exportBoundingBox.height;
+    }
+    
+    // Add background
+    const bgColor = this.exportBackgroundColor();
+    const customColor = this.exportCustomColor();
+    let backgroundColor: string | null = null;
+    
+    if (bgColor === 'white') {
+      backgroundColor = '#ffffff';
+    } else if (bgColor === 'black') {
+      backgroundColor = '#000000';
+    } else if (bgColor === 'custom') {
+      backgroundColor = customColor;
+    }
+    
+    if (backgroundColor) {
+      const background = new Konva.Rect({
+        x: finalX,
+        y: finalY,
+        width: finalWidth,
+        height: finalHeight,
+        fill: backgroundColor,
+        listening: false
+      });
+      
+      tempLayer.add(background);
+      background.moveToBottom();
+    }
+    
+    tempLayer.batchDraw();
+    
+    // Generate preview
+    const dataURL = tempLayer.toDataURL({
+      pixelRatio: scale,
+      mimeType: 'image/png',
+      x: finalX,
+      y: finalY,
+      width: finalWidth,
+      height: finalHeight
+    });
+    
+    this.exportPreviewUrl.set(dataURL);
+    
+    // Restore transformer
+    if (this.transformer && transformerVisible) {
+      this.transformer.visible(true);
+    }
+    
+    tempStage.destroy();
+  }
+  
+  confirmExportPNG(): void {
+    const bgColor = this.exportBackgroundColor();
+    const customColor = this.exportCustomColor();
+    
+    // Determine background color
+    let backgroundColor: string | null = null;
+    if (bgColor === 'white') {
+      backgroundColor = '#ffffff';
+    } else if (bgColor === 'black') {
+      backgroundColor = '#000000';
+    } else if (bgColor === 'custom') {
+      backgroundColor = customColor;
+    }
+    // transparent = null (no background)
+    
+    this.performExport(backgroundColor);
+    this.showExportDialog.set(false);
+    
+    // Reset preview and remove crop box
+    this.exportPreviewUrl.set('');
+    this.exportCropMode.set(false);
+    this.exportBoundingBox = null;
+    this.removeCropBox(); // Clean up crop box from canvas
+  }
+  
+  updateExportSettings(): void {
+    // Regenerate preview when settings change
+    this.generatePreview();
+  }
+  
+  toggleCropMode(): void {
+    const wasCropEnabled = this.exportCropMode();
+    this.exportCropMode.set(!wasCropEnabled);
+    
+    if (!this.exportCropMode()) {
+      // Disable crop mode - remove crop box
+      this.exportBoundingBox = null;
+      this.removeCropBox();
+    } else {
+      // Enable crop mode - show interactive crop box
+      const box = this.layer.getClientRect();
+      const padding = this.exportPadding();
+      this.exportBoundingBox = {
+        x: box.x - padding,
+        y: box.y - padding,
+        width: box.width + (padding * 2),
+        height: box.height + (padding * 2)
+      };
+      this.showCropBox();
+    }
+    this.generatePreview();
+  }
+  
+  // Show interactive crop box on canvas
+  private showCropBox(): void {
+    if (!this.exportBoundingBox) return;
+    
+    // Remove existing crop box if any
+    this.removeCropBox();
+    
+    // Create crop rectangle
+    const cropRect = new Konva.Rect({
+      name: 'crop-box',
+      x: this.exportBoundingBox.x,
+      y: this.exportBoundingBox.y,
+      width: this.exportBoundingBox.width,
+      height: this.exportBoundingBox.height,
+      stroke: '#3b82f6',
+      strokeWidth: 3,
+      dash: [10, 5],
+      fill: 'rgba(59, 130, 246, 0.1)',
+      draggable: true,
+      listening: true
+    });
+    
+    // Create transformer for crop box
+    const cropTransformer = new Konva.Transformer({
+      name: 'crop-transformer',
+      nodes: [cropRect],
+      borderStroke: '#3b82f6',
+      borderStrokeWidth: 2,
+      anchorFill: '#3b82f6',
+      anchorStroke: '#ffffff',
+      anchorStrokeWidth: 2,
+      anchorSize: 12,
+      anchorCornerRadius: 2,
+      keepRatio: false,
+      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right'],
+      rotateEnabled: false
+    });
+    
+    // Update bounding box on drag
+    cropRect.on('dragmove', () => {
+      this.exportBoundingBox = {
+        x: cropRect.x(),
+        y: cropRect.y(),
+        width: cropRect.width() * cropRect.scaleX(),
+        height: cropRect.height() * cropRect.scaleY()
+      };
+      this.generatePreview();
+    });
+    
+    // Update bounding box on transform
+    cropTransformer.on('transformend', () => {
+      // Reset scale and update dimensions
+      const newWidth = cropRect.width() * cropRect.scaleX();
+      const newHeight = cropRect.height() * cropRect.scaleY();
+      
+      cropRect.width(newWidth);
+      cropRect.height(newHeight);
+      cropRect.scaleX(1);
+      cropRect.scaleY(1);
+      
+      this.exportBoundingBox = {
+        x: cropRect.x(),
+        y: cropRect.y(),
+        width: newWidth,
+        height: newHeight
+      };
+      this.generatePreview();
+    });
+    
+    this.layer.add(cropRect);
+    this.layer.add(cropTransformer);
+    this.layer.batchDraw();
+  }
+  
+  // Remove crop box from canvas
+  private removeCropBox(): void {
+    const cropBox = this.layer.findOne('.crop-box');
+    const cropTransformer = this.layer.findOne('.crop-transformer');
+    
+    if (cropBox) cropBox.destroy();
+    if (cropTransformer) cropTransformer.destroy();
+    
+    this.layer.batchDraw();
+  }
+  
+  private performExport(backgroundColor: string | null): void {
     // Hide transformer during export to avoid selection boxes
     const transformerVisible = this.transformer?.visible();
     if (this.transformer) {
@@ -3598,30 +3974,43 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // Get bounding box of all content
     const box = tempLayer.getClientRect();
     
-    // Add 200px padding
-    const padding = 200;
-    const finalX = box.x - padding;
-    const finalY = box.y - padding;
-    const finalWidth = box.width + (padding * 2);
-    const finalHeight = box.height + (padding * 2);
+    // Use export settings
+    const padding = this.exportPadding();
+    const scale = this.exportScale();
     
-    // Add white background
-    const background = new Konva.Rect({
-      x: finalX,
-      y: finalY,
-      width: finalWidth,
-      height: finalHeight,
-      fill: '#ffffff',
-      listening: false
-    });
+    // Apply crop if enabled
+    let finalX = box.x - padding;
+    let finalY = box.y - padding;
+    let finalWidth = box.width + (padding * 2);
+    let finalHeight = box.height + (padding * 2);
     
-    tempLayer.add(background);
-    background.moveToBottom();
+    if (this.exportCropMode() && this.exportBoundingBox) {
+      finalX = this.exportBoundingBox.x;
+      finalY = this.exportBoundingBox.y;
+      finalWidth = this.exportBoundingBox.width;
+      finalHeight = this.exportBoundingBox.height;
+    }
+    
+    // Add background if specified
+    if (backgroundColor) {
+      const background = new Konva.Rect({
+        x: finalX,
+        y: finalY,
+        width: finalWidth,
+        height: finalHeight,
+        fill: backgroundColor,
+        listening: false
+      });
+      
+      tempLayer.add(background);
+      background.moveToBottom();
+    }
+    
     tempLayer.batchDraw();
     
-    // Export from temporary layer
+    // Export from temporary layer using configured scale
     const dataURL = tempLayer.toDataURL({ 
-      pixelRatio: 3,
+      pixelRatio: scale,
       mimeType: 'image/png',
       x: finalX,
       y: finalY,
@@ -3691,6 +4080,389 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }
+  
+  // COMMENTED: GIF Export feature not yet ready - requires gif.js dependency
+  /*
+  // Export current canvas view as static GIF (same as PNG but GIF format)
+  exportToGIF(): void {
+    // Hide transformer during export
+    const transformerVisible = this.transformer?.visible();
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Clone the layer for export
+    const tempStage = new Konva.Stage({
+      container: document.createElement('div'),
+      width: 10000,
+      height: 10000
+    });
+    
+    const tempLayer = this.layer.clone();
+    tempStage.add(tempLayer);
+    
+    // Get bounding box of all content
+    const box = tempLayer.getClientRect();
+    
+    // Add 200px padding
+    const padding = 200;
+    const finalX = box.x - padding;
+    const finalY = box.y - padding;
+    const finalWidth = box.width + (padding * 2);
+    const finalHeight = box.height + (padding * 2);
+    
+    // Add white background
+    const background = new Konva.Rect({
+      x: finalX,
+      y: finalY,
+      width: finalWidth,
+      height: finalHeight,
+      fill: '#ffffff',
+      listening: false
+    });
+    
+    tempLayer.add(background);
+    background.moveToBottom();
+    tempLayer.batchDraw();
+    
+    // Get canvas from temporary stage
+    const canvas = tempLayer.getCanvas()._canvas;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      tempStage.destroy();
+      if (this.transformer && transformerVisible) {
+        this.transformer.visible(true);
+      }
+      return;
+    }
+    
+    // Create a properly sized canvas for export
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = finalWidth;
+    exportCanvas.height = finalHeight;
+    const exportCtx = exportCanvas.getContext('2d');
+    
+    if (!exportCtx) {
+      console.error('Failed to get export canvas context');
+      tempStage.destroy();
+      if (this.transformer && transformerVisible) {
+        this.transformer.visible(true);
+      }
+      return;
+    }
+    
+    // Draw the content to export canvas
+    exportCtx.drawImage(canvas, finalX, finalY, finalWidth, finalHeight, 0, 0, finalWidth, finalHeight);
+    
+    // Clean up temporary stage
+    tempStage.destroy();
+    
+    // Restore transformer visibility
+    if (this.transformer && transformerVisible) {
+      this.transformer.visible(true);
+    }
+    
+    this.layer.batchDraw();
+    
+    // Create GIF from single frame
+    console.log('🎨 Creating static GIF...');
+    
+    const gif = new GIF({
+      workers: 2,
+      quality: 10,
+      workerScript: '/gif.worker.js',
+      width: finalWidth,
+      height: finalHeight
+    });
+    
+    // Add single frame
+    gif.addFrame(exportCanvas, { delay: 100 });
+    
+    gif.on('finished', (blob: Blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `architecture-${Date.now()}.gif`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      console.log('✅ Static GIF exported successfully!');
+    });
+    
+    gif.render();
+  }
+  
+  // Start recording animated GIF
+  startRecordingGIF(mode: 'auto' | 'manual' = 'auto'): void {
+    if (this.isRecordingGif()) {
+      console.warn('Already recording GIF');
+      return;
+    }
+    
+    this.gifRecordMode.set(mode);
+    console.log(`🎬 Starting GIF recording in ${mode} mode...`);
+    this.isRecordingGif.set(true);
+    this.gifFrames = [];
+    this.gifStartTime = Date.now();
+    this.lastFrameHash = '';
+    
+    // Hide transformer during recording
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Capture initial frame
+    this.captureGIFFrame();
+    
+    if (mode === 'manual') {
+      // Manual mode: Capture at fixed frame rate (adjustable)
+      const interval = 1000 / this.gifFrameRate();
+      this.gifRecordingInterval = setInterval(() => {
+        this.captureGIFFrame();
+      }, interval);
+      console.log(`🔴 Recording at ${this.gifFrameRate()} FPS... Click "Stop Recording" to finish`);
+    } else {
+      // Auto mode: Capture only when canvas changes (event-driven)
+      console.log('🔴 Recording on change... Click "Stop Recording" to finish');
+      this.setupChangeDetection();
+    }
+  }
+  
+  // Setup event listeners to detect canvas changes
+  private setupChangeDetection(): void {
+    if (!this.stage) return;
+    
+    // Capture frame on any shape transformation
+    const captureOnChange = () => {
+      if (this.isRecordingGif()) {
+        this.captureGIFFrameIfChanged();
+      }
+    };
+    
+    // Listen to stage events
+    this.stage.on('dragmove.gifrecord', captureOnChange);
+    this.stage.on('transform.gifrecord', captureOnChange);
+    this.stage.on('dragend.gifrecord', captureOnChange);
+    this.stage.on('transformend.gifrecord', captureOnChange);
+    
+    // Also capture periodically to catch any missed changes (every 500ms)
+    this.gifRecordingInterval = setInterval(() => {
+      if (this.isRecordingGif()) {
+        this.captureGIFFrameIfChanged();
+      }
+    }, 500);
+  }
+  
+  // Remove change detection listeners
+  private removeChangeDetection(): void {
+    if (!this.stage) return;
+    
+    this.stage.off('dragmove.gifrecord');
+    this.stage.off('transform.gifrecord');
+    this.stage.off('dragend.gifrecord');
+    this.stage.off('transformend.gifrecord');
+  }
+  
+  // Capture a single frame for GIF
+  private captureGIFFrame(): void {
+    if (!this.layer) return;
+    
+    // Get the canvas content
+    const canvas = this.layer.getCanvas()._canvas;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) return;
+    
+    // Get bounding box of all content
+    const box = this.layer.getClientRect();
+    const padding = 50;
+    
+    const captureX = Math.max(0, box.x - padding);
+    const captureY = Math.max(0, box.y - padding);
+    const captureWidth = Math.min(canvas.width - captureX, box.width + (padding * 2));
+    const captureHeight = Math.min(canvas.height - captureY, box.height + (padding * 2));
+    
+    // Create a canvas for this frame
+    const frameCanvas = document.createElement('canvas');
+    frameCanvas.width = Math.floor(captureWidth);
+    frameCanvas.height = Math.floor(captureHeight);
+    const frameCtx = frameCanvas.getContext('2d');
+    
+    if (!frameCtx) return;
+    
+    // Draw white background
+    frameCtx.fillStyle = '#ffffff';
+    frameCtx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+    
+    // Draw the captured content
+    frameCtx.drawImage(
+      canvas,
+      Math.floor(captureX),
+      Math.floor(captureY),
+      Math.floor(captureWidth),
+      Math.floor(captureHeight),
+      0,
+      0,
+      Math.floor(captureWidth),
+      Math.floor(captureHeight)
+    );
+    
+    // Get image data and store
+    const imageData = frameCtx.getImageData(0, 0, frameCanvas.width, frameCanvas.height);
+    this.gifFrames.push(imageData);
+    
+    console.log(`📸 Captured frame ${this.gifFrames.length}`);
+  }
+  
+  // Capture frame only if canvas has changed (smart recording)
+  private captureGIFFrameIfChanged(): void {
+    if (!this.layer) return;
+    
+    // Get quick hash of current canvas state
+    const currentHash = this.getCanvasHash();
+    
+    // Only capture if different from last frame
+    if (currentHash !== this.lastFrameHash) {
+      this.captureGIFFrame();
+      this.lastFrameHash = currentHash;
+    }
+  }
+  
+  // Generate a simple hash of canvas state for change detection
+  private getCanvasHash(): string {
+    if (!this.layer) return '';
+    
+    // Create hash from positions and properties of all shapes
+    const shapes = this.layer.children.filter((child: any) => 
+      child.getClassName() !== 'Transformer'
+    );
+    
+    return shapes.map((shape: any) => {
+      return `${shape.id()}_${Math.round(shape.x())}_${Math.round(shape.y())}_${shape.rotation()}`;
+    }).join('|');
+  }
+  
+  // Stop recording and create GIF
+  stopRecordingGIF(): void {
+    if (!this.isRecordingGif()) {
+      console.warn('Not currently recording');
+      return;
+    }
+    
+    console.log('🛑 Stopping GIF recording...');
+    
+    // Stop capturing frames
+    if (this.gifRecordingInterval) {
+      clearInterval(this.gifRecordingInterval);
+      this.gifRecordingInterval = null;
+    }
+    
+    // Remove change detection listeners
+    this.removeChangeDetection();
+    
+    this.isRecordingGif.set(false);
+    
+    // Restore transformer
+    if (this.transformer) {
+      this.transformer.visible(true);
+    }
+    
+    if (this.gifFrames.length === 0) {
+      alert('No frames captured. Try making some changes to your diagram while recording.');
+      return;
+    }
+    
+    const recordingDuration = Date.now() - this.gifStartTime;
+    console.log(`📊 Recorded ${this.gifFrames.length} frames over ${(recordingDuration/1000).toFixed(1)}s`);
+    
+    // Create GIF from captured frames
+    this.createAnimatedGIF();
+  }
+  
+  // Create animated GIF from captured frames
+  private createAnimatedGIF(): void {
+    if (this.gifFrames.length === 0) {
+      console.error('No frames to create GIF');
+      return;
+    }
+    
+    console.log('🎨 Creating animated GIF from', this.gifFrames.length, 'frames...');
+    
+    const firstFrame = this.gifFrames[0];
+    
+    const gif = new GIF({
+      workers: 2,
+      quality: 10,
+      workerScript: '/gif.worker.js',
+      width: firstFrame.width,
+      height: firstFrame.height,
+      repeat: 0 // Loop forever
+    });
+    
+    // Calculate delay based on mode
+    const mode = this.gifRecordMode();
+    let frameDelay: number;
+    
+    if (mode === 'auto') {
+      // Auto mode: Use longer delay (500ms) for smooth transitions
+      frameDelay = 500;
+      console.log(`📊 Using 500ms delay (2 FPS) for smooth auto-captured frames`);
+    } else {
+      // Manual mode: Use actual frame rate
+      frameDelay = Math.round(1000 / this.gifFrameRate());
+      console.log(`📊 Using ${frameDelay}ms delay (${this.gifFrameRate()} FPS)`);
+    }
+    
+    // Add all frames
+    this.gifFrames.forEach((frameData, index) => {
+      // Create canvas from ImageData
+      const canvas = document.createElement('canvas');
+      canvas.width = frameData.width;
+      canvas.height = frameData.height;
+      const ctx = canvas.getContext('2d');
+      
+      if (ctx) {
+        ctx.putImageData(frameData, 0, 0);
+        gif.addFrame(canvas, { delay: frameDelay, copy: true });
+      }
+    });
+    
+    gif.on('progress', (progress: number) => {
+      console.log(`⏳ Rendering GIF: ${Math.round(progress * 100)}%`);
+    });
+    
+    gif.on('finished', (blob: Blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `architecture-animated-${Date.now()}.gif`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      const fileSize = (blob.size / 1024).toFixed(1);
+      console.log(`✅ Animated GIF created: ${this.gifFrames.length} frames, ${fileSize} KB`);
+      alert(`Animated GIF created!\n\nFrames: ${this.gifFrames.length}\nSize: ${fileSize} KB\nMode: ${mode}`);
+      
+      // Clear frames
+      this.gifFrames = [];
+    });
+    
+    try {
+      gif.render();
+    } catch (error) {
+      console.error('❌ GIF creation failed:', error);
+      alert('Failed to create GIF. Check console for details.');
+    }
+  }
+  */
+  // END OF COMMENTED GIF FEATURES
   
   exportToJSON(): void {
     // Create simple, readable JSON structure
@@ -5146,10 +5918,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.customComponentIcon.set('📦');
     this.customComponentImageUrl.set('');
     this.customComponentImageFile = null;
+    // Set default category to first available category
+    if (this.categories.length > 0) {
+      this.customComponentCategory.set(this.categories[0].name);
+    }
   }
   
   closeCustomComponentModal(): void {
     this.showCustomComponentModal.set(false);
+    // Reset form fields
+    this.customComponentName.set('');
+    this.customComponentDescription.set('');
+    this.customComponentColor.set('#3b82f6');
+    this.customComponentIcon.set('');
+    if (this.categories.length > 0) {
+      this.customComponentCategory.set(this.categories[0].name);
+    }
+    this.customComponentImageFile = null;
+    this.customComponentImageUrl.set('');
   }
   
   onCustomComponentImageUpload(event: Event): void {
@@ -5181,13 +5967,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     // Check if we have image or icon
     const hasImage = this.customComponentImageUrl();
+    const selectedCategoryName = this.customComponentCategory();
+    
+    // Find the target category
+    const targetCategory = this.categories.find(cat => 
+      cat.name === selectedCategoryName
+    );
+    
+    if (!targetCategory) {
+      alert('Selected category not found. Please select a valid category.');
+      return;
+    }
     
     // Create custom component
     const customComponent: ComponentItem = {
       id: `custom-${Date.now()}`,
       name: name,
       icon: hasImage ? '' : this.customComponentIcon(), // Clear icon if image is uploaded
-      category: 'custom',
+      category: targetCategory.id,
       description: this.customComponentDescription() || 'Custom component',
       color: this.customComponentColor(),
       provider: 'Custom'
@@ -5198,20 +5995,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       (customComponent as any).imageUrl = this.customComponentImageUrl();
     }
     
-    // Add to custom category or create it
-    let customCategory = this.categories.find(cat => cat.id === 'custom');
-    if (!customCategory) {
-      customCategory = {
-        id: 'custom',
-        name: 'Custom Components',
-        icon: '⭐',
-        collapsed: false,
-        components: []
-      };
-      this.categories.unshift(customCategory); // Add at the beginning
-    }
-    
-    customCategory.components.push(customComponent);
+    // Add to the selected existing category
+    targetCategory.components.push(customComponent);
     
     // Save to localStorage
     this.saveCustomComponents();
@@ -5220,19 +6005,33 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.closeCustomComponentModal();
     
     // Show success message
-    console.log('✅ Custom component added:', name);
+    console.log(`✅ Custom component "${name}" added to category "${targetCategory.name}"`);
   }
   
   private saveCustomComponents(): void {
     if (!this.isBrowser) return;
     
-    const customCategory = this.categories.find(cat => cat.id === 'custom');
-    if (customCategory && customCategory.components.length > 0) {
-      try {
-        localStorage.setItem('custom-components', JSON.stringify(customCategory.components));
-      } catch (error) {
-        console.error('Failed to save custom components:', error);
+    try {
+      // Collect all custom components from all categories
+      const allCustomComponents: any[] = [];
+      
+      this.categories.forEach(category => {
+        const customComps = category.components.filter(comp => comp.provider === 'Custom');
+        customComps.forEach(comp => {
+          allCustomComponents.push({
+            ...comp,
+            categoryName: category.name, // Store category name for restoration
+            categoryId: category.id
+          });
+        });
+      });
+      
+      if (allCustomComponents.length > 0) {
+        localStorage.setItem('custom-components', JSON.stringify(allCustomComponents));
+        console.log(`💾 Saved ${allCustomComponents.length} custom components across ${this.categories.length} categories`);
       }
+    } catch (error) {
+      console.error('Failed to save custom components:', error);
     }
   }
   
@@ -5244,14 +6043,29 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       if (saved) {
         const customComponents = JSON.parse(saved);
         if (customComponents.length > 0) {
-          const customCategory: ComponentCategory = {
-            id: 'custom',
-            name: 'Custom Components',
-            icon: '⭐',
-            collapsed: false,
-            components: customComponents
-          };
-          this.categories.unshift(customCategory);
+          customComponents.forEach((comp: any) => {
+            // Find the category by name or id
+            let category = this.categories.find(cat => 
+              cat.name === comp.categoryName || cat.id === comp.categoryId
+            );
+            
+            // If category doesn't exist, create it
+            if (!category) {
+              category = {
+                id: comp.categoryId || 'custom',
+                name: comp.categoryName || 'Custom',
+                icon: '⭐',
+                collapsed: false,
+                components: []
+              };
+              this.categories.push(category);
+            }
+            
+            // Add the custom component to the category
+            category.components.push(comp);
+          });
+          
+          console.log(`📥 Loaded ${customComponents.length} custom components`);
         }
       }
     } catch (error) {
@@ -5645,6 +6459,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // 8. TEMPLATES SYSTEM
   templates = [
+    
     {
       id: '01-simple-rag-chatbot',
       name: 'Simple RAG Chatbot',
@@ -5652,6 +6467,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       thumbnail: '🤖',
       category: 'AI/ML',
       file: 'samples/01-simple-rag-chatbot.json'
+    },
+    {
+      id: 'Itenial',
+      name: 'Itenial sample',
+      description: 'Itenial sample architecture',
+      thumbnail: '🤖',
+      category: 'AI/ML',
+      file: 'samples/Itenial.json'
     },
     {
       id: '02-multi-model-ai-platform',
@@ -6008,7 +6831,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         
         this.layer.batchDraw();
         this.drawInfiniteGrid();
-        this.saveHistory();
+        
+        // Only save history if not restoring
+        if (!this.isRestoring) {
+          this.saveHistory();
+        }
         return;
       }
       
@@ -6041,7 +6868,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         // Redraw grid and shapes
         this.drawInfiniteGrid();
         this.layer.batchDraw();
-        this.saveHistory();
+        
+        // Only save history if not restoring
+        if (!this.isRestoring) {
+          this.saveHistory();
+        }
         
         console.log('Successfully loaded', data.shapes.length, 'shapes');
       }
@@ -6155,6 +6986,209 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     console.log('✅ Exported', shapes.length, 'shapes to JSON');
     
     return JSON.stringify(exportData, null, 2);
+  }
+  
+  // ==================== SEQUENCE ANIMATION METHODS ====================
+  
+  // Toggle animation panel
+  toggleAnimationPanel(): void {
+    this.showAnimationPanel.set(!this.showAnimationPanel());
+    if (this.showAnimationPanel()) {
+      this.refreshAnimationSequence();
+    }
+  }
+  
+  // Build animation sequence from current shapes
+  refreshAnimationSequence(): void {
+    if (!this.layer) return;
+    
+    this.animationSequence = [];
+    
+    // Get all groups (components) from the layer
+    const shapes = this.layer.children.filter((child: any) => {
+      const className = child.getClassName();
+      return className === 'Group' && child.hasName('component-group');
+    });
+    
+    shapes.forEach((shape: any, index: number) => {
+      const componentName = shape.getAttr('componentName') || `Component ${index + 1}`;
+      const existingOrder = shape.getAttr('animationOrder');
+      
+      this.animationSequence.push({
+        id: shape.id(),
+        name: componentName,
+        visible: shape.visible(),
+        order: existingOrder !== undefined ? existingOrder : index
+      });
+    });
+    
+    // Sort by order
+    this.animationSequence.sort((a, b) => a.order - b.order);
+    
+    console.log('📋 Animation sequence:', this.animationSequence);
+  }
+  
+  // Reorder animation step
+  moveAnimationStep(index: number, direction: 'up' | 'down'): void {
+    if (direction === 'up' && index > 0) {
+      [this.animationSequence[index], this.animationSequence[index - 1]] = 
+      [this.animationSequence[index - 1], this.animationSequence[index]];
+    } else if (direction === 'down' && index < this.animationSequence.length - 1) {
+      [this.animationSequence[index], this.animationSequence[index + 1]] = 
+      [this.animationSequence[index + 1], this.animationSequence[index]];
+    }
+    
+    // Update orders
+    this.animationSequence.forEach((item, idx) => {
+      item.order = idx;
+      const shape = this.layer.findOne(`#${item.id}`);
+      if (shape) {
+        shape.setAttr('animationOrder', idx);
+      }
+    });
+  }
+  
+  // Hide all components in sequence
+  hideAllSequence(): void {
+    this.animationSequence.forEach(item => {
+      const shape = this.layer.findOne(`#${item.id}`);
+      if (shape) {
+        shape.visible(false);
+        item.visible = false;
+      }
+    });
+    this.layer.batchDraw();
+    this.currentAnimationStep.set(0);
+  }
+  
+  // Show all components in sequence
+  showAllSequence(): void {
+    this.animationSequence.forEach(item => {
+      const shape = this.layer.findOne(`#${item.id}`);
+      if (shape) {
+        shape.visible(true);
+        item.visible = true;
+      }
+    });
+    this.layer.batchDraw();
+    this.currentAnimationStep.set(this.animationSequence.length);
+  }
+  
+  // Show next component in sequence
+  showNextInSequence(): void {
+    const currentStep = this.currentAnimationStep();
+    if (currentStep >= this.animationSequence.length) return;
+    
+    const item = this.animationSequence[currentStep];
+    const shape = this.layer.findOne(`#${item.id}`);
+    if (shape) {
+      shape.visible(true);
+      item.visible = true;
+      this.layer.batchDraw();
+      this.currentAnimationStep.set(currentStep + 1);
+      
+      console.log(`✅ Step ${currentStep + 1}: Showed ${item.name}`);
+    }
+  }
+  
+  // Show previous component in sequence
+  showPreviousInSequence(): void {
+    const currentStep = this.currentAnimationStep();
+    if (currentStep <= 0) return;
+    
+    const item = this.animationSequence[currentStep - 1];
+    const shape = this.layer.findOne(`#${item.id}`);
+    if (shape) {
+      shape.visible(false);
+      item.visible = false;
+      this.layer.batchDraw();
+      this.currentAnimationStep.set(currentStep - 1);
+      
+      console.log(`⏪ Step ${currentStep}: Hid ${item.name}`);
+    }
+  }
+  
+  // Play sequence animation automatically
+  playSequenceAnimation(): void {
+    if (this.isPlayingSequence()) return;
+    
+    this.isPlayingSequence.set(true);
+    this.hideAllSequence();
+    
+    let step = 0;
+    const interval = setInterval(() => {
+      if (step < this.animationSequence.length) {
+        this.showNextInSequence();
+        step++;
+      } else {
+        clearInterval(interval);
+        this.isPlayingSequence.set(false);
+        console.log('✅ Sequence animation complete!');
+      }
+    }, this.sequencePlaySpeed());
+  }
+  
+  // Stop sequence animation
+  stopSequenceAnimation(): void {
+    this.isPlayingSequence.set(false);
+  }
+  
+  // Record sequence as GIF
+  recordSequenceAsGIF(): void {
+    if (this.animationSequence.length === 0) {
+      alert('No animation sequence defined. Add components and create a sequence first.');
+      return;
+    }
+    
+    console.log('🎬 Recording sequence as GIF...');
+    
+    // COMMENTED: GIF Recording - feature not yet ready
+    /*
+    // Start GIF recording
+    this.gifRecordMode.set('sequence');
+    this.isRecordingGif.set(true);
+    this.gifFrames = [];
+    
+    // Hide transformer
+    if (this.transformer) {
+      this.transformer.visible(false);
+      this.transformer.nodes([]);
+    }
+    
+    // Hide all and capture initial frame
+    this.hideAllSequence();
+    this.captureGIFFrame();
+    
+    // Show each component and capture frame
+    let step = 0;
+    const captureInterval = setInterval(() => {
+      if (step < this.animationSequence.length) {
+        this.showNextInSequence();
+        
+        // Wait a bit for render, then capture
+        setTimeout(() => {
+          this.captureGIFFrame();
+        }, 100);
+        
+        step++;
+      } else {
+        clearInterval(captureInterval);
+        
+        // Restore transformer
+        if (this.transformer) {
+          this.transformer.visible(true);
+        }
+        
+        this.isRecordingGif.set(false);
+        
+        console.log(`📊 Sequence recorded: ${this.gifFrames.length} frames`);
+        
+        // Create GIF
+        this.createAnimatedGIF();
+      }
+    }, this.sequencePlaySpeed());
+    */
+    alert('GIF recording feature is not yet available. This feature is under development.');
   }
   
   ngOnDestroy(): void {

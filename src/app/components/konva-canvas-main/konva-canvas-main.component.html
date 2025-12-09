@@ -1,11 +1,12 @@
 <div class="konva-container" [class.light-theme]="!isDarkTheme()">
   <div class="main-content">
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen() ? 'Hide Sidebar' : 'Show Sidebar'" [class.closed]="!sidebarOpen()">
+      <span class="toggle-icon">{{ sidebarOpen() ? '‹' : '›' }}</span>
+    </button>
+    
     <!-- Left Sidebar -->
     <div class="sidebar" [class.closed]="!sidebarOpen()">
-      <!-- Toggle button on right border - Lighter design -->
-      <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen() ? 'Hide Sidebar' : 'Show Sidebar'">
-        <span class="toggle-icon">{{ sidebarOpen() ? '‹' : '›' }}</span>
-      </button>
       
       <!-- Search Input at Top -->
       <div class="sidebar-search">
@@ -480,11 +481,13 @@
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
       </button>
+      <!-- SVG export temporarily disabled - not fully implemented
       <button class="h-tool-btn" (click)="exportToSVG()" data-tooltip="Export as SVG - Download scalable vector graphic" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
         </svg>
       </button>
+      -->
       <button class="h-tool-btn" (click)="exportToJSON()" data-tooltip="Save as JSON - Export diagram data for backup" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -500,6 +503,33 @@
           <polyline points="9 15 12 18 15 15"/>
         </svg>
       </button>
+      
+      <div class="h-divider"></div>
+      
+      <!-- GIF Export - COMMENTED: Feature not yet ready -->
+      <!--
+      <button class="h-tool-btn" (click)="exportToGIF()" data-tooltip="Export as Static GIF - Single frame GIF image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+        🖼️
+      </button>
+      
+      @if (!isRecordingGif()) {
+        <button class="h-tool-btn" (click)="startRecordingGIF()" data-tooltip="Record Animated GIF - Capture canvas changes" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white;">
+          🎬
+        </button>
+      }
+      @if (isRecordingGif()) {
+        <button class="h-tool-btn recording-pulse" (click)="stopRecordingGIF()" data-tooltip="Stop Recording - Finish and download GIF" style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white;">
+          ⏹️
+        </button>
+      }
+      -->
+      
+      <!-- Animation Sequence - COMMENTED: Uses GIF recording feature -->
+      <!--
+      <button class="h-tool-btn" (click)="toggleAnimationPanel()" data-tooltip="Animation Sequence - Create step-by-step animations" [style.background]="showAnimationPanel() ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'" style="color: white;">
+        🎭
+      </button>
+      -->
       
       <div class="h-divider"></div>
       
@@ -652,6 +682,21 @@
           [ngModel]="customComponentDescription()"
           (ngModelChange)="customComponentDescription.set($event)"
         ></textarea>
+      </div>
+      
+      <!-- Category Selection -->
+      <div class="form-group">
+        <label for="component-category">Category</label>
+        <select 
+          id="component-category"
+          class="form-control"
+          [ngModel]="customComponentCategory()"
+          (ngModelChange)="customComponentCategory.set($event)"
+        >
+          <option *ngFor="let category of categories" [value]="category.name">
+            {{ category.icon }} {{ category.name }}
+          </option>
+        </select>
       </div>
       
       <!-- Color and Icon Row -->
@@ -917,4 +962,234 @@
     </div>
   </div>
 </div>
+
+<!-- Animation Sequence Panel -->
+@if (showAnimationPanel()) {
+  <div class="animation-panel">
+    <div class="animation-header">
+      <h3>🎭 Animation Sequence</h3>
+      <button class="close-btn" (click)="toggleAnimationPanel()">✕</button>
+    </div>
+    
+    <div class="animation-controls">
+      <button class="anim-btn primary" (click)="refreshAnimationSequence()">
+        🔄 Refresh List
+      </button>
+      <button class="anim-btn" (click)="hideAllSequence()">
+        👁️‍🗨️ Hide All
+      </button>
+      <button class="anim-btn" (click)="showAllSequence()">
+        👁️ Show All
+      </button>
+    </div>
+    
+    <div class="animation-playback">
+      <h4>Playback Controls</h4>
+      <div class="playback-controls">
+        <button class="anim-btn" (click)="showPreviousInSequence()" [disabled]="currentAnimationStep() === 0">
+          ⏮️ Previous
+        </button>
+        <button class="anim-btn" (click)="showNextInSequence()" [disabled]="currentAnimationStep() >= animationSequence.length">
+          ⏭️ Next
+        </button>
+        <button class="anim-btn primary" (click)="playSequenceAnimation()" [disabled]="isPlayingSequence()">
+          ▶️ Play
+        </button>
+      </div>
+      <div class="step-indicator">
+        Step: {{ currentAnimationStep() }} / {{ animationSequence.length }}
+      </div>
+      
+      <div class="speed-control">
+        <label>Speed (ms between steps):</label>
+        <input type="range" min="200" max="3000" step="100" 
+               [value]="sequencePlaySpeed()" 
+               (input)="sequencePlaySpeed.set(+$any($event.target).value)">
+        <span>{{ sequencePlaySpeed() }}ms</span>
+      </div>
+    </div>
+    
+    <div class="animation-sequence-list">
+      <h4>Sequence Order ({{ animationSequence.length }} items)</h4>
+      
+      @if (animationSequence.length === 0) {
+        <div class="no-items">
+          <p>No components found</p>
+          <p class="hint">Add some components to your canvas first</p>
+        </div>
+      }
+      
+      @for (item of animationSequence; track item.id; let i = $index) {
+        <div class="sequence-item" [class.visible]="item.visible">
+          <div class="item-order">{{ i + 1 }}</div>
+          <div class="item-name">{{ item.name }}</div>
+          <div class="item-controls">
+            <button class="item-btn" (click)="moveAnimationStep(i, 'up')" [disabled]="i === 0">
+              ▲
+            </button>
+            <button class="item-btn" (click)="moveAnimationStep(i, 'down')" [disabled]="i === animationSequence.length - 1">
+              ▼
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+    
+    <div class="animation-footer">
+      <button class="anim-btn record-btn" (click)="recordSequenceAsGIF()" [disabled]="animationSequence.length === 0">
+        🎬 Record as GIF
+      </button>
+      <p class="hint">This will create a GIF showing components appearing in order</p>
+    </div>
+  </div>
+}
+
+<!-- Export PNG Dialog -->
+@if (showExportDialog()) {
+  <div class="modal-overlay" (click)="closeExportDialog()">
+    <div class="export-dialog export-dialog-enhanced" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3>📥 Export as PNG</h3>
+        <button class="close-btn" (click)="closeExportDialog()">✕</button>
+      </div>
+      
+      <div class="dialog-body">
+        <!-- Preview Section -->
+        @if (exportPreviewUrl()) {
+          <div class="export-preview-section">
+            <label class="dialog-label">Preview:</label>
+            <div class="preview-container">
+              <img [src]="exportPreviewUrl()" alt="Export Preview" class="export-preview-img" />
+              @if (exportCropMode()) {
+                <div class="crop-indicator">✂️ Crop Mode Active</div>
+              }
+            </div>
+          </div>
+        }
+        
+        <!-- Export Settings -->
+        <div class="export-settings">
+          <!-- Background Color -->
+          <label class="dialog-label">Background Color:</label>
+          
+          <div class="bg-options">
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'transparent'"
+              (click)="exportBackgroundColor.set('transparent'); updateExportSettings()"
+            >
+              <div class="bg-preview transparent-bg"></div>
+              <span>Transparent</span>
+            </button>
+            
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'white'"
+              (click)="exportBackgroundColor.set('white'); updateExportSettings()"
+            >
+              <div class="bg-preview" style="background: white;"></div>
+              <span>White</span>
+            </button>
+            
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'black'"
+              (click)="exportBackgroundColor.set('black'); updateExportSettings()"
+            >
+              <div class="bg-preview" style="background: black;"></div>
+              <span>Black</span>
+            </button>
+            
+            <button 
+              class="bg-option" 
+              [class.selected]="exportBackgroundColor() === 'custom'"
+              (click)="exportBackgroundColor.set('custom'); updateExportSettings()"
+            >
+              <div class="bg-preview" [style.background]="exportCustomColor()"></div>
+              <span>Custom</span>
+            </button>
+          </div>
+          
+          @if (exportBackgroundColor() === 'custom') {
+            <div class="custom-color-picker">
+              <label>Custom Color:</label>
+              <input 
+                type="color" 
+                [value]="exportCustomColor()" 
+                (input)="exportCustomColor.set($any($event.target).value); updateExportSettings()"
+                class="color-input"
+              />
+              <span class="color-value">{{ exportCustomColor() }}</span>
+            </div>
+          }
+          
+          <!-- Size/Scale Control -->
+          <div class="export-control">
+            <label class="dialog-label">
+              Quality (Scale): <strong>{{ exportScale() }}x</strong>
+            </label>
+            <input 
+              type="range" 
+              min="1" 
+              max="5" 
+              step="0.5"
+              [value]="exportScale()" 
+              (input)="exportScale.set(+$any($event.target).value); updateExportSettings()"
+              class="slider"
+            />
+            <div class="slider-labels">
+              <span>1x (Low)</span>
+              <span>5x (High)</span>
+            </div>
+          </div>
+          
+          <!-- Padding Control -->
+          <div class="export-control">
+            <label class="dialog-label">
+              Padding: <strong>{{ exportPadding() }}px</strong>
+            </label>
+            <input 
+              type="range" 
+              min="0" 
+              max="500" 
+              step="50"
+              [value]="exportPadding()" 
+              (input)="exportPadding.set(+$any($event.target).value); updateExportSettings()"
+              class="slider"
+            />
+            <div class="slider-labels">
+              <span>0px</span>
+              <span>500px</span>
+            </div>
+          </div>
+          
+          <!-- Crop Toggle -->
+          <div class="export-control">
+            <button 
+              class="btn-crop-toggle" 
+              [class.active]="exportCropMode()"
+              (click)="toggleCropMode()"
+            >
+              <span class="icon">{{ exportCropMode() ? '✂️' : '🖼️' }}</span>
+              <span>{{ exportCropMode() ? 'Disable Crop' : 'Enable Crop' }}</span>
+            </button>
+            @if (exportCropMode()) {
+              <p class="crop-hint">💡 Drag and resize the blue box on canvas to adjust crop area</p>
+            }
+          </div>
+        </div>
+      </div>
+      
+      <div class="dialog-footer">
+        <button class="btn-secondary" (click)="closeExportDialog()">
+          Cancel
+        </button>
+        <button class="btn-primary" (click)="confirmExportPNG()">
+          ⬇️ Download PNG
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
 
