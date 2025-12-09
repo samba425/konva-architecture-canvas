@@ -58,7 +58,7 @@
 
 - **Drag to Move** entire groups as single units    - **Databases**: RDS, Cloud SQL, DynamoDB, Cosmos DB, Firestore
 
-- **Extract Items** from groups to create new groups    - **Cisco Products**: Catalyst, Webex, Meraki, SecureX, DNA Center
+- **Extract Items** from groups to create new groups    - **Network Products**: Catalyst, Webex, Meraki, SecureX, DNA Center
 
 - **Smart Border Colors** automatically assigned based on nesting depth  
 
@@ -152,7 +152,7 @@ Git      - `medium-serverless.json` - AWS serverless
 
 # Clone repository    - Delete nodes and connections
 
-git clone https://github.com/cisco/architecture-builder.git    - Clear canvas
+git clone https://github.com/demo/architecture-builder.git    - Clear canvas
 
 cd architecture-builder    - Fit to screen
 
@@ -702,7 +702,7 @@ docker-compose up**Recommended Route**: Step 3 → "Open Canvas" → Interactive
 
 - Check file permissions- 🗄️ **Databases** - RDS, Cloud SQL, DynamoDB, Cosmos DB
 
-- Verify JSON format- 🔧 **Cisco** - Catalyst, Webex, Meraki, SecureX
+- Verify JSON format- 🔧 **Network** - Catalyst, Webex, Meraki, SecureX
 
 - Look for console errors
 
@@ -788,7 +788,7 @@ MIT License - see [LICENSE](LICENSE)
 
 - Category (Infrastructure, AI/ML, etc.)
 
----- Provider (AWS, GCP, Azure, Cisco)
+---- Provider (AWS, GCP, Azure, Network)
 
 - Description
 
@@ -796,9 +796,9 @@ MIT License - see [LICENSE](LICENSE)
 
 Tooltip appears in top-right corner with scrollable content.
 
-- **Issues**: [GitHub Issues](https://github.com/cisco/architecture-builder/issues)
+- **Issues**: [GitHub Issues](https://github.com/demo/architecture-builder/issues)
 
-- **Email**: asambasi@cisco.com#### Saving & Loading
+- **Email**: asambasi@demo.com#### Saving & Loading
 
 **Save Work**:
 
@@ -854,7 +854,7 @@ Tooltip appears in top-right corner with scrollable content.
 
       "x": 400,
 
-**Built with ❤️ by Cisco**      "y": 100,
+**Built with ❤️ by the Team**      "y": 100,
 
       "componentProperties": {
 

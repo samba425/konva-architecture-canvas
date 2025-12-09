@@ -37,7 +37,7 @@ IDE: VS Code (recommended)
 
 ```bash
 # Clone repository
-git clone https://github.com/cisco/architecture-builder.git
+git clone https://github.com/demo/architecture-builder.git
 cd architecture-builder
 
 # Install dependencies
@@ -1074,7 +1074,7 @@ try {
 
 ---
 
-**Need Help?** Open an issue or contact asambasi@cisco.com
+**Need Help?** Open an issue or contact asambasi@demo.com
 
 **Contributing?** See [CONTRIBUTING.md](CONTRIBUTING.md)
 

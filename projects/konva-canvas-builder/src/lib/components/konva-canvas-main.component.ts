@@ -5710,12 +5710,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       file: 'samples/08-kubernetes-pods-groups.json'
     },
     {
-      id: 'cisco-ai-stack-complete',
-      name: 'Cisco AI Stack',
-      description: 'Complete Cisco AI infrastructure',
+      id: 'enterprise-ai-stack-complete',
+      name: 'Enterprise AI Stack',
+      description: 'Complete Enterprise AI infrastructure',
       thumbnail: '🌐',
       category: 'Enterprise',
-      file: 'samples/cisco-ai-stack-complete.json'
+      file: 'samples/enterprise-ai-stack-complete.json'
     },
     {
       id: 'complex-enterprise-platform',

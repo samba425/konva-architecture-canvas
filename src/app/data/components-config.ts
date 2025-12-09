@@ -68,17 +68,17 @@ export const COMPONENT_CATEGORIES: Record<string, CategoryDefinition> = {
     color: "#28a745",
     order: 7
   },
-  cisco_ai: {
-    name: "Cisco AI",
+  enterprise_ai: {
+    name: "Enterprise AI",
     icon: "fas fa-network-wired",
-    description: "Cisco AI and machine learning solutions for enterprise networking and security",
+    description: "Enterprise AI and machine learning solutions for networking and security",
     color: "#049FD9",
     order: 8
   },
-  cisco_ai_pods: {
-    name: "Cisco AI Pods",
+  enterprise_ai_pods: {
+    name: "Enterprise AI Pods",
     icon: "fas fa-folder",
-    description: "Cisco AI Pods for enterprise deployments",
+    description: "Enterprise AI Pods for large-scale deployments",
     color: "#6c757d",
     order: 9
   }

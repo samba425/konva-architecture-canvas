@@ -1,6 +1,6 @@
 # GitHub Pages Deployment Guide
 
-This guide explains how to deploy the Architecture Builder application to GitHub Pages (both Cisco GitHub and public GitHub).
+This guide explains how to deploy the Architecture Builder application to GitHub Pages.
 
 ## Prerequisites
 
@@ -34,11 +34,6 @@ The default Angular budget limits are too small for this application. Update `an
 
 Build the application with the correct base-href for your GitHub Pages URL:
 
-**For Cisco GitHub:**
-```bash
-ng build --configuration production --base-href "/pages/asambasi/Architecture-Builder/"
-```
-
 **For Public GitHub (username.github.io/repo-name):**
 ```bash
 ng build --configuration production --base-href "/konva-architecture-canvas/"
@@ -52,14 +47,6 @@ ng build --configuration production --base-href "/"
 ### 3. Deploy to GitHub Pages
 
 #### Option A: Using angular-cli-ghpages (Recommended)
-
-**For Cisco GitHub:**
-```bash
-npx angular-cli-ghpages --dir=dist/architecture-builder/browser \
-  --repo=https://wwwin-github.cisco.com/asambasi/Architecture-Builder.git \
-  --branch=gh-pages \
-  --no-silent
-```
 
 **For Public GitHub:**
 ```bash
@@ -116,9 +103,6 @@ Wait a few minutes for GitHub to build and deploy your site.
 
 ## Access Your Deployed Application
 
-### Cisco GitHub
-```
-https://wwwin-github.cisco.com/pages/asambasi/Architecture-Builder/
 ```
 
 ### Public GitHub
@@ -133,7 +117,7 @@ https://samba425.github.io/konva-architecture-canvas/
 **Problem:** Files not loading, MIME type errors
 
 **Solution:** Check your `base-href` matches your GitHub Pages URL structure:
-- Cisco: `/pages/username/repo-name/`
+
 - Public: `/repo-name/` or `/` for custom domain
 
 **Rebuild with correct base-href:**
@@ -176,12 +160,12 @@ ng build --configuration production --base-href "/pages/asambasi/Architecture-Bu
 # Deploy to GitHub Pages
 echo "🚀 Deploying to GitHub Pages..."
 npx angular-cli-ghpages --dir=dist/architecture-builder/browser \
-  --repo=https://wwwin-github.cisco.com/asambasi/Architecture-Builder.git \
+  --repo=https://github.com/samba425/konva-architecture-canvas.git \
   --branch=gh-pages \
   --no-silent
 
 echo "✅ Deployment complete!"
-echo "🌐 Your app is live at: https://wwwin-github.cisco.com/pages/asambasi/Architecture-Builder/"
+echo "🌐 Your app is live at: https://samba425.github.io/konva-architecture-canvas/"
 ```
 
 Make it executable:
@@ -232,11 +216,6 @@ After deployment, check:
    - Style panel
 
 ## GitHub Pages URL Structure
-
-### Cisco GitHub
-```
-https://wwwin-github.cisco.com/pages/{username}/{repo-name}/
-```
 
 ### Public GitHub - User Site
 ```
@@ -291,8 +270,8 @@ jobs:
 ## Summary
 
 ✅ **One-time setup:** Update budgets in angular.json  
-✅ **Build:** `ng build --configuration production --base-href "/pages/asambasi/Architecture-Builder/"`  
+✅ **Build:** `ng build --configuration production --base-href "/konva-architecture-canvas/"`  
 ✅ **Deploy:** `npx angular-cli-ghpages --dir=dist/architecture-builder/browser --repo=<repo-url> --branch=gh-pages --no-silent`  
-✅ **Access:** https://wwwin-github.cisco.com/pages/asambasi/Architecture-Builder/  
+✅ **Access:** https://samba425.github.io/konva-architecture-canvas/  
 
 Your application is now live and accessible to anyone with access to your GitHub repository! 🎉

@@ -158,7 +158,7 @@ The `/samples` folder includes:
 5. **observability-stack.json** - Complete observability setup
 6. **grouped-microservices.json** - Microservices with grouping
 7. **nested-groups-cloud.json** - Complex nested architecture
-8. **cisco-ai-stack-complete.json** - Comprehensive Cisco AI stack
+8. **enterprise-ai-stack-complete.json** - Comprehensive Enterprise AI stack
 
 ---
 

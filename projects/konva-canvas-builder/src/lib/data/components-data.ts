@@ -49,15 +49,15 @@ export const COMPONENT_CATEGORIES = {
     color: "#28a745",
     order: 7
   },
-  cisco_ai: {
-    name: "Cisco AI",
+  enterprise_ai: {
+    name: "Enterprise AI",
     icon: "fas fa-network-wired",
-    description: "Cisco AI and machine learning solutions for enterprise networking and security",
+    description: "Enterprise AI and machine learning solutions for enterprise networking and security",
     color: "#049FD9",
     order: 8
   },
-  cisco_ai_pods: {
-    name: "Cisco AI Pods",
+  enterprise_ai_pods: {
+    name: "Enterprise AI Pods",
     icon: "fas fa-folder",
     description: "",
     color: "#6c757d",
@@ -889,17 +889,17 @@ export const COMPONENTS = {
       }
     }
   },
-  "cisco-catalyst": {
-    id: "cisco-catalyst",
-    name: "Cisco Catalyst AI",
+  "network-catalyst": {
+    id: "network-catalyst",
+    name: "Network Catalyst AI",
     icon: "fas fa-network-wired",
     faIcon: "fas fa-network-wired",
-    category: "cisco_ai",
-    provider: "Cisco",
+    category: "enterprise_ai",
+    provider: "Network",
     description: "AI-powered network infrastructure and analytics",
-    definition: "Cisco Catalyst AI delivers intelligent network operations with predictive analytics and automated remediation for enterprise networks.",
+    definition: "Network Catalyst AI delivers intelligent network operations with predictive analytics and automated remediation for enterprise networks.",
     color: "#049FD9",
-    template: "<div class='component cisco-catalyst' data-type='cisco-catalyst'><i class='fas fa-network-wired'></i> Cisco Catalyst AI</div>",
+    template: "<div class='component network-catalyst' data-type='network-catalyst'><i class='fas fa-network-wired'></i> Network Catalyst AI</div>",
     properties: {
       deployment_mode: {
         type: "select" as const,
@@ -915,17 +915,17 @@ export const COMPONENTS = {
       }
     }
   },
-  "cisco-umbrella-ai": {
-    id: "cisco-umbrella-ai",
-    name: "Cisco Umbrella AI",
+  "network-umbrella-ai": {
+    id: "network-umbrella-ai",
+    name: "Network Umbrella AI",
     icon: "fas fa-shield-alt",
     faIcon: "fas fa-shield-alt",
-    category: "cisco_ai",
-    provider: "Cisco",
+    category: "enterprise_ai",
+    provider: "Network",
     description: "AI-powered cloud security and threat protection",
-    definition: "Cisco Umbrella AI uses machine learning to provide predictive threat intelligence and automated security responses for cloud-delivered security.",
+    definition: "Network Umbrella AI uses machine learning to provide predictive threat intelligence and automated security responses for cloud-delivered security.",
     color: "#049FD9",
-    template: "<div class='component cisco-umbrella-ai' data-type='cisco-umbrella-ai'><i class='fas fa-shield-alt'></i> Cisco Umbrella AI</div>",
+    template: "<div class='component network-umbrella-ai' data-type='network-umbrella-ai'><i class='fas fa-shield-alt'></i> Network Umbrella AI</div>",
     properties: {
       protection_level: {
         type: "select" as const,
