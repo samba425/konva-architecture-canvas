@@ -10,7 +10,7 @@ pymongo
 # Authentication
 python-jose[cryptography]
 passlib[bcrypt]
-bcrypt
+bcrypt==3.2.2
 
 # Validation and Settings
 pydantic
@@ -19,6 +19,7 @@ email-validator
 
 # Utilities
 python-dotenv
+requests
 
 # LLM Integration
 litellm

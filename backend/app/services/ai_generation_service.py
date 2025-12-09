@@ -1,5 +1,8 @@
 import json
 import logging
+import os
+import sys
+import time
 from typing import Optional, Dict, Any
 from datetime import datetime
 
@@ -7,11 +10,22 @@ import litellm
 
 from app.config import settings
 from app.schemas.ai_generation import LLMProvider
+from app.core.token_manager import get_token_manager
 
+# Configure logging to output to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
 # Disable verbose litellm logging
 litellm.set_verbose = False
+
+# IMPORTANT: Prevent litellm from auto-reading OPENAI_API_KEY from environment
+# when we want to use a different provider
+litellm.drop_params = True
 
 
 # System prompt for diagram generation
@@ -161,14 +175,25 @@ class AIGenerationService:
     
     def _configure_litellm(self):
         """Configure LiteLLM based on provider settings."""
-        # Set API keys based on provider
-        if settings.OPENAI_API_KEY:
-            litellm.api_key = settings.OPENAI_API_KEY
+        # Clear any default API key to prevent litellm from using OpenAI by default
+        litellm.api_key = None
         
-        # Azure configuration
-        if settings.AZURE_OPENAI_API_KEY and settings.AZURE_OPENAI_ENDPOINT:
-            litellm.api_base = settings.AZURE_OPENAI_ENDPOINT
-            litellm.api_version = settings.AZURE_OPENAI_API_VERSION
+        # If using Azure, we need to prevent litellm from reading OPENAI_API_KEY
+        if settings.LLM_PROVIDER == "azure":
+            # Temporarily remove OPENAI_API_KEY from environment if it's a placeholder
+            openai_key = os.environ.get("OPENAI_API_KEY", "")
+            if openai_key.startswith("sk-your") or not openai_key:
+                os.environ.pop("OPENAI_API_KEY", None)
+            
+            # Initialize token manager for OAuth2 authentication
+            if settings.TOKEN_URL:
+                self.token_manager = get_token_manager()
+                logger.info(f"Configured for Azure OpenAI with OAuth2: {settings.AZURE_OPENAI_ENDPOINT}")
+            else:
+                self.token_manager = None
+                logger.info(f"Configured for Azure OpenAI with API key: {settings.AZURE_OPENAI_ENDPOINT}")
+        else:
+            self.token_manager = None
     
     def _get_model_string(self, provider: Optional[LLMProvider] = None) -> str:
         """Get the LiteLLM model string based on provider."""
@@ -186,11 +211,34 @@ class AIGenerationService:
         provider_str = provider.value if provider else settings.LLM_PROVIDER
         
         if provider_str == "azure":
-            return {
-                "api_key": settings.AZURE_OPENAI_API_KEY,
-                "api_base": settings.AZURE_OPENAI_ENDPOINT,
-                "api_version": settings.AZURE_OPENAI_API_VERSION,
-            }
+            # Check if using OAuth2 token authentication (Cisco Azure)
+            if settings.TOKEN_URL and self.token_manager:
+                try:
+                    # Fetch OAuth2 access token
+                    access_token = self.token_manager.fetch_azure_token()
+                    logger.info("Using OAuth2 token for Azure authentication")
+                    
+                    # Build user payload for Cisco Azure (matching working implementation)
+                    user_payload = {"appkey": settings.AZURE_OPENAI_APP_KEY}
+                    if settings.AZURE_USER_ID:
+                        user_payload["user_id"] = settings.AZURE_USER_ID
+                    
+                    return {
+                        "api_key": access_token,
+                        "api_base": settings.AZURE_OPENAI_ENDPOINT,
+                        "api_version": settings.AZURE_OPENAI_API_VERSION,
+                        "extra_body": {"user": json.dumps(user_payload)}
+                    }
+                except Exception as e:
+                    logger.error(f"Failed to get OAuth2 token: {e}")
+                    raise
+            else:
+                # Standard Azure OpenAI with API key
+                return {
+                    "api_key": settings.AZURE_OPENAI_API_KEY,
+                    "api_base": settings.AZURE_OPENAI_ENDPOINT,
+                    "api_version": settings.AZURE_OPENAI_API_VERSION,
+                }
         elif provider_str == "ollama":
             return {
                 "api_base": settings.OLLAMA_BASE_URL,
@@ -395,13 +443,37 @@ Apply the requested changes and return the complete updated diagram JSON."""
     
     def check_provider_status(self, provider: Optional[LLMProvider] = None) -> Dict[str, Any]:
         """Check if a provider is configured and available."""
+        # Log what provider was requested vs what default is
+        logger.info(f"check_provider_status called with provider={provider}")
+        logger.info(f"settings.LLM_PROVIDER = {settings.LLM_PROVIDER}")
+        
         provider_str = provider.value if provider else settings.LLM_PROVIDER
+        
+        logger.info(f"Using provider: {provider_str}")
         
         if provider_str == "openai":
             configured = bool(settings.OPENAI_API_KEY)
             model = settings.OPENAI_MODEL
+            logger.info(f"OpenAI - API key set: {bool(settings.OPENAI_API_KEY)}")
         elif provider_str == "azure":
-            configured = bool(settings.AZURE_OPENAI_API_KEY and settings.AZURE_OPENAI_ENDPOINT)
+            # Check for OAuth2 authentication (TOKEN_URL) or direct API key
+            if settings.TOKEN_URL:
+                # OAuth2 mode - check for TOKEN_URL, CLIENT_ID, CLIENT_SECRET
+                configured = bool(
+                    settings.TOKEN_URL and 
+                    settings.CLIENT_ID and 
+                    settings.CLIENT_SECRET and 
+                    settings.AZURE_OPENAI_ENDPOINT
+                )
+                logger.info(f"Azure (OAuth2) - TOKEN_URL set: {bool(settings.TOKEN_URL)}, "
+                          f"CLIENT_ID set: {bool(settings.CLIENT_ID)}, "
+                          f"CLIENT_SECRET set: {bool(settings.CLIENT_SECRET)}, "
+                          f"Endpoint: {settings.AZURE_OPENAI_ENDPOINT}")
+            else:
+                # Direct API key mode
+                configured = bool(settings.AZURE_OPENAI_API_KEY and settings.AZURE_OPENAI_ENDPOINT)
+                logger.info(f"Azure (API Key) - API key set: {bool(settings.AZURE_OPENAI_API_KEY)}, "
+                          f"Endpoint: {settings.AZURE_OPENAI_ENDPOINT}")
             model = settings.AZURE_OPENAI_DEPLOYMENT
         elif provider_str == "ollama":
             configured = bool(settings.OLLAMA_BASE_URL)
@@ -409,6 +481,8 @@ Apply the requested changes and return the complete updated diagram JSON."""
         else:
             configured = False
             model = "unknown"
+        
+        logger.info(f"Provider {provider_str} configured: {configured}, model: {model}")
         
         return {
             "provider": provider_str,
@@ -418,14 +492,8 @@ Apply the requested changes and return the complete updated diagram JSON."""
         }
 
 
-# Singleton instance
-_ai_service: Optional[AIGenerationService] = None
-
-
 def get_ai_generation_service() -> AIGenerationService:
-    """Get or create the AI generation service singleton."""
-    global _ai_service
-    if _ai_service is None:
-        _ai_service = AIGenerationService()
-    return _ai_service
+    """Get a fresh AI generation service instance."""
+    # Create a new instance each time to ensure fresh config is used
+    return AIGenerationService()
 

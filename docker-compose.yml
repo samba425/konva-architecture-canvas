@@ -53,16 +53,25 @@ services:
       # Provider Selection: openai | azure | ollama
       - LLM_PROVIDER=${LLM_PROVIDER:-openai}
       
-      # OpenAI Configuration
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      # OpenAI Configuration (only set if using OpenAI provider)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_API_URL=${OPENAI_API_URL:-https://api.openai.com/v1}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
       
       # Azure OpenAI Configuration
       - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
-      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
-      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2024-02-15-preview}
-      - AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT:-gpt-4}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-https://chat-ai.cisco.com}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2023-08-01-preview}
+      - AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT:-gpt-4.1}
+      - AZURE_OPENAI_APP_KEY=${AZURE_OPENAI_APP_KEY:-}
+      - AZURE_USER_ID=${AZURE_USER_ID:-}
+      
+      # OAuth2 Token Authentication (for Cisco Azure)
+      - TOKEN_URL=${TOKEN_URL:-}
+      - CLIENT_ID=${CLIENT_ID:-}
+      - CLIENT_SECRET=${CLIENT_SECRET:-}
+      - ENABLE_TOKEN_CACHING=${ENABLE_TOKEN_CACHING:-true}
+      - TOKEN_CACHE_TTL=${TOKEN_CACHE_TTL:-3300}
       
       # Ollama Configuration (Local LLM)
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
