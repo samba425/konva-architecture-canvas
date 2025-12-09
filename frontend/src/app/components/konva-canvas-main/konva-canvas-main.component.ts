@@ -205,6 +205,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   customComponentDescription = signal('');
   customComponentColor = signal('#3b82f6');
   customComponentIcon = signal('');
+  customComponentCategory = signal('Custom'); // Default category
   customComponentImageFile: File | null = null;
   customComponentImageUrl = signal('');
   
@@ -524,9 +525,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.createTransformer();
     this.layer.add(this.transformer);
     
-    // Auto-save after any shape is dragged
+    // Auto-save and save history after any shape is dragged
     this.layer.on('dragend', (e) => {
       if (!this.isRestoring && e.target !== this.stage) {
+        this.saveHistory();
         this.autoSaveToLocalStorage();
       }
     });
@@ -606,11 +608,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       centeredScaling: false
     });
     
-    // Auto-save after transform (resize/rotate)
+    // Auto-save and save history after transform (resize/rotate)
     this.transformer.on('transformend', () => {
       console.log('🔄 Transform ended, isRestoring:', this.isRestoring);
       if (!this.isRestoring) {
         console.log('💾 Auto-saving after transform...');
+        this.saveHistory();
         this.autoSaveToLocalStorage();
       }
     });
@@ -1909,6 +1912,9 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     // Check if this is a custom component with uploaded image
     const customImageUrl = (component as any).imageUrl;
     if (customImageUrl) {
+      // Store the image URL as componentIcon attribute for export/import
+      group.setAttr('componentIcon', customImageUrl);
+      
       // Handle custom uploaded image
       try {
         const imageObj = new Image();
@@ -2074,6 +2080,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // History management
   private saveHistory(): void {
+    if (this.isRestoring) {
+      console.log('⏸️ Skipping saveHistory (isRestoring=true)');
+      return;
+    }
+    
     // Export all shapes with custom logic to preserve icons and attributes
     const shapes = this.layer.children.filter((child: any) => 
       child.getClassName() !== 'Transformer' && !child.hasName('selection-box')
@@ -2083,6 +2094,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.history = this.history.slice(0, this.historyStep + 1);
     this.history.push(json);
     this.historyStep++;
+    
+    // Log shape types for debugging
+    const shapeTypes = shapes.map((s: any) => {
+      if (s.className === 'Group') return `Group(${s.name || s.id})`;
+      if (s.className === 'Arrow') return `Arrow(${s.name || 'connector'})`;
+      return s.className;
+    });
+    console.log(`💾 History saved: step ${this.historyStep}/${this.history.length}, shapes: [${shapeTypes.join(', ')}]`);
     
     // Auto-save to localStorage (but not during restore)
     if (!this.isRestoring) {
@@ -2132,16 +2151,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         // Force redraw
         this.layer.batchDraw();
         
-        // Clear flag after restore
-        this.isRestoring = false;
+        // Clear flag after a delay to ensure all async operations complete
+        setTimeout(() => {
+          this.isRestoring = false;
+          // Save initial history state after restore
+          this.saveHistory();
+          console.log('✅ Canvas restored successfully');
+        }, 1000);
         
-        console.log('✅ Canvas restored successfully');
       } else {
         console.log('ℹ️ No auto-save data found');
+        // Save initial empty state
+        this.saveHistory();
       }
     } catch (error) {
       console.error('❌ Failed to restore from auto-save:', error);
       this.isRestoring = false;
+      // Save initial state even on error
+      this.saveHistory();
     }
   }
   
@@ -2320,20 +2347,35 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   }
   
   undo(): void {
-    if (this.historyStep === 0) return;
+    if (this.historyStep === 0) {
+      console.log('⚠️ Cannot undo: already at first state');
+      return;
+    }
+    
+    console.log(`🔙 Undo: step ${this.historyStep} → ${this.historyStep - 1} (total: ${this.history.length})`);
+    
+    // Set flag to prevent saving history during undo
+    this.isRestoring = true;
+    
     this.historyStep--;
     const json = this.history[this.historyStep];
     
-    // Clear current layer (but keep transformer)
-    this.layer.children.forEach((child: any) => {
-      if (child !== this.transformer) {
-        child.destroy();
-      }
+    // Clear current layer (but keep transformer) - collect first, then destroy
+    const childrenToDestroy = this.layer.children.filter((child: any) => 
+      child !== this.transformer && !child.hasName('selection-box')
+    );
+    childrenToDestroy.forEach((child: any) => {
+      // Remove all event listeners before destroying
+      child.off('dragmove');
+      child.off('dragend');
+      child.off('transformend');
+      child.destroy();
     });
     
     // Restore shapes from history
     try {
       const data = JSON.parse(json);
+      console.log(`📦 Restoring ${data.shapes?.length || 0} shapes from history`);
       if (data.shapes) {
         data.shapes.forEach((shapeData: any) => {
           this.restoreShapeFromHistory(shapeData);
@@ -2344,23 +2386,44 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     }
     
     this.layer.batchDraw();
+    
+    // Increase timeout to ensure all async image loading completes
+    setTimeout(() => {
+      this.isRestoring = false;
+      console.log('✅ Undo complete');
+    }, 1000); // Increased from 500ms to 1000ms
   }
   
   redo(): void {
-    if (this.historyStep === this.history.length - 1) return;
+    if (this.historyStep === this.history.length - 1) {
+      console.log('⚠️ Cannot redo: already at latest state');
+      return;
+    }
+    
+    console.log(`🔜 Redo: step ${this.historyStep} → ${this.historyStep + 1} (total: ${this.history.length})`);
+    
+    // Set flag to prevent saving history during redo
+    this.isRestoring = true;
+    
     this.historyStep++;
     const json = this.history[this.historyStep];
     
-    // Clear current layer (but keep transformer)
-    this.layer.children.forEach((child: any) => {
-      if (child !== this.transformer) {
-        child.destroy();
-      }
+    // Clear current layer (but keep transformer) - collect first, then destroy
+    const childrenToDestroy = this.layer.children.filter((child: any) => 
+      child !== this.transformer && !child.hasName('selection-box')
+    );
+    childrenToDestroy.forEach((child: any) => {
+      // Remove all event listeners before destroying
+      child.off('dragmove');
+      child.off('dragend');
+      child.off('transformend');
+      child.destroy();
     });
     
     // Restore shapes from history
     try {
       const data = JSON.parse(json);
+      console.log(`📦 Restoring ${data.shapes?.length || 0} shapes from history`);
       if (data.shapes) {
         data.shapes.forEach((shapeData: any) => {
           this.restoreShapeFromHistory(shapeData);
@@ -2371,6 +2434,12 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     }
     
     this.layer.batchDraw();
+    
+    // Increase timeout to ensure all async image loading completes
+    setTimeout(() => {
+      this.isRestoring = false;
+      console.log('✅ Redo complete');
+    }, 1000); // Increased from 500ms to 1000ms
   }
   
   // Restore a shape from history data
@@ -2401,8 +2470,47 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
       if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
       
-      // Load icon async
-      if (shapeData.faIcon) {
+      // Check if componentIcon is a data URL (custom uploaded image)
+      const isDataURL = shapeData.componentIcon && shapeData.componentIcon.startsWith('data:image');
+      
+      // Load icon async - prioritize custom image over Font Awesome icon
+      if (isDataURL) {
+        // Custom uploaded image
+        const imageObj = new Image();
+        imageObj.onload = () => {
+          shape.destroyChildren();
+          
+          const icon = new Konva.Image({
+            x: 16,
+            y: 0,
+            image: imageObj,
+            width: 48,
+            height: 48
+          });
+          
+          const name = new Konva.Text({
+            x: 0,
+            y: 55,
+            text: shapeData.componentName || 'Component',
+            fontSize: 14,
+            fontStyle: 'bold',
+            align: 'center',
+            fill: shapeData.textColor || '#1a1a1a',
+            width: 80
+          });
+          
+          shape.add(icon, name);
+          // Re-apply scale after children are added
+          if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
+          if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
+          // Only redraw if not restoring (undo/redo will handle batch draw)
+          if (!this.isRestoring) {
+            this.layer.batchDraw();
+          }
+        };
+        imageObj.src = shapeData.componentIcon;
+      } else if (shapeData.faIcon) {
+        // Font Awesome icon
         this.generateIconDataURL(shapeData.faIcon, shapeData.iconColor || '#3b82f6').then(iconDataURL => {
           const imageObj = new Image();
           imageObj.onload = () => {
@@ -2431,7 +2539,10 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
             // Re-apply scale after children are added
             if (shapeData.scaleX) shape.scaleX(shapeData.scaleX);
             if (shapeData.scaleY) shape.scaleY(shapeData.scaleY);
-            this.layer.batchDraw();
+            // Only redraw if not restoring (undo/redo will handle batch draw)
+            if (!this.isRestoring) {
+              this.layer.batchDraw();
+            }
           };
           imageObj.src = iconDataURL;
         });
@@ -5807,10 +5918,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.customComponentIcon.set('📦');
     this.customComponentImageUrl.set('');
     this.customComponentImageFile = null;
+    // Set default category to first available category
+    if (this.categories.length > 0) {
+      this.customComponentCategory.set(this.categories[0].name);
+    }
   }
   
   closeCustomComponentModal(): void {
     this.showCustomComponentModal.set(false);
+    // Reset form fields
+    this.customComponentName.set('');
+    this.customComponentDescription.set('');
+    this.customComponentColor.set('#3b82f6');
+    this.customComponentIcon.set('');
+    if (this.categories.length > 0) {
+      this.customComponentCategory.set(this.categories[0].name);
+    }
+    this.customComponentImageFile = null;
+    this.customComponentImageUrl.set('');
   }
   
   onCustomComponentImageUpload(event: Event): void {
@@ -5842,13 +5967,24 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     
     // Check if we have image or icon
     const hasImage = this.customComponentImageUrl();
+    const selectedCategoryName = this.customComponentCategory();
+    
+    // Find the target category
+    const targetCategory = this.categories.find(cat => 
+      cat.name === selectedCategoryName
+    );
+    
+    if (!targetCategory) {
+      alert('Selected category not found. Please select a valid category.');
+      return;
+    }
     
     // Create custom component
     const customComponent: ComponentItem = {
       id: `custom-${Date.now()}`,
       name: name,
       icon: hasImage ? '' : this.customComponentIcon(), // Clear icon if image is uploaded
-      category: 'custom',
+      category: targetCategory.id,
       description: this.customComponentDescription() || 'Custom component',
       color: this.customComponentColor(),
       provider: 'Custom'
@@ -5859,20 +5995,8 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       (customComponent as any).imageUrl = this.customComponentImageUrl();
     }
     
-    // Add to custom category or create it
-    let customCategory = this.categories.find(cat => cat.id === 'custom');
-    if (!customCategory) {
-      customCategory = {
-        id: 'custom',
-        name: 'Custom Components',
-        icon: '⭐',
-        collapsed: false,
-        components: []
-      };
-      this.categories.unshift(customCategory); // Add at the beginning
-    }
-    
-    customCategory.components.push(customComponent);
+    // Add to the selected existing category
+    targetCategory.components.push(customComponent);
     
     // Save to localStorage
     this.saveCustomComponents();
@@ -5881,19 +6005,33 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
     this.closeCustomComponentModal();
     
     // Show success message
-    console.log('✅ Custom component added:', name);
+    console.log(`✅ Custom component "${name}" added to category "${targetCategory.name}"`);
   }
   
   private saveCustomComponents(): void {
     if (!this.isBrowser) return;
     
-    const customCategory = this.categories.find(cat => cat.id === 'custom');
-    if (customCategory && customCategory.components.length > 0) {
-      try {
-        localStorage.setItem('custom-components', JSON.stringify(customCategory.components));
-      } catch (error) {
-        console.error('Failed to save custom components:', error);
+    try {
+      // Collect all custom components from all categories
+      const allCustomComponents: any[] = [];
+      
+      this.categories.forEach(category => {
+        const customComps = category.components.filter(comp => comp.provider === 'Custom');
+        customComps.forEach(comp => {
+          allCustomComponents.push({
+            ...comp,
+            categoryName: category.name, // Store category name for restoration
+            categoryId: category.id
+          });
+        });
+      });
+      
+      if (allCustomComponents.length > 0) {
+        localStorage.setItem('custom-components', JSON.stringify(allCustomComponents));
+        console.log(`💾 Saved ${allCustomComponents.length} custom components across ${this.categories.length} categories`);
       }
+    } catch (error) {
+      console.error('Failed to save custom components:', error);
     }
   }
   
@@ -5905,14 +6043,29 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       if (saved) {
         const customComponents = JSON.parse(saved);
         if (customComponents.length > 0) {
-          const customCategory: ComponentCategory = {
-            id: 'custom',
-            name: 'Custom Components',
-            icon: '⭐',
-            collapsed: false,
-            components: customComponents
-          };
-          this.categories.unshift(customCategory);
+          customComponents.forEach((comp: any) => {
+            // Find the category by name or id
+            let category = this.categories.find(cat => 
+              cat.name === comp.categoryName || cat.id === comp.categoryId
+            );
+            
+            // If category doesn't exist, create it
+            if (!category) {
+              category = {
+                id: comp.categoryId || 'custom',
+                name: comp.categoryName || 'Custom',
+                icon: '⭐',
+                collapsed: false,
+                components: []
+              };
+              this.categories.push(category);
+            }
+            
+            // Add the custom component to the category
+            category.components.push(comp);
+          });
+          
+          console.log(`📥 Loaded ${customComponents.length} custom components`);
         }
       }
     } catch (error) {
@@ -6306,6 +6459,7 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
   
   // 8. TEMPLATES SYSTEM
   templates = [
+    
     {
       id: '01-simple-rag-chatbot',
       name: 'Simple RAG Chatbot',
@@ -6313,6 +6467,14 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
       thumbnail: '🤖',
       category: 'AI/ML',
       file: 'samples/01-simple-rag-chatbot.json'
+    },
+    {
+      id: 'Itenial',
+      name: 'Itenial sample',
+      description: 'Itenial sample architecture',
+      thumbnail: '🤖',
+      category: 'AI/ML',
+      file: 'samples/Itenial.json'
     },
     {
       id: '02-multi-model-ai-platform',
@@ -6669,7 +6831,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         
         this.layer.batchDraw();
         this.drawInfiniteGrid();
-        this.saveHistory();
+        
+        // Only save history if not restoring
+        if (!this.isRestoring) {
+          this.saveHistory();
+        }
         return;
       }
       
@@ -6702,7 +6868,11 @@ export class KonvaCanvasMainComponent implements OnInit, AfterViewInit, OnDestro
         // Redraw grid and shapes
         this.drawInfiniteGrid();
         this.layer.batchDraw();
-        this.saveHistory();
+        
+        // Only save history if not restoring
+        if (!this.isRestoring) {
+          this.saveHistory();
+        }
         
         console.log('Successfully loaded', data.shapes.length, 'shapes');
       }

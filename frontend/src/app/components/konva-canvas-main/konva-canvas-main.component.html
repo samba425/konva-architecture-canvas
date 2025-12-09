@@ -1,11 +1,12 @@
 <div class="konva-container" [class.light-theme]="!isDarkTheme()">
   <div class="main-content">
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen() ? 'Hide Sidebar' : 'Show Sidebar'" [class.closed]="!sidebarOpen()">
+      <span class="toggle-icon">{{ sidebarOpen() ? '‹' : '›' }}</span>
+    </button>
+    
     <!-- Left Sidebar -->
     <div class="sidebar" [class.closed]="!sidebarOpen()">
-      <!-- Toggle button on right border - Lighter design -->
-      <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen() ? 'Hide Sidebar' : 'Show Sidebar'">
-        <span class="toggle-icon">{{ sidebarOpen() ? '‹' : '›' }}</span>
-      </button>
       
       <!-- Search Input at Top -->
       <div class="sidebar-search">
@@ -681,6 +682,21 @@
           [ngModel]="customComponentDescription()"
           (ngModelChange)="customComponentDescription.set($event)"
         ></textarea>
+      </div>
+      
+      <!-- Category Selection -->
+      <div class="form-group">
+        <label for="component-category">Category</label>
+        <select 
+          id="component-category"
+          class="form-control"
+          [ngModel]="customComponentCategory()"
+          (ngModelChange)="customComponentCategory.set($event)"
+        >
+          <option *ngFor="let category of categories" [value]="category.name">
+            {{ category.icon }} {{ category.name }}
+          </option>
+        </select>
       </div>
       
       <!-- Color and Icon Row -->

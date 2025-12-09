@@ -1,0 +1,304 @@
+{
+  "version": "1.0",
+  "created": "2025-12-03T18:20:00.000Z",
+  "canvas": {
+    "width": 1448,
+    "height": 883,
+    "scale": 0.85,
+    "position": { "x": 150, "y": 60 }
+  },
+  "shapes": [
+    {
+      "id": "title",
+      "type": "Text",
+      "x": 330,
+      "y": 40,
+      "text": "Itential Automation Workflow — Port Shutdown Process",
+      "fontSize": 28,
+      "fontFamily": "Arial",
+      "fill": "rgba(52, 152, 219, 0.25)",
+      "width": 900
+    },
+    {
+      "id": "user-box",
+      "type": "Rect",
+      "x": 550,
+      "y": 120,
+      "width": 300,
+      "height": 90,
+      "fill": "rgba(52, 152, 219, 0.12)",
+      "stroke": "#3498DB",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "user-text",
+      "type": "Text",
+      "x": 580,
+      "y": 130,
+      "text": "Operations Manager\n(Triggers Workflow)",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#3498DB",
+      "width": 260
+    },
+    {
+      "id": "user-run",
+      "type": "Group",
+      "x": 680,
+      "y": 165,
+      "componentIcon": "▶️",
+      "componentName": "Run Now",
+      "groupType": "component-group",
+      "faIcon": "fas fa-play",
+      "iconColor": "#3498DB"
+    },
+    {
+      "id": "input-box",
+      "type": "Rect",
+      "x": 500,
+      "y": 240,
+      "width": 400,
+      "height": 120,
+      "fill": "rgba(46, 204, 113, 0.12)",
+      "stroke": "#2ECC71",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "input-label",
+      "type": "Text",
+      "x": 540,
+      "y": 250,
+      "text": "Input Layer\nCRQ ID + Hostname Details",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#2ECC71",
+      "width": 330
+    },
+    {
+      "id": "input-group",
+      "type": "Group",
+      "x": 680,
+      "y": 290,
+      "componentIcon": "📝",
+      "componentName": "Enter Inputs",
+      "groupType": "component-group",
+      "faIcon": "fas fa-edit",
+      "iconColor": "#2ECC71"
+    },
+    {
+      "id": "validation-box",
+      "type": "Rect",
+      "x": 500,
+      "y": 380,
+      "width": 400,
+      "height": 140,
+      "fill": "rgba(241, 196, 15, 0.12)",
+      "stroke": "#F1C40F",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "validation-label",
+      "type": "Text",
+      "x": 540,
+      "y": 390,
+      "text": "Validation Layer\nPython Validation Server",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#F1C40F",
+      "width": 330
+    },
+    {
+      "id": "validation-group",
+      "type": "Group",
+      "x": 680,
+      "y": 430,
+      "componentIcon": "🐍",
+      "componentName": "Validate Inputs",
+      "groupType": "component-group",
+      "faIcon": "fas fa-check-circle",
+      "iconColor": "#F1C40F"
+    },
+    {
+      "id": "execution-box",
+      "type": "Rect",
+      "x": 350,
+      "y": 550,
+      "width": 750,
+      "height": 180,
+      "fill": "rgba(230, 126, 34, 0.12)",
+      "stroke": "#E67E22",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "execution-label",
+      "type": "Text",
+      "x": 620,
+      "y": 560,
+      "text": "Execution Pipeline",
+      "fontSize": 17,
+      "fontFamily": "Arial",
+      "fill": "#E67E22",
+      "width": 300
+    },
+
+    {
+      "id": "precheck-group",
+      "type": "Group",
+      "x": 410,
+      "y": 610,
+      "componentIcon": "🔍",
+      "componentName": "Pre-Check",
+      "groupType": "component-group",
+      "faIcon": "fas fa-search",
+      "iconColor": "#3498DB"
+    },
+    {
+      "id": "commit-group",
+      "type": "Group",
+      "x": 680,
+      "y": 610,
+      "componentIcon": "⚙️",
+      "componentName": "Commit",
+      "groupType": "component-group",
+      "faIcon": "fas fa-cogs",
+      "iconColor": "#E74C3C"
+    },
+    {
+      "id": "postcheck-group",
+      "type": "Group",
+      "x": 930,
+      "y": 610,
+      "componentIcon": "✔️",
+      "componentName": "Post-Check",
+      "groupType": "component-group",
+      "faIcon": "fas fa-check",
+      "iconColor": "#2ECC71"
+    },
+    {
+      "id": "report-box",
+      "type": "Rect",
+      "x": 350,
+      "y": 760,
+      "width": 450,
+      "height": 140,
+      "fill": "rgba(155, 89, 182, 0.12)",
+      "stroke": "#9B59B6",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "report-label",
+      "type": "Text",
+      "x": 380,
+      "y": 770,
+      "text": "Diff Report\n(Pre-Check vs Post-Check)",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#9B59B6",
+      "width": 300
+    },
+    {
+      "id": "diff-group",
+      "type": "Group",
+      "x": 520,
+      "y": 820,
+      "componentIcon": "📄",
+      "componentName": "Diff Report",
+      "groupType": "component-group",
+      "faIcon": "fas fa-file-alt",
+      "iconColor": "#9B59B6"
+    },
+
+    {
+      "id": "repo-box",
+      "type": "Rect",
+      "x": 830,
+      "y": 760,
+      "width": 270,
+      "height": 140,
+      "fill": "rgba(52, 73, 94, 0.15)",
+      "stroke": "#34495E",
+      "strokeWidth": 2,
+      "cornerRadius": 12
+    },
+    {
+      "id": "repo-label",
+      "type": "Text",
+      "x": 850,
+      "y": 770,
+      "text": "Jump Server Repo\nStore Logs & Commit Output",
+      "fontSize": 16,
+      "fontFamily": "Arial",
+      "fill": "#34495E",
+      "width": 230
+    },
+    {
+      "id": "repo-group",
+      "type": "Group",
+      "x": 950,
+      "y": 820,
+      "componentIcon": "📦",
+      "componentName": "Repository Storage",
+      "groupType": "component-group",
+      "faIcon": "fas fa-database",
+      "iconColor": "#34495E"
+    },
+    {
+      "id": "arrow1",
+      "type": "Arrow",
+      "points": [700, 210, 700, 240],
+      "stroke": "#3498DB",
+      "strokeWidth": 3,
+      "pointerLength": 10,
+      "pointerWidth": 10
+    },
+    {
+      "id": "arrow2",
+      "type": "Arrow",
+      "points": [700, 360, 700, 380],
+      "stroke": "#2ECC71",
+      "strokeWidth": 3
+    },
+    {
+      "id": "arrow3",
+      "type": "Arrow",
+      "points": [700, 520, 700, 550],
+      "stroke": "#F1C40F",
+      "strokeWidth": 3
+    },
+
+    {
+      "id": "arrow-pre-commit",
+      "type": "Arrow",
+      "points": [480, 640, 680, 640],
+      "stroke": "#3498DB",
+      "strokeWidth": 3
+    },
+    {
+      "id": "arrow-commit-post",
+      "type": "Arrow",
+      "points": [760, 640, 930, 640],
+      "stroke": "#E74C3C",
+      "strokeWidth": 3
+    },
+
+    {
+      "id": "arrow-post-diff",
+      "type": "Arrow",
+      "points": [930, 700, 600, 760],
+      "stroke": "#2ECC71",
+      "strokeWidth": 3
+    },
+    {
+      "id": "arrow-diff-repo",
+      "type": "Arrow",
+      "points": [800, 830, 830, 830],
+      "stroke": "#9B59B6",
+      "strokeWidth": 3
+    }
+  ]
+}

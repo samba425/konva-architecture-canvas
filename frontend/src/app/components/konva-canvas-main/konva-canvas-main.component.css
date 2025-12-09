@@ -408,14 +408,16 @@
   width: 0;
   min-width: 0;
   border-right: none;
-  overflow: visible;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* Sidebar Toggle Button on Right Border - Lighter Design */
+/* Sidebar Toggle Button - Positioned relative to main-content */
 .sidebar-toggle-btn {
   position: absolute;
   top: 50%;
-  right: -14px;
+  left: 286px; /* 300px sidebar - 14px */
   transform: translateY(-50%);
   width: 28px;
   height: 56px;
@@ -428,7 +430,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   padding: 0;
@@ -441,12 +443,12 @@
   font-weight: 300;
 }
 
-.sidebar.closed .sidebar-toggle-btn {
-  left: 0;
-  right: auto;
-  border-radius: 6px;
+.sidebar-toggle-btn.closed {
+  left: -1px;
+  border-radius: 0 6px 6px 0;
   background: rgba(22, 33, 62, 0.98);
   border: 1px solid rgba(71, 85, 105, 0.7);
+  border-left: none;
 }
 
 .sidebar-toggle-btn:hover {
@@ -2016,12 +2018,14 @@
   background: #1a1a1a;
   border-radius: 16px;
   width: 90%;
-  max-width: 550px;
+  max-width: 600px; /* Increased from 550px */
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -2080,6 +2084,7 @@
   padding: 24px;
   max-height: calc(90vh - 200px);
   overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .form-group {
@@ -2104,6 +2109,7 @@
   font-size: 14px;
   font-family: inherit;
   transition: all 0.2s ease;
+  box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 .form-control:focus {
@@ -2117,6 +2123,21 @@
   color: #666;
 }
 
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+select.form-control option {
+  background: #1a1a1a;
+  color: white;
+  padding: 8px;
+}
+
 textarea.form-control {
   resize: vertical;
   min-height: 80px;
@@ -2125,6 +2146,12 @@ textarea.form-control {
 .form-row {
   display: flex;
   gap: 16px;
+  align-items: flex-start;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0; /* Prevents flex items from overflowing */
 }
 
 .color-picker {
