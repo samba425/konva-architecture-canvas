@@ -24,8 +24,6 @@
   with an intuitive drag-and-drop interface powered by Angular and Konva.js
 </p>
 
-<img src="https://via.placeholder.com/800x400/1a1a2e/00ff00?text=Demo+Screenshot" alt="Architecture Canvas Demo" width="800"/>
-
 </div>
 
 ---
@@ -419,7 +417,7 @@ See [LICENSE](LICENSE) file for details.
 
 ### ⭐ Star us on GitHub if you find this useful!
 
-**Made with ❤️ for developers who love beautiful diagrams**
+**Made with ❤️ by Alla Samba Siva Rao**
 
 [🚀 Try Live Demo](https://samba425.github.io/konva-architecture-canvas/) • 
 [📦 View on npm](https://www.npmjs.com/package/konva-architecture-canvas) • 
