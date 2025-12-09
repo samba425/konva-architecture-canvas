@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, PLA
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Konva from 'konva';
-import { COMPONENTS, COMPONENT_CATEGORIES, ComponentDefinition } from '../../data/components-config';
+import { COMPONENTS, COMPONENT_CATEGORIES, ComponentDefinition } from '../data/components-config';
 
 export interface ComponentCategory {
   id: string;

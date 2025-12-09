@@ -1,6 +1,6 @@
 {
   "name": "konva-architecture-canvas",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "🎨 Professional Angular architecture diagram builder with 47+ pre-built components, drag-and-drop interface, nested grouping, custom shapes, and JSON export. Perfect for cloud infrastructure, AI/ML systems, and technical diagrams.",
   "keywords": [
     "angular",
